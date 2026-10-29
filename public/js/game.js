@@ -7,7 +7,7 @@ const Game = (() => {
   const { Engine, Bodies, Body, Composite, Sleeping } = Matter;
 
   let W = 540, H = 960;               // taille logique : s'adapte à tout l'écran (voir fit)
-  const CUBE = 60;
+  let CUBE = 60;                      // taille d'une case : réduite pour les grandes piles (voir start)
   let PLATFORM_Y = 560;               // surface avant de la table
   const PLATFORM_H = 18;
   let CANNON_Y = 954;                 // pivot du canon (bas de l'écran)
@@ -15,17 +15,17 @@ const Game = (() => {
   const BALL_R = 15, BALL_SPEED = 30;
   const MAX_ANGLE = 62 * Math.PI / 180;
   const FIRE_COOLDOWN = 320;
-  const DEPTH = 100;                  // profondeur de la table : au-delà, la pièce tombe derrière
+  const DEPTH = 135;                  // profondeur de la table : au-delà, la pièce tombe derrière
   const LAYER_Z = 45;                 // écart de profondeur entre deux rangées de pièces (une pièce « derrière » une autre)
   const THICK = 40;                   // épaisseur d'une pièce en profondeur
   const DEPTH_Y = 0.45;               // décalage écran (px) par unité de profondeur
-  const PUSH = 17;                    // force de poussée d'une balle (divisée par la masse de la pièce)
+  const PUSH = 14;                    // force de poussée d'une balle (divisée par la masse de la pièce)
   const SLIDE_FRICTION = 0.94;
 
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   let DPR = 2;
-  let levelRows = 5;
+  let levelRows = 5, levelId = 1, lite = false;
 
   // Plein écran : la scène logique (>= 540 x 700) épouse exactement la fenêtre, en portrait comme en paysage.
   // Retourne le facteur d'échelle CSS à appliquer à la scène.
@@ -48,7 +48,7 @@ const Game = (() => {
   function layout() {
     cannonX = W / 2;
     CANNON_Y = H - 6;
-    PLATFORM_Y = Math.round(Math.max(Math.min(H * 0.5, H - 290), levelRows * CUBE + 125));
+    PLATFORM_Y = Math.round(Math.max(Math.min(H * 0.5, H - 290), levelRows * 60 + 125));
     PLATFORM_Y = Math.min(PLATFORM_Y, H - 250);
     cs = Math.max(0.6, Math.min(1, (H - PLATFORM_Y - 150) / 230));
     MUZZLE = 178 * cs;
@@ -107,7 +107,10 @@ const Game = (() => {
     aim = 0; target = null;
 
     const { pieces, rows, cols } = piecesOf(lvl);
-    levelRows = rows; layout();
+    levelRows = rows; levelId = lvl.id || 1; layout();
+    themeName = THEMES[lvl.theme] ? lvl.theme : 'night'; theme = THEMES[themeName];
+    CUBE = Math.max(30, Math.min(60, Math.floor((PLATFORM_Y - 112) / rows), Math.floor((W - 90) / cols)));   // les grandes piles rapetissent pour rester à l'écran
+    lite = pieces.length > 55;                                              // beaucoup de pièces : on allège les halos
     platformW = Math.max(250, cols * CUBE + 36);
     platform = Bodies.rectangle(W / 2, PLATFORM_Y + PLATFORM_H / 2, platformW, PLATFORM_H, { isStatic: true, friction: 1, restitution: 0, collisionFilter: { category: 0x0002, mask: 0x001C } });
     Composite.add(engine.world, platform);
@@ -121,7 +124,7 @@ const Game = (() => {
       });
       body.tech = techs[p.tech]; body.isCube = true;
       body.pw = p.w; body.ph = p.h;
-      body.pmass = p.w * p.h * (lvl.cubeWeight || 1);
+      body.pmass = Math.sqrt(p.w * p.h) * (lvl.cubeWeight || 1);       // masse « utile » : racine de la surface x poids du niveau
       body.layer = p.layer || 0;                 // 0 = devant ; 1, 2 = rangées derrière
       body.z = body.layer * LAYER_Z; body.vz = 0;
       body.collisionFilter = { category: 0x0004 << body.layer, mask: 0x0002 | (0x0004 << body.layer) };   // une rangée ne heurte que sa propre rangée
@@ -196,20 +199,27 @@ const Game = (() => {
     if (!c) { burst(s.tx, s.ty, '#ffffff', 6); callbacks.sfx && callbacks.sfx('hit'); return; }
     burst(s.tx, s.ty, c.tech.color, 14);
     callbacks.sfx && callbacks.sfx('hit');
-    push(c, 1, s.vx, new Set());
+    push(c, s);
   }
 
-  function push(c, factor, bvx, seen) {
-    if (seen.has(c) || factor < 0.3) return;
-    seen.add(c);
-    c.vz += PUSH * factor / c.pmass;
+  // La direction dépend du tir : vers le fond (z), mais aussi vers la gauche/droite selon l'angle d'arrivée
+  // de la balle et l'endroit touché. Les pièces posées dessus NE suivent PAS : elles se déséquilibrent (voir step).
+  function push(c, s) {
+    const m = c.pmass, len = Math.hypot(s.vx, s.vy) || 1;
+    const ux = s.vx / len, uy = -s.vy / len;                                   // uy > 0 : la balle s'éloigne vers le fond
+    const off = Math.max(-1, Math.min(1, (s.tx - c.position.x) / (c.pw * CUBE / 2)));   // -1 bord gauche … +1 bord droit
     Sleeping.set(c, false);
-    Body.setVelocity(c, { x: c.velocity.x + bvx * 0.1 * factor / c.pmass, y: c.velocity.y - 1 * factor / c.pmass });
-    const top = c.position.y - c.ph * CUBE / 2;
-    for (const o of cubes) {         // pièces posées dessus
-      if (o === c) continue;
-      const oBottom = o.position.y + o.ph * CUBE / 2;
-      if (Math.abs(oBottom - top) < 6 && Math.abs(o.position.x - c.position.x) < (o.pw + c.pw) * CUBE / 2 - 4) push(o, factor * 0.8, bvx, seen);
+    const side = Math.min(1, Math.abs(ux) * 1.4 + Math.abs(off) * 0.25);       // 0 = tir de face, 1 = très de côté
+    c.vz += PUSH * Math.max(0.3, uy) * (1 - 0.7 * side) / m;                   // profondeur : surtout pour un tir de face
+    const lateral = (ux * 9 - off * 5) / m;                                   // latéral : angle d'arrivée + endroit touché
+    Body.setVelocity(c, { x: c.velocity.x + lateral, y: c.velocity.y - 1.2 / m });
+    Body.setAngularVelocity(c, c.angularVelocity + (off * 0.03 + ux * 0.02) / m);
+    for (const o of cubes) {           // pièces posées dessus : simple secousse
+      if (o === c || o.layer !== c.layer) continue;
+      if (Math.abs(o.position.y + o.ph * CUBE / 2 - (c.position.y - c.ph * CUBE / 2)) < 6 && Math.abs(o.position.x - c.position.x) < (o.pw + c.pw) * CUBE / 2 - 4) {
+        Sleeping.set(o, false);
+        Body.setAngularVelocity(o, (Math.random() - 0.5) * 0.03);
+      }
     }
   }
 
@@ -254,20 +264,41 @@ const Game = (() => {
       if (d <= BALL_SPEED) { impact(s); shots.splice(i, 1); } else { s.x += s.vx; s.y += s.vy; }
     }
 
-    // une pièce poussée vers le fond heurte celle qui est derrière elle et la fait tomber d'abord
+    // une pièce poussée vers le fond heurte celle qui est derrière elle (une seule fois) et la fait tomber d'abord
     for (const a of cubes) {
       if (a.vz < 0.3) continue;
       for (const b of cubes) {
         if (b === a || b.z <= a.z || a.z + THICK <= b.z - 4 || a.z + THICK > b.z + THICK) continue;
         if (Math.abs(a.position.x - b.position.x) >= (a.pw + b.pw) * CUBE / 2 - 6 || Math.abs(a.position.y - b.position.y) >= (a.ph + b.ph) * CUBE / 2 - 6) continue;
-        b.vz = Math.max(b.vz, a.vz * 1.5 * a.pmass / (a.pmass + b.pmass));
-        a.vz *= 0.4;
+        if (!a.hitSet) a.hitSet = new Set();
+        if (a.hitSet.has(b)) continue;
+        a.hitSet.add(b);
+        const v = a.vz, e = 0.35;                                  // choc : conservation de la quantité de mouvement
+        b.vz = Math.max(b.vz, v * (1 + e) * a.pmass / (a.pmass + b.pmass));
+        a.vz = Math.max(0, v * (a.pmass - e * b.pmass) / (a.pmass + b.pmass));
         Sleeping.set(b, false);
         callbacks.sfx && callbacks.sfx('hit');
       }
     }
     // garde-fou : aucune pièce ne reste immobile en l'air
     if (Math.floor(time / 16.7) % 20 === 0) for (const c of cubes) if (c.isSleeping && !isSupported(c)) Sleeping.set(c, false);
+
+    // déséquilibre : une pièce dont le support a glissé vers le fond se met à basculer toute seule, un peu plus tard
+    if (Math.floor(time / 16.7) % 6 === 0) {
+      for (const c of cubes) {
+        if (c.tipAt) {
+          if (time >= c.tipAt) {
+            c.tipAt = 0; c.vz += 3.4 / c.pmass;
+            Sleeping.set(c, false);
+            Body.setAngularVelocity(c, (Math.random() - 0.5) * 0.09);
+            Body.setVelocity(c, { x: c.velocity.x + (Math.random() - 0.5) * 3, y: c.velocity.y });
+          }
+          continue;
+        }
+        const under = cubes.filter((o) => o !== c && o.layer === c.layer && Math.abs(o.position.y - o.ph * CUBE / 2 - (c.position.y + c.ph * CUBE / 2)) < 8 && Math.abs(o.position.x - c.position.x) < (o.pw + c.pw) * CUBE / 2 - 4);
+        if (under.length && under.every((o) => c.z - o.z > 26)) c.tipAt = time + 200 + Math.random() * 350;
+      }
+    }
 
     // pièces : glissement en profondeur, chute derrière la table, chute sur les côtés
     for (let i = cubes.length - 1; i >= 0; i--) {
@@ -362,39 +393,127 @@ const Game = (() => {
     ctx.closePath();
   }
 
+  // --- fonds : un thème par niveau (champ "theme" du JSON) ---
+  // sky : dégradé du haut vers l'horizon · ground : dégradé du sol · hills : 2 collines · line : liseré de l'horizon
+  // sun : astre {fx (0..1), dy (px au-dessus de l'horizon), r, c, glow} · deco : silhouettes au loin · fx : particules
+  const THEMES = {
+    night:   { sky: ['#0f0a52', '#3a2bc0', '#b03fd0'], halo: 'rgba(255,210,63,.35)', rays: true, stars: true, sun: { fx: 0.84, dy: 475, r: 26, c: '#fff3a0', glow: '#ffd23f' }, hills: ['#4a1a9a', '#5f22b8'], ground: ['#7a2cff', '#4b1fb0', '#1c0d66'], line: '#ffd23f', deco: 'castle', decoC: '#2a1280' },
+    meadow:  { sky: ['#1f7bff', '#6cc3ff', '#d9f2ff'], halo: 'rgba(255,255,200,.45)', clouds: true, sun: { fx: 0.16, dy: 540, r: 38, c: '#fff6b0', glow: '#ffe066' }, hills: ['#5fcf62', '#43b250'], ground: ['#4cc254', '#36a043', '#1f6d2c'], line: '#9df08a', deco: 'trees', decoC: '#2f9a3f' },
+    sunset:  { sky: ['#2a1260', '#d6416b', '#ffb347'], halo: 'rgba(255,170,80,.5)', clouds: true, cloudC: 'rgba(255,200,170,.55)', sun: { fx: 0.5, dy: 260, r: 70, c: '#ffe29a', glow: '#ff8a3d' }, hills: ['#6a1b6e', '#4a1259'], ground: ['#5a1f66', '#3a1450', '#1d0a33'], line: '#ffb347', deco: 'palms', decoC: '#2b0d3d' },
+    snow:    { sky: ['#6aa6e8', '#b9dcf7', '#f2fbff'], halo: 'rgba(255,255,255,.5)', clouds: true, sun: { fx: 0.8, dy: 520, r: 30, c: '#ffffff', glow: '#cfeaff' }, hills: ['#e6f3ff', '#cfe6fb'], ground: ['#f4fbff', '#cfe3f4', '#9fbfdc'], line: '#ffffff', deco: 'pines', decoC: '#3f7a8c', fx: 'snow' },
+    desert:  { sky: ['#f08a3c', '#ffc46b', '#fff0c2'], halo: 'rgba(255,230,150,.55)', sun: { fx: 0.25, dy: 500, r: 46, c: '#fffbd0', glow: '#ffd23f' }, hills: ['#e0a458', '#cf8d3f'], ground: ['#e9b869', '#cf8f3e', '#8f5a22'], line: '#fff0a8', deco: 'pyramids', decoC: '#b8742e' },
+    ocean:   { sky: ['#0a86c9', '#4fc4e8', '#c9f3ff'], halo: 'rgba(200,250,255,.5)', clouds: true, sun: { fx: 0.78, dy: 520, r: 34, c: '#fffbd0', glow: '#ffe066' }, hills: ['#1597c9', '#0f7fb5'], ground: ['#13a3d8', '#0b78b8', '#054a80'], line: '#bff3ff', deco: 'boats', decoC: '#ffffff', fx: 'waves' },
+    candy:   { sky: ['#ff8fd0', '#ffc2e8', '#fff0fa'], halo: 'rgba(255,255,255,.55)', clouds: true, cloudC: 'rgba(255,255,255,.8)', sun: { fx: 0.2, dy: 520, r: 34, c: '#fff6a0', glow: '#ffb3e0' }, hills: ['#7fe3d1', '#5fd2c0'], ground: ['#ffd1ec', '#ff9ad6', '#e0529f'], line: '#ffffff', deco: 'lollipops', decoC: '#ff5fa8' },
+    forest:  { sky: ['#06231a', '#0e4a35', '#2c8a5a'], halo: 'rgba(120,255,170,.3)', stars: true, sun: { fx: 0.2, dy: 500, r: 24, c: '#eafff0', glow: '#9dffc0' }, hills: ['#0c3b2a', '#08301f'], ground: ['#1d6b43', '#115232', '#08301d'], line: '#9dffc0', deco: 'pines', decoC: '#05241a', fx: 'fireflies' },
+    space:   { sky: ['#02030f', '#0a1040', '#2b1a6e'], halo: 'rgba(120,160,255,.3)', stars: true, rays: true, hills: ['#1a2060', '#222a7a'], ground: ['#3b3fa8', '#222668', '#0c0e30'], line: '#7fd4ff', deco: 'planets', decoC: '#7a8cff' },
+    autumn:  { sky: ['#5a2a1a', '#d9793a', '#ffd9a0'], halo: 'rgba(255,200,120,.45)', clouds: true, cloudC: 'rgba(255,225,190,.55)', sun: { fx: 0.82, dy: 500, r: 36, c: '#fff0b0', glow: '#ffa63d' }, hills: ['#a8541f', '#8a3f14'], ground: ['#b8651f', '#8d4616', '#5a2a0c'], line: '#ffcf7a', deco: 'trees', decoC: '#c4521a', fx: 'leaves' },
+    volcano: { sky: ['#1a0505', '#6b1408', '#ff6a1a'], halo: 'rgba(255,120,40,.5)', sun: { fx: 0.5, dy: 380, r: 90, c: 'rgba(255,170,60,.35)', glow: '#ff5a1a' }, hills: ['#2a0c0c', '#1d0707'], ground: ['#4a1a12', '#2a0e0a', '#120503'], line: '#ff7a2a', deco: 'volcanos', decoC: '#150606', fx: 'embers' },
+    neon:    { sky: ['#07031f', '#2a0a5e', '#ff2fa0'], halo: 'rgba(255,47,160,.35)', stars: true, sun: { fx: 0.5, dy: 300, r: 80, c: 'rgba(255,230,80,.9)', glow: '#ff2fa0' }, hills: ['#1a0a4a', '#14073a'], ground: ['#2a0a5e', '#14073a', '#07031f'], line: '#00f0ff', deco: 'city', decoC: '#12063a' },
+  };
+  let theme = THEMES.night, themeName = 'night';
+  const FX_N = 46;
+
+  // silhouettes posées sur la ligne d'horizon (y = 0 ; vers le haut = négatif), calées sur un décor de 540 de large
+  function drawDeco(kind, col, flip) {
+    ctx.fillStyle = col;
+    const xs = flip ? (x) => W - x : (x) => x;
+    const tri = (x, w, h) => { ctx.beginPath(); ctx.moveTo(xs(x - w / 2), 0); ctx.lineTo(xs(x), -h); ctx.lineTo(xs(x + w / 2), 0); ctx.fill(); };
+    const blob = (x, y, r) => { ctx.beginPath(); ctx.arc(xs(x), y, r, 0, 7); ctx.fill(); };
+    const rx = (x, w, y, h) => ctx.fillRect(xs(x) - (flip ? w : 0), y, w, h);
+    const spots = [40, 120, 420, 500], right = W - 540;
+    switch (kind) {
+      case 'castle':
+        rx(0, 40, -80, 80); rx(40, 30, -125, 125); tri(55, 36, 40); rx(70, 40, -90, 90); rx(110, 60, -60, 60);
+        ctx.save(); ctx.translate(right, 0); rx(380, 40, -75, 75); rx(420, 40, -140, 140); tri(440, 46, 40); rx(460, 40, -100, 100); rx(500, 40, -60, 60); ctx.restore(); break;
+      case 'trees':
+        for (const x of [30, 110, 190, 350, 430, 510]) { rx(x - 4, 8, -26, 26); blob(x, -44, 28 + (x % 3) * 6); blob(x - 18, -30, 20); blob(x + 18, -30, 20); }
+        break;
+      case 'pines':
+        for (const x of [20, 80, 140, 400, 460, 520]) { tri(x, 50, 110); tri(x, 40, 80); tri(x, 30, 54); }
+        break;
+      case 'pyramids':
+        tri(90, 190, 130); tri(250, 120, 82); ctx.save(); ctx.translate(right, 0); tri(430, 240, 160); ctx.restore(); break;
+      case 'palms':
+        for (const x of [60, 150, 470]) { rx(x - 3, 6, -120, 120); for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.ellipse(xs(x + i * 22), -120 + Math.abs(i) * 14, 30, 7, i * 0.45, 0, 7); ctx.fill(); } }
+        break;
+      case 'boats':
+        for (const [x, s] of [[110, 1], [400, 0.8]]) { ctx.beginPath(); ctx.moveTo(xs(x - 40 * s), -10); ctx.lineTo(xs(x + 40 * s), -10); ctx.lineTo(xs(x + 28 * s), 4); ctx.lineTo(xs(x - 28 * s), 4); ctx.fill(); tri(x + 4 * s, 56 * s, 60 * s); rx(x - 2, 4, -66 * s, 66 * s); }
+        break;
+      case 'lollipops':
+        for (const [x, c] of [[60, '#ff5fa8'], [170, '#5fd4ff'], [440, '#ffd23f'], [510, '#b36bff']]) { ctx.fillStyle = '#fff'; rx(x - 3, 6, -70, 70); ctx.fillStyle = c; blob(x, -86, 24); ctx.fillStyle = '#fff'; blob(x, -86, 10); }
+        break;
+      case 'planets':
+        ctx.globalAlpha = 0.9; ctx.fillStyle = col; blob(95, -230, 52); blob(W - 90, -330, 30);
+        ctx.strokeStyle = col; ctx.lineWidth = 8; ctx.beginPath(); ctx.ellipse(xs(95), -230, 86, 16, -0.35, 0, 7); ctx.stroke(); ctx.globalAlpha = 1; break;
+      case 'volcanos':
+        ctx.beginPath(); ctx.moveTo(xs(0), 0); ctx.lineTo(xs(150), -150); ctx.lineTo(xs(190), -140); ctx.lineTo(xs(340), 0); ctx.fill();
+        ctx.fillStyle = '#ff6a1a'; ctx.beginPath(); ctx.ellipse(xs(170), -146, 26, 6, 0, 0, 7); ctx.fill(); ctx.fillStyle = col;
+        ctx.save(); ctx.translate(right, 0); tri(430, 260, 120); ctx.restore(); break;
+      case 'city':
+        for (const [x, w, h] of [[10, 40, 90], [55, 34, 140], [95, 50, 70], [150, 30, 120], [400, 44, 110], [450, 36, 160], [492, 48, 80]]) {
+          rx(x, w, -h, h); ctx.fillStyle = '#ff2fa0'; for (let y = -h + 12; y < -8; y += 20) rx(x + 8, 6, y, 6); rx(x + w - 14, 6, -h + 22, 6); ctx.fillStyle = col;
+        }
+        break;
+      default: break;
+    }
+  }
+
   function drawBackground() {
-    const GROUND = PLATFORM_Y + 150, dy = GROUND - 710;
+    const GROUND = PLATFORM_Y + 150, th = theme, flip = (levelId % 2) === 0;
     const sky = ctx.createLinearGradient(0, 0, 0, GROUND);
-    sky.addColorStop(0, '#0f0a52'); sky.addColorStop(.55, '#3a2bc0'); sky.addColorStop(1, '#b03fd0');
+    sky.addColorStop(0, th.sky[0]); sky.addColorStop(.55, th.sky[1]); sky.addColorStop(1, th.sky[2]);
     ctx.fillStyle = sky; ctx.fillRect(-20, -20, W + 40, H + 40);
-    const halo = ctx.createRadialGradient(W / 2, PLATFORM_Y - 140, 20, W / 2, PLATFORM_Y - 140, 330);
-    halo.addColorStop(0, 'rgba(255,210,63,.35)'); halo.addColorStop(.5, 'rgba(255,63,164,.18)'); halo.addColorStop(1, 'rgba(255,63,164,0)');
-    ctx.fillStyle = halo; ctx.fillRect(0, 60, W, GROUND);
-    ctx.save(); ctx.translate(W / 2, PLATFORM_Y - 140); ctx.rotate(time * 0.00006);
-    ctx.fillStyle = 'rgba(255,255,255,.045)';
-    for (let i = 0; i < 10; i++) { ctx.rotate(Math.PI / 5); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-60, -700); ctx.lineTo(60, -700); ctx.fill(); }
-    ctx.restore();
-    STARS.forEach((s) => {
-      const a = 0.45 + 0.55 * Math.sin(time * 0.003 + s.p);
-      ctx.globalAlpha = a; ctx.fillStyle = s.c;
-      if (s.r > 2) { drawStar(s.x, s.y, s.r * 2.6, 0); ctx.fill(); } else { ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill(); }
+    const hx = flip ? W * 0.62 : W * 0.38, hy = PLATFORM_Y - 140;
+    const halo = ctx.createRadialGradient(hx, hy, 20, hx, hy, 340);
+    halo.addColorStop(0, th.halo); halo.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = halo; ctx.fillRect(0, 0, W, GROUND);
+    if (th.rays) {
+      ctx.save(); ctx.translate(W / 2, hy); ctx.rotate(time * 0.00006); ctx.fillStyle = 'rgba(255,255,255,.045)';
+      for (let i = 0; i < 10; i++) { ctx.rotate(Math.PI / 5); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-60, -700); ctx.lineTo(60, -700); ctx.fill(); }
+      ctx.restore();
+    }
+    if (th.stars) STARS.forEach((s) => {
+      ctx.globalAlpha = 0.45 + 0.55 * Math.sin(time * 0.003 + s.p); ctx.fillStyle = s.c;
+      const sx = (s.x / 540) * W;
+      if (s.r > 2) { drawStar(sx, s.y, s.r * 2.6, 0); ctx.fill(); } else { ctx.beginPath(); ctx.arc(sx, s.y, s.r, 0, 7); ctx.fill(); }
     });
     ctx.globalAlpha = 1;
-    ctx.save(); ctx.translate(0, dy);
-    ctx.fillStyle = 'rgba(255,243,160,.95)'; ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 40;
-    ctx.beginPath(); ctx.arc(W - 85, 235 - dy, 26, 0, 7); ctx.fill(); ctx.shadowBlur = 0;
-    ctx.fillStyle = '#2a1280';
-    ctx.beginPath(); ctx.moveTo(0, 700); ctx.lineTo(0, 620); ctx.lineTo(40, 620); ctx.lineTo(40, 575); ctx.lineTo(55, 545); ctx.lineTo(70, 575); ctx.lineTo(70, 610); ctx.lineTo(110, 610); ctx.lineTo(110, 640); ctx.lineTo(170, 640); ctx.lineTo(170, 700); ctx.fill();
-    ctx.save(); ctx.translate(W - 540, 0);
-    ctx.beginPath(); ctx.moveTo(380, 700); ctx.lineTo(380, 625); ctx.lineTo(420, 625); ctx.lineTo(420, 560); ctx.lineTo(440, 525); ctx.lineTo(460, 560); ctx.lineTo(460, 600); ctx.lineTo(500, 600); ctx.lineTo(500, 640); ctx.lineTo(540, 640); ctx.lineTo(540, 700); ctx.fill(); ctx.restore();
-    ctx.fillStyle = '#4a1a9a'; ctx.beginPath(); ctx.ellipse(110, 720, 330, 110, 0, Math.PI, 0); ctx.fill();
-    ctx.fillStyle = '#5f22b8'; ctx.beginPath(); ctx.ellipse(W - 90, 730, 330, 95, 0, Math.PI, 0); ctx.fill();
-    const ground = ctx.createLinearGradient(0, 710, 0, H - dy);
-    ground.addColorStop(0, '#7a2cff'); ground.addColorStop(.35, '#4b1fb0'); ground.addColorStop(1, '#1c0d66');
-    ctx.fillStyle = ground; ctx.fillRect(-20, 710, W + 40, H + 600);
-    ctx.fillStyle = '#ffd23f'; ctx.fillRect(-20, 708, W + 40, 5);
-    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(-20, 713, W + 40, 3);
+    if (th.sun) {
+      const sx = (flip ? 1 - th.sun.fx : th.sun.fx) * W;
+      ctx.save(); ctx.fillStyle = th.sun.c; ctx.shadowColor = th.sun.glow; ctx.shadowBlur = 50;
+      ctx.beginPath(); ctx.arc(sx, GROUND - th.sun.dy, th.sun.r, 0, 7); ctx.fill(); ctx.restore();
+    }
+    if (th.clouds) {
+      ctx.fillStyle = th.cloudC || 'rgba(255,255,255,.92)';
+      for (let i = 0; i < 4; i++) {
+        const x = ((i * 233 + time * (0.006 + i * 0.002)) % (W + 240)) - 120, y = 90 + i * 70 + (i % 2) * 30, s = 0.8 + (i % 3) * 0.3;
+        ctx.beginPath(); ctx.arc(x, y, 26 * s, 0, 7); ctx.arc(x + 30 * s, y - 12 * s, 32 * s, 0, 7); ctx.arc(x + 64 * s, y, 26 * s, 0, 7); ctx.rect(x, y, 64 * s, 26 * s); ctx.fill();
+      }
+    }
+    ctx.save(); ctx.translate(0, GROUND - 10);       // tout ce qui est « à l'horizon » est calé sur y = 0
+    if (th.deco) drawDeco(th.deco, th.decoC, flip);
+    ctx.fillStyle = th.hills[0]; ctx.beginPath(); ctx.ellipse(flip ? W - 110 : 110, 10, 330, 110, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = th.hills[1]; ctx.beginPath(); ctx.ellipse(flip ? 90 : W - 90, 20, 330, 95, 0, Math.PI, 0); ctx.fill();
+    const ground = ctx.createLinearGradient(0, 0, 0, H - GROUND + 40);
+    ground.addColorStop(0, th.ground[0]); ground.addColorStop(.35, th.ground[1]); ground.addColorStop(1, th.ground[2]);
+    ctx.fillStyle = ground; ctx.fillRect(-20, 0, W + 40, H + 600);
+    ctx.fillStyle = th.line; ctx.fillRect(-20, -2, W + 40, 5);
+    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(-20, 3, W + 40, 3);
+    if (themeName === 'ocean') { ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 3; for (let i = 0; i < 12; i++) { const x = ((i * 97 + time * 0.03) % (W + 80)) - 40, y = 30 + (i % 4) * 34; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 14, y - 8, x + 28, y); ctx.quadraticCurveTo(x + 42, y + 8, x + 56, y); ctx.stroke(); } }
     ctx.restore();
+    drawFx(th.fx);
+  }
+
+  // particules d'ambiance : neige, lucioles, braises, feuilles
+  function drawFx(kind) {
+    if (!kind || kind === 'waves') return;
+    for (let i = 0; i < FX_N; i++) {
+      const sp = 0.3 + (i % 5) * 0.12, ph = i * 1.7;
+      if (kind === 'snow') { const x = (i * 71 + Math.sin(time * 0.001 + ph) * 24) % W, y = (i * 97 + time * 0.05 * sp * 2) % H; ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(x, y, 2 + (i % 3), 0, 7); ctx.fill(); }
+      else if (kind === 'fireflies') { const x = (i * 83 + Math.sin(time * 0.0007 + ph) * 40 + W) % W, y = 120 + ((i * 53 + Math.cos(time * 0.0006 + ph) * 30) % (H - 240)); ctx.globalAlpha = 0.4 + 0.6 * Math.abs(Math.sin(time * 0.002 + ph)); ctx.fillStyle = '#d8ff7a'; ctx.shadowColor = '#d8ff7a'; ctx.shadowBlur = 12; ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill(); ctx.shadowBlur = 0; ctx.globalAlpha = 1; }
+      else if (kind === 'embers') { const x = (i * 67 + Math.sin(time * 0.001 + ph) * 18) % W, y = H - ((i * 89 + time * 0.06 * sp * 2) % H); ctx.globalAlpha = 0.8; ctx.fillStyle = i % 2 ? '#ff7a2a' : '#ffd23f'; ctx.fillRect(x, y, 3, 3); ctx.globalAlpha = 1; }
+      else if (kind === 'leaves') { const x = (i * 61 + Math.sin(time * 0.0012 + ph) * 40 + W) % W, y = (i * 101 + time * 0.045 * sp * 2) % H; ctx.fillStyle = i % 2 ? '#ff8a2a' : '#e0b020'; ctx.save(); ctx.translate(x, y); ctx.rotate(time * 0.002 + ph); ctx.beginPath(); ctx.ellipse(0, 0, 6, 3, 0, 0, 7); ctx.fill(); ctx.restore(); }
+    }
   }
 
   function drawPedestal() {
@@ -427,7 +546,7 @@ const Game = (() => {
     if (!t) return;
     const w = pw * CUBE - 2, h = ph * CUBE - 2;
     ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.scale(sc, sc);
-    ctx.shadowColor = t.color; ctx.shadowBlur = 14;
+    ctx.shadowColor = t.color; ctx.shadowBlur = lite ? 0 : 14;
     ctx.fillStyle = '#3b0a6e'; ctx.beginPath(); ctx.roundRect(-w / 2 - 2, -h / 2 - 1, w + 4, h + 6, 12); ctx.fill();
     ctx.shadowBlur = 0;
     ctx.fillStyle = tintColor(t.color, -0.35); ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2 + 3, w, h, 10); ctx.fill();

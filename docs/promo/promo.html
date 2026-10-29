@@ -41,8 +41,8 @@
     background: linear-gradient(#ffe46b, var(--gold) 45%, #f59a00); box-shadow: 0 9px 0 var(--purple), 0 0 0 4px var(--gold-l) inset, 0 12px 34px rgba(255, 210, 63, .6); text-shadow: 0 2px 0 rgba(255,255,255,.7); }
   .url { margin-top: 20px; font-size: 28px; font-weight: 700; color: var(--gold-l); text-shadow: 0 2px 0 var(--purple); letter-spacing: .5px; }
 
-  .techs { position: absolute; left: 90px; bottom: 40px; width: 840px; display: flex; flex-wrap: wrap; gap: 10px; }
-  .techs img { width: 56px; height: 56px; padding: 7px; background: #fffbea; border-radius: 16px; border: 3px solid var(--purple); box-shadow: 0 4px 0 var(--purple), 0 0 14px rgba(255, 210, 63, .45); }
+  .techs { position: absolute; left: 90px; bottom: 36px; width: 850px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .techs img { width: 44px; height: 44px; padding: 5px; background: #fffbea; border-radius: 12px; border: 2px solid var(--purple); box-shadow: 0 3px 0 var(--purple), 0 0 12px rgba(255, 210, 63, .45); }
 
   /* captures du jeu à droite */
   .card { position: absolute; border-radius: 40px; overflow: hidden; border: 9px solid var(--gold); background: var(--purple);
@@ -72,9 +72,9 @@
     <h1>Fais tomber<span>toutes les technos !</span></h1>
     <p class="sub">Le jeu de tir où <b>HTML, CSS, JavaScript, PHP, Laravel, Docker…</b> s'écroulent sous tes balles.</p>
     <div class="pills">
-      <div class="pill">20 niveaux</div>
+      <div class="pill">200 niveaux</div>
       <div class="pill">Mobile · Tablette · PC</div>
-      <div class="pill">Gratuit &amp; open source</div>
+      <div class="pill">12 décors · Open source</div>
     </div>
     <div class="url">github.com/princesse-aku/princess_buster</div>
   </div>
@@ -84,14 +84,14 @@
   <div class="card c1"><img src="shot-c.png" alt=""></div>
   <div class="card c3"><img src="shot-a.png" alt=""></div>
   <div class="card c2"><img src="shot-b.png" alt=""></div>
-  <div class="badge"><b>21</b><small>technos<br>à dégommer</small></div>
+  <div class="badge"><b>40</b><small>technos<br>à dégommer</small></div>
   <div class="spark" style="left: 1130px; top: 60px">✦</div>
   <div class="spark" style="left: 1840px; top: 70px; font-size: 44px">✦</div>
   <div class="spark" style="left: 960px; top: 940px; font-size: 48px">✦</div>
   <div class="spark" style="left: 1760px; top: 960px">✦</div>
 </div>
 <script>
-  const techs = ['html5','css3','sass','bootstrap','javascript','typescript','jquery','tailwindcss','php','laravel','nodejs','express','react','vuejs','angular','python','django','mysql','mongodb','docker','git'];
+  const techs = ['html5','css3','sass','bootstrap','javascript','typescript','jquery','tailwindcss','php','laravel','nodejs','express','react','vuejs','angular','python','django','mysql','mongodb','docker','git','go','rust','kotlin','swift','java','csharp','cplusplus','ruby','flutter','dart','nextjs','svelte','redis','postgresql','graphql','kubernetes','firebase','nginx','bash'];
   document.getElementById('techs').innerHTML = techs.map((t) => `<img src="../../public/assets/tech/${t}.svg" alt="${t}">`).join('');
 </script>
 </body>

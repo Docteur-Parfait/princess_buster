@@ -1,0 +1,25 @@
+{
+  "id": 1,
+  "name": "Niveau 1",
+  "theme": "meadow",
+  "newTech": null,
+  "balls": 11,
+  "cubeWeight": 1.03,
+  "techs": [
+    "html5",
+    "css3"
+  ],
+  "rows": 3,
+  "cols": 3,
+  "pieces": [
+    {"tech":"css3","layer":0,"col":0,"row":0,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":1,"row":0,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":2,"row":0,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":0,"row":1,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":1,"row":1,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":2,"row":1,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":0,"row":2,"w":1,"h":1},
+    {"tech":"html5","layer":0,"col":1,"row":2,"w":1,"h":1},
+    {"tech":"html5","layer":0,"col":2,"row":2,"w":1,"h":1}
+  ]
+}

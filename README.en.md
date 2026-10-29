@@ -39,9 +39,10 @@ A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits 
 
 ## Features
 
-- 🎯 **20 levels** described in JSON files, with 21 technologies introduced progressively
+- 🎯 **200 levels** described in JSON files, with **40 technologies** introduced progressively
+- 🎨 **12 backgrounds** that change from level to level: meadow, night, sunset, snow, desert, ocean, candy, forest, space, autumn, volcano, neon
 - 🧱 **Mixed piece shapes**: squares, wide or tall rectangles, 2×2, 3×1, 3×2
-- 🌌 **Simulated depth** and hidden rows behind the front pieces
+- 🌌 **Simulated depth**: depending on shot angle and impact point a piece falls **behind the table, left or right**; up to 3 hidden rows behind the front pieces
 - 🔒 **No floating cubes**: every piece rests on another piece or on the table (checked by `npm test`)
 - 📱 **Adaptive full screen**: phone, tablet, desktop, portrait or landscape
 - 💾 **SQLite profiles and scores**: player name asked at start, best scores, progressive unlocking, leaderboard
@@ -61,7 +62,7 @@ npm start
 Then open <http://localhost:3000>.
 
 ```bash
-npm test          # validates the 20 levels
+npm test          # validates the 200 levels
 npm run levels    # regenerates levels (overwrites public/levels)
 ```
 
@@ -76,9 +77,9 @@ npm run levels    # regenerates levels (overwrites public/levels)
 
 ## Levels
 
-Each level introduces a new technology (HTML5 is there from the start): CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git.
+Levels 1-20 each introduce a new technology (HTML5 from the start): CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git. Levels 21-200 add 19 more (Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash) and 12 rotating backgrounds.
 
-A level is a `public/levels/levelNN.json` file with `balls`, `cubeWeight`, `rows`, `cols` and a list of `pieces` (`tech`, `col`, `row`, `w`, `h`, `layer`). See the [French README](README.md#créer-ou-modifier-un-niveau) for the full format, and run `npm test` to validate your changes.
+A level is a `public/levels/levelNNN.json` file with `balls`, `cubeWeight`, `rows`, `cols` and a list of `pieces` (`tech`, `col`, `row`, `w`, `h`, `layer`). See the [French README](README.md#créer-ou-modifier-un-niveau) for the full format, and run `npm test` to validate your changes.
 
 ## Project layout
 

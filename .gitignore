@@ -5,3 +5,11 @@ data/
 *.db-shm
 .claude/
 screenshots/
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/schemas/
+*.jks
+*.keystore
+keystore.properties
+dist/

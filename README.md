@@ -34,7 +34,7 @@
 - [Fonctionnalités](#fonctionnalités)
 - [Démarrage rapide](#démarrage-rapide)
 - [Contrôles](#contrôles)
-- [Les 20 niveaux](#les-20-niveaux)
+- [Les 200 niveaux](#les-20-niveaux)
 - [Créer ou modifier un niveau](#créer-ou-modifier-un-niveau)
 - [Architecture du projet](#architecture-du-projet)
 - [API et sauvegarde](#api-et-sauvegarde)
@@ -67,9 +67,11 @@ Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 
 ## Fonctionnalités
 
-- 🎯 **20 niveaux** décrits dans des fichiers JSON, avec 21 technologies introduites progressivement (HTML5 et CSS3 d'abord)
-- 🧱 **Pièces de formats variés** : carrés, rectangles larges ou hauts, 2×2, 3×1, 3×2
-- 🌌 **Profondeur simulée** : les pièces glissent sur la table et tombent derrière ; rangées cachées derrière les premières
+- 🎯 **200 niveaux** décrits dans des fichiers JSON, avec **40 technologies** introduites progressivement (HTML5 et CSS3 d'abord)
+- 🎨 **12 décors** qui changent à chaque niveau : prairie, nuit, coucher de soleil, neige, désert, océan, bonbons, forêt, espace, automne, volcan, néon
+- 🧱 **Pièces de formats variés** : carrés, rectangles larges ou hauts, 2×2, 3×1, 3×2 (les grandes piles rapetissent pour tenir à l'écran)
+- 🌌 **Profondeur simulée** : selon l'angle du tir et l'endroit touché, une pièce tombe **derrière la table, à gauche ou à droite** ; jusqu'à 3 rangées cachées les unes derrière les autres
+- ⚖️ **Déséquilibre** : une pièce dont le support a glissé peut basculer toute seule un peu plus tard
 - 🔒 **Aucun cube suspendu dans le vide** : chaque pièce repose sur une autre ou sur la table (vérifié par `npm test`)
 - 📱 **Plein écran adaptatif** : téléphone, tablette, ordinateur, en portrait comme en paysage (pas de cadre de téléphone dessiné)
 - 💾 **Profils et scores en SQLite** : nom du joueur demandé au lancement, meilleurs scores, déblocage progressif, classement
@@ -90,7 +92,7 @@ npm start
 Ouvre ensuite <http://localhost:3000> (sur ton téléphone : `http://<ip-de-ton-pc>:3000` sur le même réseau).
 
 ```bash
-npm test          # valide les 20 niveaux (formats, techs connues, aucun cube suspendu)
+npm test          # valide les 200 niveaux (formats, techs, thèmes, aucun cube suspendu)
 npm run levels    # régénère les niveaux (attention : écrase les fichiers de public/levels)
 ```
 
@@ -105,26 +107,22 @@ npm run levels    # régénère les niveaux (attention : écrase les fichiers de
 | Annuler un tir | Ramener le doigt vers le canon avant de relâcher | — |
 | Plein écran | Bouton ⛶ | — |
 
-## Les 20 niveaux
+## Les 200 niveaux
 
-Chaque niveau introduit une nouvelle technologie (HTML5 est présent dès le début) :
-
-| Niv. | Techno | Niv. | Techno | Niv. | Techno | Niv. | Techno |
-| :-: | --- | :-: | --- | :-: | --- | :-: | --- |
-| 1 | CSS3 | 6 | jQuery | 11 | Express | 16 | Django |
-| 2 | Sass | 7 | Tailwind CSS | 12 | React | 17 | MySQL |
-| 3 | Bootstrap | 8 | PHP | 13 | Vue.js | 18 | MongoDB |
-| 4 | JavaScript | 9 | Laravel | 14 | Angular | 19 | Docker |
-| 5 | TypeScript | 10 | Node.js | 15 | Python | 20 | Git |
+- **Niveaux 1 à 20** : une nouvelle technologie par niveau (HTML5 est présent dès le début) : CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git.
+- **Niveaux 21 à 200** : 19 technologies de plus, une tous les 9 niveaux : Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash.
+- **Décors** : 12 thèmes qui tournent à chaque niveau (`meadow`, `night`, `sunset`, `snow`, `desert`, `ocean`, `candy`, `forest`, `space`, `autumn`, `volcano`, `neon`), définis dans `public/js/game.js`.
+- **Difficulté** : piles plus grandes (jusqu'à 9×8), pièces plus lourdes et plus grandes, rangées cachées derrière (2 rangées dès le niveau 5, 3 dès le niveau 100).
 
 ## Créer ou modifier un niveau
 
-Un niveau est un fichier `public/levels/levelNN.json` :
+Un niveau est un fichier `public/levels/levelNNN.json` :
 
 ```json
 {
   "id": 3,
-  "name": "Niveau 3 - Bootstrap",
+  "name": "Niveau 3",
+  "theme": "sunset",
   "newTech": "bootstrap",
   "balls": 15,
   "cubeWeight": 1.15,
@@ -142,12 +140,14 @@ Un niveau est un fichier `public/levels/levelNN.json` :
 
 | Champ | Rôle |
 | --- | --- |
+| `theme` | Décor du niveau (un des 12 thèmes) |
+| `newTech` | Techno mise en avant par un bandeau (ou `null`) |
 | `balls` | Nombre de balles disponibles |
 | `cubeWeight` | Multiplicateur de poids des pièces (plus c'est lourd, plus il faut de tirs) |
 | `rows` / `cols` | Taille de la grille (la ligne `0` est en haut) |
 | `pieces[].col/row` | Coin supérieur gauche de la pièce dans la grille |
 | `pieces[].w/h` | Taille en cases (1×1, 2×1, 1×2, 2×2…) |
-| `pieces[].layer` | `0` = devant, `1` = derrière (plus profond) |
+| `pieces[].layer` | `0` = devant, `1` et `2` = rangées de plus en plus profondes |
 | `pieces[].tech` | Clé d'une techno de `public/levels/index.json` |
 
 **Règles** (vérifiées par `npm test`) : pas de chevauchement dans une même rangée, tout dans la grille, et **chaque pièce doit reposer sur une pièce de la même rangée ou sur la table**. Le détail est dans [CONTRIBUTING.md](CONTRIBUTING.md#ajouter-ou-modifier-un-niveau).
@@ -164,8 +164,8 @@ princess_buster/
 │   │   ├── ui.js            # écrans, navigation, entrées (souris/tactile/clavier), plein écran
 │   │   ├── audio.js         # musique + bruitages synthétisés (WebAudio)
 │   │   └── storage.js       # sauvegarde : API SQLite avec repli localStorage
-│   ├── levels/              # index.json + level01..20.json
-│   ├── assets/              # logo.webp + tech/*.svg (logos des technologies)
+│   ├── levels/              # index.json + level001..200.json
+│   ├── assets/              # logo.webp + tech/*.svg (40 logos de technologies)
 │   └── vendor/matter.min.js
 ├── server/server.js         # serveur de test : fichiers statiques + API SQLite (node:sqlite)
 ├── tools/

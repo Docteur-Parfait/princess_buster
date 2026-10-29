@@ -1,0 +1,26 @@
+[package]
+name = "princess-buster"
+version = "0.1.0"
+description = "Princess Buster - jeu de tir sur des piles de cubes de langages et frameworks"
+authors = ["princesse-aku"]
+license = "MIT"
+repository = "https://github.com/princesse-aku/princess_buster"
+edition = "2021"
+
+[lib]
+name = "princess_buster_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

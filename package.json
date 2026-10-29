@@ -6,13 +6,34 @@
   "license": "MIT",
   "author": "princesse-aku",
   "homepage": "https://github.com/princesse-aku/princess_buster#readme",
-  "repository": { "type": "git", "url": "git+https://github.com/princesse-aku/princess_buster.git" },
-  "bugs": { "url": "https://github.com/princesse-aku/princess_buster/issues" },
-  "keywords": ["game", "puzzle", "canvas", "matter-js", "javascript", "sqlite", "tauri", "mobile-game", "html5-game", "programming-languages"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/princesse-aku/princess_buster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/princesse-aku/princess_buster/issues"
+  },
+  "keywords": [
+    "game",
+    "puzzle",
+    "canvas",
+    "matter-js",
+    "javascript",
+    "sqlite",
+    "tauri",
+    "mobile-game",
+    "html5-game",
+    "programming-languages"
+  ],
   "scripts": {
     "start": "node server/server.js",
     "levels": "node tools/generate-levels.js",
     "test": "node tools/validate-levels.js"
   },
-  "engines": { "node": ">=22.5" }
+  "engines": {
+    "node": ">=22.5"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.4"
+  }
 }

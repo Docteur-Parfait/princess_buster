@@ -146,3 +146,7 @@ html, body { margin: 0; height: 100%; overscroll-behavior: none; position: fixed
 
 /* ?clean=1 : captures promotionnelles sans bandeau ni texte d'aide */
 #stage.clean #tech-banner, #stage.clean .hint { display: none !important; }
+
+/* Menu de 200 niveaux : titres de dizaines, défilement */
+#level-grid .world { grid-column: 1 / -1; margin: 10px 0 0; padding: 2px 16px; justify-self: start; font-size: 20px; font-weight: 800; color: var(--gold-light); text-shadow: var(--ink); background: rgba(59, 10, 110, .55); border-radius: 14px; }
+#stage.wide #level-grid { grid-template-columns: repeat(5, 112px); }

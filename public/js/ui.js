@@ -1,7 +1,7 @@
 // Interface : écrans, navigation, entrées joueur. Relie Game, Storage et Audio.
 (() => {
   const $ = (id) => document.getElementById(id);
-  const TOTAL_LEVELS = 20;
+  let TOTAL_LEVELS = 200;   // mis à jour depuis levels/index.json
   let meta = null;            // { techs, levels }
   let currentLevel = 1;
   let levelData = null;
@@ -33,6 +33,7 @@
   // --- démarrage ---
   async function boot() {
     meta = await (await fetch('levels/index.json')).json();
+    TOTAL_LEVELS = meta.levels.length;
     await Game.loadTechs(meta.techs);
     $('name-input').value = Storage.lastName();
   }
@@ -81,19 +82,28 @@
     $('player-name').textContent = p.name;
     $('total-score').textContent = Storage.totalScore();
     const grid = $('level-grid'); grid.innerHTML = '';
+    let current = null;
     for (let n = 1; n <= TOTAL_LEVELS; n++) {
-      const prog = Storage.progressOf(n), unlocked = Storage.isUnlocked(n);
-      const tech = techByKey(meta.techs[Math.min(n, meta.techs.length - 1)].key);
+      if ((n - 1) % 10 === 0) {                                  // un titre par dizaine de niveaux
+        const h = document.createElement('div');
+        h.className = 'world'; h.textContent = `Niveaux ${n} – ${Math.min(n + 9, TOTAL_LEVELS)}`;
+        grid.appendChild(h);
+      }
+      const prog = Storage.progressOf(n), unlocked = Storage.isUnlocked(n), info = meta.levels[n - 1];
+      const tech = techByKey(info.icon) || meta.techs[0];
       const b = document.createElement('button');
-      b.className = 'level' + (prog && prog.completed ? ' done' : '') + (unlocked ? '' : ' locked') + (unlocked && !(prog && prog.completed) ? ' current' : '');
-      b.style.setProperty('--i', n);
-      b.innerHTML = `<span class="num">${n}</span><img src="assets/tech/${tech.key}.svg" alt="${tech.name}">` +
-        (unlocked ? `<span class="best">${prog && prog.completed ? '⭐ ' + prog.bestScore : tech.name}</span>` : '<span class="lock">🔒</span>');
+      const isCurrent = unlocked && !(prog && prog.completed);
+      b.className = 'level' + (prog && prog.completed ? ' done' : '') + (unlocked ? '' : ' locked') + (isCurrent ? ' current' : '');
+      b.style.setProperty('--i', Math.min(n, 12));
+      b.innerHTML = `<span class="num">${n}</span><img src="assets/tech/${tech.key}.svg" alt="${tech.name}" loading="lazy">` +
+        (unlocked ? `<span class="best">${prog && prog.completed ? '⭐ ' + prog.bestScore : (info.newTech ? tech.name : 'À jouer')}</span>` : '<span class="lock">🔒</span>');
       b.addEventListener('click', () => { if (!unlocked) return; Audio.play('click'); startLevel(n); });
       grid.appendChild(b);
+      if (isCurrent && !current) current = b;
     }
     refreshAudioButtons();
     show('menu');
+    if (current) current.scrollIntoView({ block: 'center' });      // on arrive sur le prochain niveau à jouer
   }
 
   $('btn-change-player').onclick = () => { Audio.play('click'); show('name'); };
@@ -121,8 +131,7 @@
   // --- niveau ---
   async function startLevel(n) {
     currentLevel = n;
-    const file = String(n).padStart(2, '0');
-    levelData = await (await fetch(`levels/level${file}.json`)).json();
+    levelData = await (await fetch('levels/' + meta.levels[n - 1].file)).json();
     $('result').classList.add('hidden');
     $('hud-level').textContent = `Niveau ${n}`;
     show('game');
@@ -138,10 +147,13 @@
       },
       end: onEnd,
     });
-    const tech = techByKey(levelData.newTech);
+    const tech = levelData.newTech && techByKey(levelData.newTech);
     const banner = $('tech-banner');
-    banner.innerHTML = `<img src="assets/tech/${tech.key}.svg" alt=""> Nouvelle techno : ${tech.name}`;
-    banner.classList.add('hidden'); void banner.offsetWidth; banner.classList.remove('hidden');
+    banner.classList.add('hidden');
+    if (tech) {                                                    // bandeau uniquement quand une nouvelle techno apparaît
+      banner.innerHTML = `<img src="assets/tech/${tech.key}.svg" alt=""> Nouvelle techno : ${tech.name}`;
+      void banner.offsetWidth; banner.classList.remove('hidden');
+    }
   }
 
   function showPopup(text, x, y) {

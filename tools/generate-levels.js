@@ -1,64 +1,77 @@
-// Génère public/levels/levelNN.json + index.json  (node tools/generate-levels.js)
+// Génère public/levels/levelNNN.json (200 niveaux) + index.json  (node tools/generate-levels.js)
 // Les niveaux sont ensuite éditables à la main : ce sont de simples fichiers JSON.
 const fs = require('fs');
 const path = require('path');
 
-const TECHS = [
-  { key: 'html5', name: 'HTML5', color: '#e44d26' },
-  { key: 'css3', name: 'CSS3', color: '#2965f1' },
-  { key: 'sass', name: 'Sass', color: '#cc6699' },
-  { key: 'bootstrap', name: 'Bootstrap', color: '#7952b3' },
-  { key: 'javascript', name: 'JavaScript', color: '#f7df1e' },
-  { key: 'typescript', name: 'TypeScript', color: '#3178c6' },
-  { key: 'jquery', name: 'jQuery', color: '#0769ad' },
-  { key: 'tailwindcss', name: 'Tailwind CSS', color: '#38bdf8' },
-  { key: 'php', name: 'PHP', color: '#777bb4' },
-  { key: 'laravel', name: 'Laravel', color: '#ff2d20' },
-  { key: 'nodejs', name: 'Node.js', color: '#6cc24a' },
-  { key: 'express', name: 'Express', color: '#9ca3af' },
-  { key: 'react', name: 'React', color: '#61dafb' },
-  { key: 'vuejs', name: 'Vue.js', color: '#42b883' },
-  { key: 'angular', name: 'Angular', color: '#dd0031' },
-  { key: 'python', name: 'Python', color: '#3776ab' },
-  { key: 'django', name: 'Django', color: '#44b78b' },
-  { key: 'mysql', name: 'MySQL', color: '#f29111' },
-  { key: 'mongodb', name: 'MongoDB', color: '#47a248' },
-  { key: 'docker', name: 'Docker', color: '#2496ed' },
-  { key: 'git', name: 'Git', color: '#f05032' },
-];
+const TOTAL = 200;
 
-// --- formes (rangées du haut vers le bas, 'x' = cube) -------------------------
+const TECHS = [
+  ['html5', 'HTML5', '#e44d26'], ['css3', 'CSS3', '#2965f1'], ['sass', 'Sass', '#cc6699'], ['bootstrap', 'Bootstrap', '#7952b3'],
+  ['javascript', 'JavaScript', '#f7df1e'], ['typescript', 'TypeScript', '#3178c6'], ['jquery', 'jQuery', '#0769ad'], ['tailwindcss', 'Tailwind CSS', '#38bdf8'],
+  ['php', 'PHP', '#777bb4'], ['laravel', 'Laravel', '#ff2d20'], ['nodejs', 'Node.js', '#6cc24a'], ['express', 'Express', '#9ca3af'],
+  ['react', 'React', '#61dafb'], ['vuejs', 'Vue.js', '#42b883'], ['angular', 'Angular', '#dd0031'], ['python', 'Python', '#3776ab'],
+  ['django', 'Django', '#44b78b'], ['mysql', 'MySQL', '#f29111'], ['mongodb', 'MongoDB', '#47a248'], ['docker', 'Docker', '#2496ed'],
+  ['git', 'Git', '#f05032'],
+  // technologies introduites après le niveau 20
+  ['go', 'Go', '#00add8'], ['rust', 'Rust', '#ce412b'], ['kotlin', 'Kotlin', '#7f52ff'], ['swift', 'Swift', '#f05138'],
+  ['java', 'Java', '#e76f00'], ['csharp', 'C#', '#68217a'], ['cplusplus', 'C++', '#00599c'], ['ruby', 'Ruby', '#cc342d'],
+  ['flutter', 'Flutter', '#02569b'], ['dart', 'Dart', '#0175c2'], ['nextjs', 'Next.js', '#6b7280'], ['svelte', 'Svelte', '#ff3e00'],
+  ['redis', 'Redis', '#dc382d'], ['postgresql', 'PostgreSQL', '#336791'], ['graphql', 'GraphQL', '#e10098'], ['kubernetes', 'Kubernetes', '#326ce5'],
+  ['firebase', 'Firebase', '#ffca28'], ['nginx', 'Nginx', '#009639'], ['bash', 'Bash', '#4eaa25'],
+].map(([key, name, color], i) => ({ key, name, color, intro: i === 0 ? 1 : i <= 20 ? i : 20 + (i - 20) * 9 }));
+
+// Fonds (définis dans public/js/game.js) : un thème différent d'un niveau au suivant
+const THEMES = ['meadow', 'night', 'sunset', 'snow', 'desert', 'ocean', 'candy', 'forest', 'space', 'autumn', 'volcano', 'neon'];
+
+// --- formes : hauteurs de colonnes -> masque (rangées du haut vers le bas, 'x' = cube) ---
+const fromHeights = (hs, h) => Array.from({ length: h }, (_, r) => hs.map((c) => (h - r <= c ? 'x' : '.')).join(''));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
 const shapes = {
-  wall: (w, h) => Array.from({ length: h }, () => 'x'.repeat(w)),
+  wall: (w, h) => fromHeights(Array(w).fill(h), h),
   pyramid: (w) => {
     const rows = [];
     for (let n = w % 2 ? 1 : 2; n <= w; n += 2) rows.push('x'.repeat(n).padStart((w + n) / 2, '.').padEnd(w, '.'));
     return rows;
   },
-  stairs: (w, h) => Array.from({ length: h }, (_, i) => { const n = Math.min(i + 1, w); return '.'.repeat(w - n) + 'x'.repeat(n); }),
-  columns: (w, h) => Array.from({ length: h }, () => Array.from({ length: w }, (_, i) => (i % 2 === 0 ? 'x' : '.')).join('')),
-  checker: (w, h) => Array.from({ length: h }, (_, r) => Array.from({ length: w }, (_, i) => ((i + r) % 2 === 0 ? 'x' : '.')).join('')),
-  arch: (w, h) => Array.from({ length: h }, (_, r) => (r === 0 ? 'x'.repeat(w) : 'x' + '.'.repeat(w - 2) + 'x')),
-  tower: (w, h) => Array.from({ length: h }, () => '.'.repeat(Math.floor((w - 1) / 2)) + 'x' + '.'.repeat(Math.ceil((w - 1) / 2))),
-  tower2: (w, h) => Array.from({ length: h }, () => '.'.repeat(Math.floor((w - 2) / 2)) + 'xx' + '.'.repeat(Math.ceil((w - 2) / 2))),
-  letterH: (w, h) => Array.from({ length: h }, (_, r) => (r === Math.floor(h / 2) ? 'x'.repeat(w) : 'x' + '.'.repeat(w - 2) + 'x')),
+  stairs: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => Math.min(h, c + 1)), h),
+  columns: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c % 2 === 0 ? h : 0)), h),
+  checker: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c % 2 ? Math.ceil(h / 2) : h)), h),
+  arch: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c === 0 || c === w - 1 ? h : Math.ceil(h / 3))), h),
+  tower: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c === Math.floor((w - 1) / 2) ? h : 0)), h),
+  tower2: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (Math.abs(c - (w - 1) / 2) < 1 ? h : 0)), h),
+  letterH: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c === 0 || c === w - 1 ? h : Math.ceil(h / 2))), h),
   diamond: (w) => {
     const half = Math.ceil(w / 2), rows = [];
-    for (let i = 1; i <= half; i++) { const n = i * 2 - 1; rows.push('x'.repeat(n).padStart((w + n) / 2 | 0, '.').padEnd(w, '.')); }
-    for (let i = half - 1; i >= 1; i--) { const n = i * 2 - 1; rows.push('x'.repeat(n).padStart((w + n) / 2 | 0, '.').padEnd(w, '.')); }
+    for (let i = 1; i <= half; i++) { const n = i * 2 - 1; rows.push('x'.repeat(n).padStart(((w + n) / 2) | 0, '.').padEnd(w, '.')); }
     return rows;
   },
-  twin: (w, h) => Array.from({ length: h }, (_, r) => { const a = Math.floor((w - 1) / 2); return 'x'.repeat(a) + '.' + 'x'.repeat(w - 1 - a); }),
-  cross: (w, h) => Array.from({ length: h }, (_, r) => (r === 1 || r === Math.floor(h / 2) ? 'x'.repeat(w) : '.'.repeat(Math.floor(w / 2)) + 'x' + '.'.repeat(Math.ceil(w / 2) - 1))),
+  twin: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c === Math.floor((w - 1) / 2) ? 0 : h)), h),
+  cross: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c === Math.floor(w / 2) ? h : Math.ceil(h / 2))), h),
+  ziggurat: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => clamp(Math.ceil(Math.min(c + 1, w - c) * (h / Math.ceil(w / 2))), 1, h)), h),
+  valley: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => clamp(1 + Math.round((h - 1) * Math.abs(c - (w - 1) / 2) / ((w - 1) / 2 || 1)), 1, h)), h),
+  sawtooth: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c % 2 ? Math.ceil(h / 2) : h)), h),
+  fortress: (w, h) => fromHeights(Array.from({ length: w }, (_, c) => (c === 0 || c === w - 1 ? h : c % 2 ? Math.ceil(h * 0.6) : Math.ceil(h * 0.4))), h),
+  islands: (w, h, rand) => fromHeights(Array.from({ length: w }, (_, c) => (c % 3 === 2 ? 0 : 1 + Math.floor(rand() * h))), h),
+  skyline: (w, h, rand) => {
+    const hs = []; let cur = Math.ceil(h / 2);
+    for (let c = 0; c < w; c++) { cur = clamp(cur + Math.floor(rand() * 3) - 1, 1, h); hs.push(cur); }
+    hs[Math.floor(rand() * w)] = h;
+    return fromHeights(hs, h);
+  },
 };
+const SHAPE_NAMES = Object.keys(shapes);
 
-// niveau : [forme, largeur, hauteur]
+// niveaux 1..20 : plan d'origine, soigneusement calibré
 const PLAN = [
   ['wall', 3, 3], ['pyramid', 5, 3], ['wall', 4, 4], ['columns', 5, 4], ['stairs', 5, 5],
   ['tower', 5, 6], ['arch', 5, 4], ['pyramid', 7, 4], ['checker', 6, 5], ['twin', 7, 4],
   ['letterH', 5, 5], ['diamond', 7, 4], ['tower2', 6, 6], ['wall', 6, 5], ['cross', 7, 5],
   ['columns', 7, 5], ['arch', 7, 6], ['checker', 7, 6], ['pyramid', 7, 6], ['wall', 7, 6],
 ];
+
+// pseudo-aléatoire déterministe
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
 
 // Aucun cube suspendu : chaque cube repose sur un cube (ou sur la table). Chaque colonne retombe vers le bas.
 function dropToSupport(rows) {
@@ -71,14 +84,7 @@ function dropToSupport(rows) {
   return out.map((r) => r.join(''));
 }
 
-// pseudo-aléatoire déterministe
-function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
-
-const outDir = path.join(__dirname, '..', 'public', 'levels');
-fs.mkdirSync(outDir, { recursive: true });
-const index = [];
-
-// Remplit le masque avec des pièces de formats variés [largeur, hauteur] (carrés, rectangles larges, hautes...).
+// Remplit le masque avec des pièces de formats variés [largeur, hauteur, poids de tirage].
 // On remplit de bas en haut : chaque pièce repose donc entièrement sur d'autres pièces ou sur la table.
 function allowedSizes(id) {
   const sizes = [[1, 1, 4]];
@@ -121,49 +127,85 @@ function formatLevel(l) {
   return head + ',\n  "pieces": [\n' + pieces.map((p) => '    ' + JSON.stringify(p)).join(',\n') + '\n  ]\n}\n';
 }
 
-PLAN.forEach(([shape, w, h], i) => {
-  const id = i + 1;
-  const pool = TECHS.slice(0, Math.min(TECHS.length, id + 1)).map((t) => t.key);
-  const newest = pool[pool.length - 1];
-  const rand = rng(id * 7919);
-  const mask = dropToSupport(shapes[shape](w, h));
+const outDir = path.join(__dirname, '..', 'public', 'levels');
+fs.mkdirSync(outDir, { recursive: true });
+for (const f of fs.readdirSync(outDir)) if (/^level\d+\.json$/.test(f)) fs.unlinkSync(path.join(outDir, f));
+const index = [];
+
+const DENSE = SHAPE_NAMES.filter((n) => !['tower', 'tower2', 'islands'].includes(n));
+
+for (let id = 1; id <= TOTAL; id++) {
+  let level, shape, w, h, back, pieces, balls, theme, pool, newTech;
+  for (let attempt = 0; attempt < 14; attempt++) {
+  const rand = rng(id * 7919 + attempt * 104729);
+  pool = TECHS.filter((t) => t.intro <= id).map((t) => t.key);
+  newTech = TECHS.find((t) => t.intro === id && id > 1)?.key || null;
+  const focus = newTech || pool[pool.length - 1];
+
+  // forme et taille
+  if (id <= PLAN.length) [shape, w, h] = PLAN[id - 1];
+  else {
+    shape = DENSE[(id * 7 + Math.floor(rand() * 5) + attempt) % DENSE.length];
+    w = clamp(Math.round(4 + id / 30 + (rand() * 2 - 1)), 4, 9);
+    h = clamp(Math.round(3.5 + id / 28 + (rand() * 2 - 1)), 4, 8);
+  }
+  const mask = dropToSupport(shapes[shape](w, h, rand));
   const cols = Math.max(...mask.map((r) => r.length));
-  const pick = () => (rand() < 0.3 ? newest : pool[Math.floor(rand() * pool.length)]);
+  const pick = () => (rand() < 0.3 ? focus : pool[Math.floor(rand() * pool.length)]);
 
   // rangée devant (layer 0)
-  let front = fillPieces(mask, id, rand).map((p) => ({ tech: pick(), layer: 0, ...p }));
+  const front = fillPieces(mask, id, rand).map((p) => ({ tech: pick(), layer: 0, ...p }));
   let rowsTotal = mask.length;
+  const heights = Array.from({ length: cols }, (_, c) => mask.filter((r) => r[c] === 'x').length);
 
-  // rangée(s) DERRIÈRE : à partir du niveau 5, des pièces cachées derrière les premières (il faut les faire tomber d'abord)
-  let back = [];
-  if (id >= 5) {
-    const share = id < 10 ? 0.5 : id < 15 ? 0.75 : 1;
-    const heights = Array.from({ length: cols }, (_, c) => mask.filter((r) => r[c] === 'x').length);
-    const bh = heights.map((hh) => (hh > 0 && rand() < share ? hh : 0));
+  // rangées DERRIÈRE : des pièces cachées derrière les premières (il faut les faire tomber d'abord)
+  back = [];
+  const addLayer = (layer, share, maxHeights) => {
+    const bh = maxHeights.map((hh) => (hh > 0 && rand() < share ? hh : 0));
+    if (!bh.some(Boolean)) return bh;
     rowsTotal = Math.max(rowsTotal, ...bh);
     const bmask = Array.from({ length: rowsTotal }, (_, r) => Array.from({ length: cols }, (_, c) => (rowsTotal - r <= bh[c] ? 'x' : '.')).join(''));
-    back = fillPieces(bmask, id, rand).map((p) => ({ tech: pick(), layer: 1, ...p }));
-  }
+    back.push(...fillPieces(bmask, id, rand).map((p) => ({ tech: pick(), layer, ...p })));
+    return bh;
+  };
+  let bh1 = heights;
+  if (id >= 5) bh1 = addLayer(1, id < 10 ? 0.5 : id < 15 ? 0.75 : 1, heights);
+  if (id >= 100) addLayer(2, clamp(0.4 + (id - 100) / 150, 0.4, 1), bh1);
   front.forEach((p) => { p.row += rowsTotal - mask.length; });
-  const pieces = [...front, ...back];
+
+  pieces = [...front, ...back];
   pieces.sort((a, b) => a.layer - b.layer || a.row - b.row || a.col - b.col);
-  const m = (list) => list.reduce((t, p) => t + Math.pow(p.w * p.h, 0.7), 0);
-  const mass = m(front) + 0.8 * m(back);
-  const balls = Math.max(5, Math.round(mass * Math.max(0.72, 0.9 - id * 0.008)) + 2);
-  const level = {
+  // Une balle ne fait tomber que la pièce visée. Distance parcourue par coup = 14 x 0,8 / (masse x 0,06) avec
+  // masse = racine(surface) x poids ; profondeur à franchir = 135 - 45 x rangée.
+  const weight = +Math.min(2.4, 1 + id * 0.035).toFixed(2);
+  const hits = pieces.reduce((t, p) => t + Math.max(1, Math.ceil((135 - 45 * p.layer) / (186.7 / (Math.sqrt(p.w * p.h) * weight)))), 0);
+  const mass = hits;
+  // marge de balles : serrée au début (le joueur est bon), plus généreuse quand 3 rangées de profondeur s'empilent
+  const ratio = id <= 60 ? 1.05 - id * 0.0012 : id <= 100 ? 0.98 : 0.98 + (id - 100) * 0.0016;
+  balls = Math.max(5, Math.round(hits * ratio) + 2);
+  theme = THEMES[(id - 1) % THEMES.length];
+  // la difficulté (quantité de pièces) doit augmenter avec le niveau : on retire les tirages trop légers
+  if (id > PLAN.length && mass < clamp(14 + id * 0.45, 14, 100) && attempt < 13) continue;
+
+  level = {
     id,
-    name: `Niveau ${id} - ${TECHS.find((t) => t.key === newest).name}`,
-    newTech: newest,
+    name: `Niveau ${id}`,
+    theme,
+    newTech,
     balls,
-    cubeWeight: +(1 + id * 0.05).toFixed(2),
+    cubeWeight: weight,
     techs: pool,
     rows: rowsTotal,
     cols,
     pieces,
   };
-  fs.writeFileSync(path.join(outDir, `level${String(id).padStart(2, '0')}.json`), formatLevel(level));
-  index.push({ id, file: `level${String(id).padStart(2, '0')}.json` });
-  console.log(`niveau ${id}: ${shape} ${w}x${h} pièces=${pieces.length} (derrière ${back.length}) balles=${balls}`);
-});
+  break;
+  }
+  const file = `level${String(id).padStart(3, '0')}.json`;
+  fs.writeFileSync(path.join(outDir, file), formatLevel(level));
+  index.push({ id, file, theme, newTech, icon: newTech || pool[(id * 5) % pool.length] });
+  if (id <= 20 || id % 20 === 0) console.log(`niveau ${id}: ${shape} ${w}x${h} ${theme} pièces=${pieces.length} (derrière ${back.length}) balles=${balls}`);
+}
 
-fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify({ techs: TECHS, levels: index }, null, 2));
+fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify({ techs: TECHS.map(({ key, name, color }) => ({ key, name, color })), themes: THEMES, levels: index }, null, 1));
+console.log(`${TOTAL} niveaux générés`);

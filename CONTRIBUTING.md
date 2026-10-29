@@ -62,10 +62,10 @@ Les fichiers de `public/` sont servis tels quels (sans cache) : modifie, puis re
 2. Crée une branche **à partir de `main`**, avec un nom parlant :
    - `fix/canon-visee-tactile`
    - `feat/piece-explosive`
-   - `level/niveau-21-rust`
+   - `level/niveau-201-rust`
    - `docs/traduction-anglais`
 3. Fais des commits **petits et ciblés**. Message au format [Conventional Commits](https://www.conventionalcommits.org/fr/) :
-   `feat: ajoute la pièce explosive`, `fix: corrige le plein écran sur iOS`, `docs: précise le format des niveaux`, `level: ajoute le niveau 21 (Rust)`.
+   `feat: ajoute la pièce explosive`, `fix: corrige le plein écran sur iOS`, `docs: précise le format des niveaux`, `level: ajoute le niveau 201 (Rust)`.
 4. Pousse ta branche sur ton fork et ouvre une **pull request vers `main`**.
 5. Ne réécris pas l'historique d'une PR déjà relue (pas de `force push` sans prévenir).
 
@@ -87,11 +87,11 @@ Le projet est volontairement **simple** : JavaScript « vanilla », sans bundler
 
 ## Ajouter ou modifier un niveau
 
-Un niveau est un fichier `public/levels/levelNN.json` (le format complet est décrit dans le [README](README.md#créer-ou-modifier-un-niveau)). Il peut être écrit à la main ou généré par `tools/generate-levels.js`.
+Un niveau est un fichier `public/levels/levelNNN.json` (le format complet est décrit dans le [README](README.md#créer-ou-modifier-un-niveau)). Il peut être écrit à la main ou généré par `tools/generate-levels.js`.
 
 **Règles obligatoires** (contrôlées par `npm test`, donc par la CI) :
 
-1. Les champs `id`, `balls` (> 0), `rows`, `cols` et `pieces` sont présents ; `id` correspond à `public/levels/index.json`.
+1. Les champs `id`, `theme`, `balls` (> 0), `rows`, `cols` et `pieces` sont présents (`theme` = un des thèmes de `index.json`) ; `id` correspond à `public/levels/index.json`.
 2. Chaque `tech` existe dans `index.json`.
 3. Chaque pièce est **entièrement dans la grille** (`col + w ≤ cols`, `row + h ≤ rows`).
 4. **Pas de chevauchement** entre deux pièces d'une même rangée (`layer`).

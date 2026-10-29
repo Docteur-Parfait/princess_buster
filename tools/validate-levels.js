@@ -7,6 +7,7 @@ const path = require('path');
 const dir = path.join(__dirname, '..', 'public', 'levels');
 const index = JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf8'));
 const known = new Set(index.techs.map((t) => t.key));
+const themes = new Set(index.themes);
 let errors = 0;
 const fail = (file, msg) => { errors++; console.error(`✗ ${file}: ${msg}`); };
 
@@ -14,6 +15,7 @@ for (const { id, file } of index.levels) {
   const l = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
   if (l.id !== id) fail(file, `id ${l.id} différent de l'index (${id})`);
   if (!(l.balls > 0)) fail(file, 'balls doit être > 0');
+  if (!themes.has(l.theme)) fail(file, `thème inconnu « ${l.theme} »`);
   if (!(l.rows > 0 && l.cols > 0)) fail(file, 'rows et cols requis');
   if (!Array.isArray(l.pieces) || !l.pieces.length) { fail(file, 'pieces requis'); continue; }
 
