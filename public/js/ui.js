@@ -38,6 +38,31 @@
   }
   const ready = boot();
 
+  // Raccourcis de développement : /?name=Ada&level=8&autoplay=1  (connexion directe, niveau direct, démo automatique)
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('name')) {
+    ready.then(async () => {
+      await Storage.login(qs.get('name'));
+      const lvl = parseInt(qs.get('level'), 10);
+      if (lvl >= 1 && lvl <= TOTAL_LEVELS) { await startLevel(lvl); if (qs.get('autoplay')) autoplay(); } else openMenu();
+    });
+  }
+
+  // Démo : un petit robot vise la pièce la plus basse de l'avant toutes les 0,7 s
+  function autoplay() {
+    const timer = setInterval(() => {
+      const d = Game._debug();
+      if (d.finished || !d.cubes.length) return clearInterval(timer);
+      const minZ = Math.min(...d.cubes.map((c) => c.z));
+      const front = d.cubes.filter((c) => c.z <= minZ + 1);
+      const maxY = Math.max(...front.map((c) => c.position.y));
+      const low = front.filter((c) => c.position.y > maxY - 35);
+      const c = low[Math.floor(Math.random() * low.length)];
+      Game.setAimToward(c.position.x, c.position.y - c.z * 0.45);
+      Game.fire();
+    }, 700);
+  }
+
   $('name-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     Audio.init(); Audio.play('click');

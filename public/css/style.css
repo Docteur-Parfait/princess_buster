@@ -77,8 +77,8 @@ html, body { margin: 0; height: 100%; overscroll-behavior: none; position: fixed
 .level.done { background: linear-gradient(#ffe46b, var(--gold) 50%, #f59a00); color: #5a2a00; box-shadow: 0 6px 0 var(--purple), 0 0 0 3px #fff6c4 inset, 0 0 22px rgba(255, 210, 63, .7); }
 .level.done .num { text-shadow: 0 2px 0 #fff; }
 .level.done .best { color: var(--purple); text-shadow: none; }
-.level.current { animation: popin .5s backwards, glow 1.3s ease-in-out infinite .5s; animation-delay: calc(var(--i, 0) * 35ms), .6s; }
-@keyframes glow { 50% { box-shadow: 0 6px 0 var(--purple), 0 0 0 3px var(--gold) inset, 0 0 34px 6px var(--sky); transform: scale(1.07); } }
+.level.current::before { content: ''; position: absolute; inset: -7px; border-radius: 30px; border: 3px solid var(--sky); box-shadow: 0 0 22px var(--sky), inset 0 0 14px rgba(95, 212, 255, .5); animation: ringpulse 1.3s ease-in-out infinite; pointer-events: none; }
+@keyframes ringpulse { 0%, 100% { opacity: .35; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
 .level.locked { background: linear-gradient(#5a54b8, #2c2780); cursor: not-allowed; box-shadow: 0 6px 0 var(--purple), 0 0 0 3px #7f78d6 inset; }
 .level.locked:hover { transform: none; }
 .level.locked img { opacity: .3; filter: grayscale(1); }

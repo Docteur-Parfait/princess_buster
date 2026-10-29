@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  levels:
+    name: Valider les niveaux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Vérifier que le serveur démarre
+        run: |
+          node server/server.js &
+          sleep 2
+          curl --fail --silent http://localhost:3000/ > /dev/null
+          curl --fail --silent -X POST http://localhost:3000/api/player -H 'Content-Type: application/json' -d '{"name":"ci"}'
