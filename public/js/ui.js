@@ -8,7 +8,11 @@
   let levelData = null;
   const levelCache = new Map();
 
-  const AVATARS = ['👑', '🦊', '🐼', '🐯', '🐸', '🦄', '🐵', '🐱', '🐶', '🦁', '🐙', '🤖'];
+  // Avatar = icône d'utilisateur ; le joueur choisit seulement la couleur du fond
+  const AVATAR_BG = ['linear-gradient(#9fe6ff, #3a6bff)', 'linear-gradient(#ff9ad6, #e0278f)', 'linear-gradient(#8bff6a, #159a2a)', 'linear-gradient(#ffe46b, #f59a00)',
+    'linear-gradient(#c9a3ff, #6a2cd8)', 'linear-gradient(#ff8a8a, #d4202a)', 'linear-gradient(#7ef0e0, #0f9a95)', 'linear-gradient(#b0b8d8, #4a4f80)'];
+  const USER_SVG = '<svg viewBox="0 0 24 24" width="62%" height="62%" fill="#fff" style="filter:drop-shadow(0 2px 0 rgba(28,10,66,.45))" aria-hidden="true"><circle cx="12" cy="8" r="4.3"/><path d="M3.6 21.2c0-4.7 3.8-7.8 8.4-7.8s8.4 3.1 8.4 7.8z"/></svg>';
+  function applyAvatar(el, i) { el.innerHTML = USER_SVG; el.parentElement.style.background = AVATAR_BG[i] || AVATAR_BG[0]; }
   const THEME_NAMES = { meadow: '🌳 Prairie', night: '🌙 Nuit étoilée', sunset: '🌅 Coucher de soleil', snow: '❄️ Neige', desert: '🏜️ Désert', ocean: '🌊 Océan', candy: '🍭 Bonbons', forest: '🌲 Forêt', space: '🪐 Espace', autumn: '🍂 Automne', volcano: '🌋 Volcan', neon: '🌆 Ville néon' };
   const POWER_UNLOCK = { triple: 3, super: 10 };               // niveau d'apparition des bonus
   const store = {
@@ -96,13 +100,13 @@
   });
 
   // ============================== accueil ==============================
-  const avatarOf = () => store.get('pb_avatar_' + (Storage.player ? Storage.player.name.toLowerCase() : ''), '👑');
+  const avatarOf = () => parseInt(store.get('pb_avatar_' + (Storage.player ? Storage.player.name.toLowerCase() : ''), '0'), 10) || 0;
   const nextLevelToPlay = () => { for (let n = 1; n <= TOTAL_LEVELS; n++) { const p = Storage.progressOf(n); if (!(p && p.completed)) return n; } return TOTAL_LEVELS; };
 
   async function openHome() {
     Game.stop();
     const p = Storage.player, next = nextLevelToPlay();
-    $('home-avatar').textContent = avatarOf();
+    applyAvatar($('home-avatar'), avatarOf());
     $('home-name').textContent = p.name;
     $('home-score').textContent = Storage.totalScore();
     $('home-level').textContent = next;
@@ -211,18 +215,18 @@
   // ============================== profil ==============================
   function openProfile() {
     const p = Storage.player;
-    $('prof-avatar').textContent = avatarOf();
+    applyAvatar($('prof-avatar'), avatarOf());
     $('rename-input').value = p.name;
     $('prof-score').textContent = Storage.totalScore();
     $('prof-done').textContent = p.progress.filter((r) => r.completed).length;
-    $('avatars').innerHTML = AVATARS.map((a) => `<button type="button" data-a="${a}" class="${a === avatarOf() ? 'sel' : ''}">${a}</button>`).join('');
+    $('avatars').innerHTML = AVATAR_BG.map((bg, i) => `<button type="button" data-a="${i}" class="${i === avatarOf() ? 'sel' : ''}" style="background:${bg}">${USER_SVG}</button>`).join('');
     openModal('modal-profile');
   }
   $('btn-avatar').onclick = () => { Audio.play('click'); openProfile(); };
   $('avatars').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     Audio.play('click'); store.set('pb_avatar_' + Storage.player.name.toLowerCase(), b.dataset.a);
-    $('home-avatar').textContent = b.dataset.a; $('prof-avatar').textContent = b.dataset.a;
+    applyAvatar($('home-avatar'), +b.dataset.a); applyAvatar($('prof-avatar'), +b.dataset.a);
     $('avatars').querySelectorAll('button').forEach((x) => x.classList.toggle('sel', x === b));
   });
   $('rename-form').addEventListener('submit', async (e) => {
