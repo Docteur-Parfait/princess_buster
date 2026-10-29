@@ -123,8 +123,6 @@
     const nextChest = Math.ceil(next / 10) * 10;
     document.querySelector('.chest-bar').title = `Coffre au niveau ${nextChest} : +${chestBonus(nextChest)} points`;
     document.querySelector('.chest-bar .chest').innerHTML = `🎁<small>+${chestBonus(nextChest)}</small>`;
-    const tier = next < 20 ? ['easy', 'FACILE', '🙂'] : next < 60 ? ['normal', 'NORMAL', '😎'] : next < 120 ? ['hard', 'DIFFICILE', '😈'] : ['extreme', 'EXTRA DIFFICILE', '💀'];
-    $('btn-play').className = `btn big play diff-${tier[0]}`; $('play-diff').textContent = tier[1]; $('play-ico').textContent = tier[2];
     refreshToggles();
   }
   $('btn-play').onclick = () => { Audio.init(); Audio.play('click'); openLevelModal(nextLevelToPlay()); };
