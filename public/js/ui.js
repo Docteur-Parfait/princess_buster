@@ -120,6 +120,9 @@
     // progression des 10 niveaux en cours + niveau de difficulté du bouton Jouer
     const done = ((next - 1) % 10);
     $('home-bar').style.width = (done * 10) + '%'; $('home-bar-text').textContent = `${done}/10`;
+    const nextChest = Math.ceil(next / 10) * 10;
+    document.querySelector('.chest-bar').title = `Coffre au niveau ${nextChest} : +${chestBonus(nextChest)} points`;
+    document.querySelector('.chest-bar .chest').innerHTML = `🎁<small>+${chestBonus(nextChest)}</small>`;
     const tier = next < 20 ? ['easy', 'FACILE', '🙂'] : next < 60 ? ['normal', 'NORMAL', '😎'] : next < 120 ? ['hard', 'DIFFICILE', '😈'] : ['extreme', 'EXTRA DIFFICILE', '💀'];
     $('btn-play').className = `btn big play diff-${tier[0]}`; $('play-diff').textContent = tier[1]; $('play-ico').textContent = tier[2];
     refreshToggles();
@@ -301,16 +304,24 @@
   }
 
   // ============================== résultat ==============================
+  let lastBonus = 0;
+  const chestBonus = (n) => 20 + Math.floor(n / 10) * 5;                 // niveau 10 : 25 pts, niveau 20 : 30 pts, … niveau 200 : 120 pts
   async function onEnd({ won, score, ballsLeft }) {
     endTuto();
     $('result').classList.remove('hidden');
     if (won) {
       const ratio = ballsLeft / levelData.balls, stars = ratio >= 0.5 ? 3 : ratio >= 0.25 ? 2 : 1;
       const done = ((currentLevel - 1) % 10) + 1;
+      const prev = Storage.progressOf(currentLevel), first = !(prev && prev.completed);
+      const bonus = first && done === 10 ? chestBonus(currentLevel) : 0;          // coffre ouvert au 10/10
+      lastBonus = bonus;
       $('panel-win').classList.remove('hidden');
       $('btn-result-next').classList.toggle('hidden', currentLevel >= TOTAL_LEVELS);          // dernier niveau : pas de suivant
       $('result-score').textContent = score;
-      $('result-text').textContent = `${ballsLeft} balle(s) restante(s) = ${ballsLeft} point(s)`;
+      $('result-text').textContent = `${ballsLeft} balle(s) restante(s) = ${ballsLeft} point(s)` + (bonus ? ` · 🎁 coffre : +${bonus} points !` : '');
+      document.querySelector('#panel-win .chest').innerHTML = bonus ? `🎁<small>+${bonus} pts</small>` : `🎁<small>Au 10/10</small>`;
+      document.querySelector('#panel-win .chest').classList.toggle('open', !!bonus);
+      if (bonus) setTimeout(() => Audio.play('win'), 900);
       $('result-stars').textContent = '';
       $('result-bar').style.width = '0'; $('result-bar-text').textContent = `${done}/10`;
       setTimeout(() => { $('result-bar').style.width = (done * 10) + '%'; }, 60);
@@ -320,7 +331,7 @@
       $('lose-ribbon').textContent = `NIVEAU ${currentLevel}`;
       $('panel-lose').classList.remove('hidden');
     }
-    await Storage.saveResult(currentLevel, score, won);
+    await Storage.saveResult(currentLevel, won ? score + (lastBonus || 0) : score, won);
   }
   const goNext = () => { Audio.play('click'); if (currentLevel >= TOTAL_LEVELS) openHome(); else openLevelModalAndStart(currentLevel + 1); };
   async function openLevelModalAndStart(n) { $('result').classList.add('hidden'); startLevel(n); }
