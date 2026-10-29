@@ -2,8 +2,8 @@
   "id": 9,
   "name": "Niveau 9 - Laravel",
   "newTech": "laravel",
-  "balls": 14,
-  "cubeWeight": 1.36,
+  "balls": 15,
+  "cubeWeight": 1.45,
   "techs": [
     "html5",
     "css3",
@@ -16,11 +16,19 @@
     "php",
     "laravel"
   ],
-  "grid": [
-    ". . . . . .",
-    ". . . . . .",
-    "php . php . laravel .",
-    "tailwindcss css3 sass javascript html5 css3",
-    "tailwindcss laravel typescript laravel laravel jquery"
+  "rows": 5,
+  "cols": 6,
+  "pieces": [
+    {"tech":"css3","layer":0,"col":0,"row":2,"w":1,"h":1},
+    {"tech":"tailwindcss","layer":0,"col":2,"row":2,"w":1,"h":1},
+    {"tech":"laravel","layer":0,"col":4,"row":2,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":0,"row":3,"w":2,"h":2},
+    {"tech":"sass","layer":0,"col":2,"row":3,"w":1,"h":2},
+    {"tech":"javascript","layer":0,"col":3,"row":3,"w":1,"h":2},
+    {"tech":"html5","layer":0,"col":4,"row":3,"w":2,"h":2},
+    {"tech":"laravel","layer":1,"col":2,"row":2,"w":1,"h":1},
+    {"tech":"jquery","layer":1,"col":2,"row":3,"w":1,"h":2},
+    {"tech":"javascript","layer":1,"col":3,"row":3,"w":1,"h":1},
+    {"tech":"sass","layer":1,"col":3,"row":4,"w":1,"h":1}
   ]
 }

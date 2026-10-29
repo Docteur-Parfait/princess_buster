@@ -78,33 +78,92 @@ const outDir = path.join(__dirname, '..', 'public', 'levels');
 fs.mkdirSync(outDir, { recursive: true });
 const index = [];
 
+// Remplit le masque avec des pièces de formats variés [largeur, hauteur] (carrés, rectangles larges, hautes...).
+// On remplit de bas en haut : chaque pièce repose donc entièrement sur d'autres pièces ou sur la table.
+function allowedSizes(id) {
+  const sizes = [[1, 1, 4]];
+  if (id >= 2) sizes.push([2, 1, 2]);
+  if (id >= 4) sizes.push([1, 2, 2]);
+  if (id >= 7) sizes.push([2, 2, 1.5]);
+  if (id >= 10) sizes.push([3, 1, 1.5]);
+  if (id >= 14) sizes.push([3, 2, 1]);
+  return sizes;
+}
+
+function fillPieces(mask, id, rand) {
+  const R = mask.length, C = Math.max(...mask.map((r) => r.length));
+  const free = mask.map((r) => Array.from({ length: C }, (_, c) => r[c] === 'x'));
+  const sizes = allowedSizes(id), pieces = [];
+  for (let r = R - 1; r >= 0; r--) {
+    for (let c = 0; c < C;) {
+      if (!free[r][c]) { c++; continue; }
+      const fits = ([w, h]) => {
+        if (c + w > C || r - h + 1 < 0) return false;
+        for (let y = r - h + 1; y <= r; y++) for (let x = c; x < c + w; x++) if (!free[y][x]) return false;
+        return true;
+      };
+      const cand = sizes.filter(fits);
+      let pick = rand() * cand.reduce((t, s2) => t + s2[2], 0), size = cand[0];
+      for (const s2 of cand) { pick -= s2[2]; if (pick <= 0) { size = s2; break; } }
+      const [w, h] = size;
+      for (let y = r - h + 1; y <= r; y++) for (let x = c; x < c + w; x++) free[y][x] = false;
+      pieces.push({ col: c, row: r - h + 1, w, h });
+      c += w;
+    }
+  }
+  return pieces;
+}
+
+// JSON lisible : une pièce par ligne
+function formatLevel(l) {
+  const { pieces, ...rest } = l;
+  const head = JSON.stringify(rest, null, 2).slice(0, -2);
+  return head + ',\n  "pieces": [\n' + pieces.map((p) => '    ' + JSON.stringify(p)).join(',\n') + '\n  ]\n}\n';
+}
+
 PLAN.forEach(([shape, w, h], i) => {
   const id = i + 1;
   const pool = TECHS.slice(0, Math.min(TECHS.length, id + 1)).map((t) => t.key);
   const newest = pool[pool.length - 1];
   const rand = rng(id * 7919);
-  let rows = shapes[shape](w, h);
-  rows = dropToSupport(rows);
-  const grid = rows.map((row) => [...row].map((c) => {
-    if (c !== 'x') return '.';
-    // la technologie « nouvelle » du niveau apparaît plus souvent
-    return rand() < 0.3 ? newest : pool[Math.floor(rand() * pool.length)];
-  }));
-  const cubes = grid.flat().filter((c) => c !== '.').length;
-  const ratio = Math.max(0.65, 1.0 - id * 0.014);
-  const balls = Math.max(5, Math.round(cubes * ratio) + 1);
+  const mask = dropToSupport(shapes[shape](w, h));
+  const cols = Math.max(...mask.map((r) => r.length));
+  const pick = () => (rand() < 0.3 ? newest : pool[Math.floor(rand() * pool.length)]);
+
+  // rangée devant (layer 0)
+  let front = fillPieces(mask, id, rand).map((p) => ({ tech: pick(), layer: 0, ...p }));
+  let rowsTotal = mask.length;
+
+  // rangée(s) DERRIÈRE : à partir du niveau 5, des pièces cachées derrière les premières (il faut les faire tomber d'abord)
+  let back = [];
+  if (id >= 5) {
+    const share = id < 10 ? 0.5 : id < 15 ? 0.75 : 1;
+    const heights = Array.from({ length: cols }, (_, c) => mask.filter((r) => r[c] === 'x').length);
+    const bh = heights.map((hh) => (hh > 0 && rand() < share ? hh : 0));
+    rowsTotal = Math.max(rowsTotal, ...bh);
+    const bmask = Array.from({ length: rowsTotal }, (_, r) => Array.from({ length: cols }, (_, c) => (rowsTotal - r <= bh[c] ? 'x' : '.')).join(''));
+    back = fillPieces(bmask, id, rand).map((p) => ({ tech: pick(), layer: 1, ...p }));
+  }
+  front.forEach((p) => { p.row += rowsTotal - mask.length; });
+  const pieces = [...front, ...back];
+  pieces.sort((a, b) => a.layer - b.layer || a.row - b.row || a.col - b.col);
+  const m = (list) => list.reduce((t, p) => t + Math.pow(p.w * p.h, 0.7), 0);
+  const mass = m(front) + 0.8 * m(back);
+  const balls = Math.max(5, Math.round(mass * Math.max(0.72, 0.9 - id * 0.008)) + 2);
   const level = {
     id,
     name: `Niveau ${id} - ${TECHS.find((t) => t.key === newest).name}`,
     newTech: newest,
     balls,
-    cubeWeight: +(1 + id * 0.04).toFixed(2),
+    cubeWeight: +(1 + id * 0.05).toFixed(2),
     techs: pool,
-    grid: grid.map((r) => r.join(' ')),
+    rows: rowsTotal,
+    cols,
+    pieces,
   };
-  fs.writeFileSync(path.join(outDir, `level${String(id).padStart(2, '0')}.json`), JSON.stringify(level, null, 2));
+  fs.writeFileSync(path.join(outDir, `level${String(id).padStart(2, '0')}.json`), formatLevel(level));
   index.push({ id, file: `level${String(id).padStart(2, '0')}.json` });
-  console.log(`niveau ${id}: ${shape} ${w}x${h} cubes=${cubes} balles=${balls}`);
+  console.log(`niveau ${id}: ${shape} ${w}x${h} pièces=${pieces.length} (derrière ${back.length}) balles=${balls}`);
 });
 
 fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify({ techs: TECHS, levels: index }, null, 2));

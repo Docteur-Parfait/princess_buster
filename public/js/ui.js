@@ -6,17 +6,23 @@
   let currentLevel = 1;
   let levelData = null;
 
-  // --- mise à l'échelle : largeur logique 540, hauteur logique adaptée au format de l'écran ---
+  // --- plein écran : la scène épouse toute la fenêtre (téléphone, tablette, ordinateur ; portrait ou paysage) ---
+  const stage = document.getElementById('stage');
   function fit() {
-    const vw = innerWidth, vh = innerHeight;
-    const h = Math.max(800, Math.min(1100, Math.round(Game.W * vh / vw)));
-    const scale = Math.min(vw / Game.W, vh / h);
-    Game.setSize(h);
-    const stage = document.getElementById('stage');
-    stage.style.height = h + 'px';
-    stage.style.setProperty('--s', scale);
+    const r = Game.fit(innerWidth, innerHeight);
+    stage.style.width = r.W + 'px'; stage.style.height = r.H + 'px';
+    stage.style.setProperty('--s', r.scale);
+    stage.classList.toggle('wide', r.W >= 760);
+    stage.classList.toggle('short', r.H < 820);
   }
-  addEventListener('resize', fit); addEventListener('orientationchange', fit); fit();
+  addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 150)); fit();
+
+  function toggleFullscreen() {
+    const d = document, el = d.documentElement;
+    if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+    else if (el.requestFullscreen || el.webkitRequestFullscreen) (el.requestFullscreen || el.webkitRequestFullscreen).call(el).catch(() => {});
+  }
+  ['btn-full', 'btn-full-menu'].forEach((id) => { const b = $(id); if (b) b.onclick = toggleFullscreen; });
 
   function show(name) {
     document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === 'screen-' + name));
@@ -97,6 +103,7 @@
     Game.start(levelData, {
       sfx: (s) => Audio.play(s),
       popup: showPopup,
+      vibrate: (ms) => { if (Audio.sfx && navigator.vibrate) navigator.vibrate(ms); },
       status: ({ balls, cubes }) => {
         const ballsEl = $('hud-balls');
         if (ballsEl.textContent !== String(balls)) { const pill = ballsEl.parentElement; pill.classList.remove('bump'); void pill.offsetWidth; pill.classList.add('bump'); }

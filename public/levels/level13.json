@@ -2,8 +2,8 @@
   "id": 13,
   "name": "Niveau 13 - Vue.js",
   "newTech": "vuejs",
-  "balls": 11,
-  "cubeWeight": 1.52,
+  "balls": 18,
+  "cubeWeight": 1.65,
   "techs": [
     "html5",
     "css3",
@@ -20,12 +20,26 @@
     "react",
     "vuejs"
   ],
-  "grid": [
-    ". . vuejs jquery . .",
-    ". . css3 vuejs . .",
-    ". . express vuejs . .",
-    ". . jquery vuejs . .",
-    ". . laravel php . .",
-    ". . css3 html5 . ."
+  "rows": 6,
+  "cols": 6,
+  "pieces": [
+    {"tech":"typescript","layer":0,"col":2,"row":0,"w":1,"h":2},
+    {"tech":"php","layer":0,"col":3,"row":0,"w":1,"h":1},
+    {"tech":"laravel","layer":0,"col":3,"row":1,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":2,"row":2,"w":1,"h":1},
+    {"tech":"tailwindcss","layer":0,"col":3,"row":2,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":2,"row":3,"w":1,"h":1},
+    {"tech":"html5","layer":0,"col":3,"row":3,"w":1,"h":1},
+    {"tech":"php","layer":0,"col":2,"row":4,"w":1,"h":1},
+    {"tech":"laravel","layer":0,"col":3,"row":4,"w":1,"h":2},
+    {"tech":"css3","layer":0,"col":2,"row":5,"w":1,"h":1},
+    {"tech":"vuejs","layer":1,"col":2,"row":0,"w":1,"h":2},
+    {"tech":"jquery","layer":1,"col":3,"row":0,"w":1,"h":1},
+    {"tech":"jquery","layer":1,"col":3,"row":1,"w":1,"h":1},
+    {"tech":"nodejs","layer":1,"col":2,"row":2,"w":1,"h":1},
+    {"tech":"vuejs","layer":1,"col":3,"row":2,"w":1,"h":2},
+    {"tech":"sass","layer":1,"col":2,"row":3,"w":1,"h":2},
+    {"tech":"css3","layer":1,"col":3,"row":4,"w":1,"h":1},
+    {"tech":"vuejs","layer":1,"col":2,"row":5,"w":2,"h":1}
   ]
 }

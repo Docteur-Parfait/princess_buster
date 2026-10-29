@@ -2,16 +2,22 @@
   "id": 2,
   "name": "Niveau 2 - Sass",
   "newTech": "sass",
-  "balls": 10,
-  "cubeWeight": 1.08,
+  "balls": 9,
+  "cubeWeight": 1.1,
   "techs": [
     "html5",
     "css3",
     "sass"
   ],
-  "grid": [
-    ". . sass . .",
-    ". sass sass html5 .",
-    "css3 sass html5 html5 css3"
+  "rows": 3,
+  "cols": 5,
+  "pieces": [
+    {"tech":"css3","layer":0,"col":2,"row":0,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":1,"row":1,"w":2,"h":1},
+    {"tech":"sass","layer":0,"col":3,"row":1,"w":1,"h":1},
+    {"tech":"css3","layer":0,"col":0,"row":2,"w":1,"h":1},
+    {"tech":"sass","layer":0,"col":1,"row":2,"w":2,"h":1},
+    {"tech":"html5","layer":0,"col":3,"row":2,"w":1,"h":1},
+    {"tech":"html5","layer":0,"col":4,"row":2,"w":1,"h":1}
   ]
 }

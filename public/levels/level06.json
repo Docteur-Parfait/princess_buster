@@ -2,8 +2,8 @@
   "id": 6,
   "name": "Niveau 6 - jQuery",
   "newTech": "jquery",
-  "balls": 6,
-  "cubeWeight": 1.24,
+  "balls": 7,
+  "cubeWeight": 1.3,
   "techs": [
     "html5",
     "css3",
@@ -13,12 +13,13 @@
     "typescript",
     "jquery"
   ],
-  "grid": [
-    ". . jquery . .",
-    ". . jquery . .",
-    ". . jquery . .",
-    ". . javascript . .",
-    ". . javascript . .",
-    ". . jquery . ."
+  "rows": 6,
+  "cols": 5,
+  "pieces": [
+    {"tech":"css3","layer":0,"col":2,"row":0,"w":1,"h":1},
+    {"tech":"jquery","layer":0,"col":2,"row":1,"w":1,"h":1},
+    {"tech":"jquery","layer":0,"col":2,"row":2,"w":1,"h":1},
+    {"tech":"javascript","layer":0,"col":2,"row":3,"w":1,"h":2},
+    {"tech":"javascript","layer":0,"col":2,"row":5,"w":1,"h":1}
   ]
 }

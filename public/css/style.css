@@ -6,10 +6,10 @@
   --ink: 0 3px 0 rgba(59, 10, 110, .9);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-html, body { margin: 0; height: 100%; background: #05041f; overflow: hidden; font-family: 'Baloo 2', 'Arial Rounded MT Bold', 'Trebuchet MS', Arial, sans-serif; color: #fff; touch-action: none; }
+html, body { margin: 0; height: 100%; overscroll-behavior: none; position: fixed; inset: 0; width: 100%; background: #05041f; overflow: hidden; font-family: 'Baloo 2', 'Arial Rounded MT Bold', 'Trebuchet MS', Arial, sans-serif; color: #fff; touch-action: none; }
 
 /* Scène logique 540x960, mise à l'échelle par ui.js (variable --s) */
-#stage { position: absolute; left: 50%; top: 50%; width: 540px; height: 960px; transform: translate(-50%, -50%) scale(var(--s, 1)); transform-origin: center; overflow: hidden; border-radius: 26px; background: var(--night); box-shadow: 0 0 0 4px var(--gold), 0 0 40px 8px rgba(255, 63, 164, .35); }
+#stage { position: fixed; left: 0; top: 0; width: 540px; height: 960px; transform: scale(var(--s, 1)); transform-origin: 0 0; overflow: hidden; background: var(--night); }
 .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; }
 .screen.active { display: flex; animation: fadein .35s ease-out; }
 @keyframes fadein { from { opacity: 0; transform: scale(1.03); } }
@@ -131,3 +131,15 @@ html, body { margin: 0; height: 100%; background: #05041f; overflow: hidden; fon
 #screen-menu > .modal { position: fixed; }
 .hint { bottom: 12px; left: 20px; right: 20px; }
 @media (hover: none) { .btn:hover { transform: none; filter: none; } .level:hover { transform: none; } }
+
+/* Plein écran, toutes orientations */
+#stage.wide #level-grid { grid-template-columns: repeat(5, 112px); }
+#stage.short .logo.big { width: 230px; margin-top: 16px; }
+#stage.short .tagline { margin: 6px 0 14px; font-size: 22px; }
+#stage.short .logo.small { width: 84px; margin-top: 4px; }
+#stage.short .level { height: 96px; }
+#stage.short .menu-actions { margin-top: 10px; }
+#stage.wide .hud { left: 24px; right: 24px; }
+.hud-buttons { flex-direction: column; }
+#stage.wide.short .hud-buttons { flex-direction: row; }
+@media (hover: none) { #btn-full, #btn-full-menu { display: inline-block; } }
