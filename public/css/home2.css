@@ -91,3 +91,10 @@
 .chest.open { animation: chestpop .8s cubic-bezier(.3, 1.8, .5, 1) 3, glowbox 1.2s ease-in-out infinite .6s; }
 @keyframes chestpop { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.35) rotate(-10deg); } 100% { transform: scale(1) rotate(0); } }
 @keyframes glowbox { 50% { box-shadow: 0 5px 0 var(--purple), 0 0 18px rgba(255, 210, 63, .8); } }
+
+/* coffre = prochaine technologie à débloquer */
+.tcube { display: flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 12px; border: 3px solid rgba(28, 10, 66, .95); background: linear-gradient(var(--c1), var(--c2)); box-shadow: 0 3px 0 rgba(28, 10, 66, .95), inset 0 2px 0 rgba(255, 255, 255, .3); }
+.tcube img { width: 66%; height: 66%; }
+.chest .tcube { width: 44px; height: 44px; }
+.chest-bar .chest .tcube { width: 40px; height: 40px; }
+.chest-bar .chest { font-size: 30px; }

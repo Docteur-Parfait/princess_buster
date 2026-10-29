@@ -12,7 +12,7 @@ const TECHS = [
   ['react', 'React', '#61dafb'], ['vuejs', 'Vue.js', '#42b883'], ['angular', 'Angular', '#dd0031'], ['python', 'Python', '#3776ab'],
   ['django', 'Django', '#44b78b'], ['mysql', 'MySQL', '#f29111'], ['mongodb', 'MongoDB', '#47a248'], ['docker', 'Docker', '#2496ed'],
   ['git', 'Git', '#f05032'],
-  // technologies introduites après le niveau 20 (une tous les 6 niveaux)
+  // technologies débloquées ensuite, dans l'ordre, une par palier de 5 niveaux
   ['go', 'Go', '#00add8'], ['rust', 'Rust', '#ce412b'], ['kotlin', 'Kotlin', '#7f52ff'], ['swift', 'Swift', '#f05138'],
   ['java', 'Java', '#e76f00'], ['csharp', 'C#', '#68217a'], ['cplusplus', 'C++', '#00599c'], ['ruby', 'Ruby', '#cc342d'],
   ['flutter', 'Flutter', '#02569b'], ['dart', 'Dart', '#0175c2'], ['nextjs', 'Next.js', '#6b7280'], ['svelte', 'Svelte', '#ff3e00'],
@@ -22,7 +22,11 @@ const TECHS = [
   ['openai', 'ChatGPT', '#10a37f'], ['claude', 'Claude', '#d97757'], ['gemini', 'Gemini', '#4285f4'], ['grok', 'Grok', '#3b3b4f'],
   ['mistral', 'Mistral AI', '#fa520f'], ['perplexity', 'Perplexity', '#20808d'], ['huggingface', 'Hugging Face', '#ffb000'],
   ['copilot', 'GitHub Copilot', '#6e40c9'], ['ollama', 'Ollama', '#4b5563'], ['llama', 'Llama', '#0866ff'],
-].map(([key, name, color], i) => ({ key, name, color, intro: i === 0 ? 1 : i <= 20 ? i : 20 + (i - 20) * 6 }));
+].map(([key, name, color]) => ({ key, name, color }));
+
+// Une nouvelle technologie est débloquée tous les 5 niveaux (récompense du coffre) :
+// les niveaux d'un palier n'utilisent que les technologies déjà débloquées. 11 au départ + 39 déblocages = 50 au niveau 200.
+const START_TECHS = 11, BLOCK = 5;
 
 // Fonds (définis dans public/js/game.js) : un thème différent d'un niveau au suivant
 const THEMES = ['meadow', 'night', 'sunset', 'snow', 'desert', 'ocean', 'candy', 'forest', 'space', 'autumn', 'volcano', 'neon'];
@@ -142,9 +146,11 @@ for (let id = 1; id <= TOTAL; id++) {
   let level, shape, w, h, back, pieces, balls, theme, pool, newTech;
   for (let attempt = 0; attempt < 14; attempt++) {
   const rand = rng(id * 7919 + attempt * 104729);
-  pool = TECHS.filter((t) => t.intro <= id).map((t) => t.key);
-  newTech = TECHS.find((t) => t.intro === id && id > 1)?.key || null;
-  const focus = newTech || pool[pool.length - 1];
+  const block = Math.floor((id - 1) / BLOCK), poolSize = Math.min(TECHS.length, START_TECHS + block);
+  pool = TECHS.slice(0, poolSize).map((t) => t.key);
+  // récompense du coffre (dernier niveau du palier) : la prochaine technologie à débloquer
+  newTech = id % BLOCK === 0 && poolSize < TECHS.length ? TECHS[poolSize].key : null;
+  const focus = pool[pool.length - 1];                    // la dernière débloquée revient souvent
 
   // forme et taille
   if (id <= PLAN.length) [shape, w, h] = PLAN[id - 1];
@@ -194,7 +200,8 @@ for (let id = 1; id <= TOTAL; id++) {
     id,
     name: `Niveau ${id}`,
     theme,
-    newTech,
+    block,
+    reward: newTech,
     balls,
     cubeWeight: weight,
     techs: pool,
@@ -206,9 +213,9 @@ for (let id = 1; id <= TOTAL; id++) {
   }
   const file = `level${String(id).padStart(3, '0')}.json`;
   fs.writeFileSync(path.join(outDir, file), formatLevel(level));
-  index.push({ id, file, theme, newTech, icon: newTech || pool[(id * 5) % pool.length] });
+  index.push({ id, file, theme, reward: newTech, icon: pool[(id * 5) % pool.length] });
   if (id <= 20 || id % 20 === 0) console.log(`niveau ${id}: ${shape} ${w}x${h} ${theme} pièces=${pieces.length} (derrière ${back.length}) balles=${balls}`);
 }
 
-fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify({ techs: TECHS.map(({ key, name, color }) => ({ key, name, color })), themes: THEMES, levels: index }, null, 1));
+fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify({ startTechs: START_TECHS, blockSize: BLOCK, techs: TECHS, themes: THEMES, levels: index }, null, 1));
 console.log(`${TOTAL} niveaux générés`);

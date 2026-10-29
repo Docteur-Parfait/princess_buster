@@ -2,7 +2,8 @@
   "id": 193,
   "name": "Niveau 193",
   "theme": "meadow",
-  "newTech": null,
+  "block": 38,
+  "reward": null,
   "balls": 127,
   "cubeWeight": 2,
   "techs": [

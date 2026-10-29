@@ -2,7 +2,8 @@
   "id": 181,
   "name": "Niveau 181",
   "theme": "meadow",
-  "newTech": null,
+  "block": 36,
+  "reward": null,
   "balls": 57,
   "cubeWeight": 2,
   "techs": [

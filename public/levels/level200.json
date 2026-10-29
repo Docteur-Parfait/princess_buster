@@ -2,7 +2,8 @@
   "id": 200,
   "name": "Niveau 200",
   "theme": "forest",
-  "newTech": null,
+  "block": 39,
+  "reward": null,
   "balls": 124,
   "cubeWeight": 2,
   "techs": [

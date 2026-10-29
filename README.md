@@ -47,7 +47,7 @@
 
 Une pile de cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) est posée sur une table. Ton canon, fixe au bas de l'écran, tire des balles : chaque balle **pousse la pièce visée vers le fond**. Elle glisse sur le plateau puis **tombe derrière la table**.
 
-- Tu **gagnes** quand il n'y a plus aucun cube sur la table. Le **score du niveau = le nombre de balles restantes**.
+- Tu **gagnes** quand il n'y a plus aucun cube sur la table. Chaque niveau gagné rapporte **20 points**, même s'il ne te reste aucune balle (les étoiles, elles, récompensent les balles économisées).
 - Tu **perds** quand tu n'as plus de balles alors qu'il reste des cubes.
 - Les niveaux deviennent plus durs : pièces plus lourdes et plus grandes, et à partir du niveau 5 des **pièces cachées derrière d'autres pièces** (celle de devant, poussée, fait tomber celle de derrière en premier).
 
@@ -123,8 +123,8 @@ npm run levels    # régénère les niveaux (attention : écrase les fichiers de
 
 ## Les 200 niveaux
 
-- **Niveaux 1 à 20** : une nouvelle technologie par niveau (HTML5 est présent dès le début) : CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git.
-- **Niveaux 21 à 200** : 29 technologies de plus, une tous les 6 niveaux : Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash, puis les **IA** : ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama et Llama.
+- **Une nouvelle technologie tous les 5 niveaux** : les 5 niveaux d'un palier n'utilisent que les technologies déjà débloquées. Le **coffre de récompense** affiché pendant le palier montre la **prochaine technologie** ; en gagnant le 5ᵉ niveau tu la débloques (barre de progression 5/5), puis elle apparaît dans les 5 niveaux suivants.
+- **50 technologies** au total : on démarre avec 11 (HTML5, CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js), puis un déblocage par palier : Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git, Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash, puis les **IA** : ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama et Llama (niveau 195).
 - **Décors** : 12 thèmes qui tournent à chaque niveau (`meadow`, `night`, `sunset`, `snow`, `desert`, `ocean`, `candy`, `forest`, `space`, `autumn`, `volcano`, `neon`), définis dans `public/js/game.js`.
 - **Difficulté** : piles plus grandes (jusqu'à 9×8), pièces plus lourdes et plus grandes, rangées cachées derrière (2 rangées dès le niveau 5, 3 dès le niveau 100).
 
@@ -137,7 +137,8 @@ Un niveau est un fichier `public/levels/levelNNN.json` :
   "id": 3,
   "name": "Niveau 3",
   "theme": "sunset",
-  "newTech": "bootstrap",
+  "block": 0,
+  "reward": null,
   "balls": 15,
   "cubeWeight": 1.15,
   "techs": ["html5", "css3", "sass", "bootstrap"],
@@ -155,7 +156,8 @@ Un niveau est un fichier `public/levels/levelNNN.json` :
 | Champ | Rôle |
 | --- | --- |
 | `theme` | Décor du niveau (un des 12 thèmes) |
-| `newTech` | Techno mise en avant par un bandeau (ou `null`) |
+| `block` | Numéro du palier de 5 niveaux (0 = niveaux 1 à 5) |
+| `reward` | Clé de la techno débloquée à la fin du niveau (5ᵉ de chaque palier), sinon `null` |
 | `balls` | Nombre de balles disponibles |
 | `cubeWeight` | Multiplicateur de poids des pièces (plus c'est lourd, plus il faut de tirs) |
 | `rows` / `cols` | Taille de la grille (la ligne `0` est en haut) |
@@ -193,7 +195,7 @@ princess_buster/
 
 ## API et sauvegarde
 
-Base SQLite (`data/princess-buster.db`), deux tables : `players` (nom unique) et `progress` (meilleur score, tentatives, niveau réussi).
+Base SQLite (`data/princess-buster.db`), deux tables : `players` (nom unique) et `progress` (meilleur score, tentatives, niveau réussi ; 20 points par niveau gagné).
 
 | Méthode | Route | Rôle |
 | --- | --- | --- |

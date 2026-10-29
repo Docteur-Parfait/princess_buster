@@ -2,7 +2,8 @@
   "id": 186,
   "name": "Niveau 186",
   "theme": "ocean",
-  "newTech": null,
+  "block": 37,
+  "reward": null,
   "balls": 127,
   "cubeWeight": 2,
   "techs": [

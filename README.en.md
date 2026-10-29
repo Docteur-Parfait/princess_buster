@@ -33,7 +33,7 @@
 
 A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits on a table. Your cannon, fixed at the bottom of the screen, fires balls: each ball **pushes the targeted piece toward the back**. It slides along the table and **falls off behind it**.
 
-- You **win** when no cube is left on the table. **Level score = balls left over.**
+- You **win** when no cube is left on the table. Every won level earns **20 points**, even with zero balls left (stars reward saved balls).
 - You **lose** when you run out of balls while cubes remain.
 - Difficulty ramps up: heavier and bigger pieces, and from level 5 on, **pieces hidden behind other pieces** (pushing the front piece knocks the one behind off first).
 
@@ -77,7 +77,7 @@ npm run levels    # regenerates levels (overwrites public/levels)
 
 ## Levels
 
-Levels 1-20 each introduce a new technology (HTML5 from the start): CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git. Levels 21-200 add 29 more, one every 6 levels (Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash, then the AIs: ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama) and 12 rotating backgrounds.
+A **new technology is unlocked every 5 levels**: the levels of a block only use technologies unlocked so far. The reward chest shows the **next technology**; winning the 5th level of the block unlocks it. You start with 11 technologies (HTML5, CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js) and reach 50, ending with the AIs (ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama), plus 12 rotating backgrounds.
 
 A level is a `public/levels/levelNNN.json` file with `balls`, `cubeWeight`, `rows`, `cols` and a list of `pieces` (`tech`, `col`, `row`, `w`, `h`, `layer`). See the [French README](README.md#créer-ou-modifier-un-niveau) for the full format, and run `npm test` to validate your changes.
 

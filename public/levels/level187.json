@@ -2,7 +2,8 @@
   "id": 187,
   "name": "Niveau 187",
   "theme": "candy",
-  "newTech": null,
+  "block": 37,
+  "reward": null,
   "balls": 48,
   "cubeWeight": 2,
   "techs": [

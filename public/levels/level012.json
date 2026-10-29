@@ -2,7 +2,8 @@
   "id": 12,
   "name": "Niveau 12",
   "theme": "neon",
-  "newTech": "react",
+  "block": 2,
+  "reward": null,
   "balls": 26,
   "cubeWeight": 1.36,
   "techs": [

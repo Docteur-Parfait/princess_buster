@@ -2,7 +2,8 @@
   "id": 197,
   "name": "Niveau 197",
   "theme": "desert",
-  "newTech": null,
+  "block": 39,
+  "reward": null,
   "balls": 80,
   "cubeWeight": 2,
   "techs": [

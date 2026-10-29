@@ -13,6 +13,9 @@
   const avatarSrc = (i) => `assets/avatars/av${String((i % AVATAR_COUNT) + 1).padStart(2, '0')}.jpg`;
   function applyAvatar(el, i) { el.innerHTML = `<img src="${avatarSrc(i)}" alt="" draggable="false">`; el.parentElement.style.background = '#f3e3c3'; }
   const THEME_NAMES = { meadow: '🌳 Prairie', night: '🌙 Nuit étoilée', sunset: '🌅 Coucher de soleil', snow: '❄️ Neige', desert: '🏜️ Désert', ocean: '🌊 Océan', candy: '🍭 Bonbons', forest: '🌲 Forêt', space: '🪐 Espace', autumn: '🍂 Automne', volcano: '🌋 Volcan', neon: '🌆 Ville néon' };
+  const POINTS_PER_WIN = 20;                                   // 20 points par niveau gagné, quel que soit le nombre de balles restantes
+  const blockSize = () => (meta && meta.blockSize) || 5;      // une nouvelle techno est débloquée tous les 5 niveaux
+  const techCube = (t) => { const col = Game.techColors(t.key); return `<span class="tcube" style="--c1:${col.c1};--c2:${col.c2}"><img src="${Game.whiteURL(t.key)}" alt="${t.name}"></span>`; };
   const POWER_UNLOCK = { triple: 3, super: 10 };               // niveau d'apparition des bonus
   const store = {
     get(k, d = '') { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } },
@@ -118,11 +121,11 @@
     const spots = [[52, 120], [284, 128], [84, 12], [250, 6]];
     $('floaters').innerHTML = spots.map(([x, y], i) => cube('fl', pick(i + 2), `left:${x}px;top:${y}px;--d:${i * 0.7}s`)).join('');
     // progression des 10 niveaux en cours + niveau de difficulté du bouton Jouer
-    const done = ((next - 1) % 10);
-    $('home-bar').style.width = (done * 10) + '%'; $('home-bar-text').textContent = `${done}/10`;
-    const nextChest = Math.ceil(next / 10) * 10;
-    document.querySelector('.chest-bar').title = `Coffre au niveau ${nextChest} : +${chestBonus(nextChest)} points`;
-    document.querySelector('.chest-bar .chest').innerHTML = `🎁<small>+${chestBonus(nextChest)}</small>`;
+    const B = blockSize(), done = (next - 1) % B, end = Math.ceil(next / B) * B;
+    const rewardKey = meta.levels[end - 1] && meta.levels[end - 1].reward, rt = rewardKey && techByKey(rewardKey);
+    $('home-bar').style.width = (done * 100 / B) + '%'; $('home-bar-text').textContent = `${done}/${B}`;
+    document.querySelector('.chest-bar').title = rt ? `Après le niveau ${end} : nouvelle techno ${rt.name}` : 'Tu as débloqué toutes les technologies';
+    document.querySelector('.chest-bar .chest').innerHTML = rt ? techCube(rt) : '🏆';
     refreshToggles();
   }
   $('btn-play').onclick = () => { Audio.init(); Audio.play('click'); openLevelModal(nextLevelToPlay()); };
@@ -151,7 +154,7 @@
       b.className = 'level' + (prog && prog.completed ? ' done' : '') + (unlocked ? '' : ' locked') + (isCurrent ? ' current' : '');
       b.style.setProperty('--i', Math.min(n, 12));
       b.innerHTML = `<span class="num">${n}</span><img src="assets/tech/${tech.key}.svg" alt="${tech.name}" loading="lazy">` +
-        (unlocked ? `<span class="best">${prog && prog.completed ? '⭐ ' + prog.bestScore : (info.newTech ? tech.name : 'À jouer')}</span>` : '<span class="lock">🔒</span>');
+        (unlocked ? `<span class="best">${prog && prog.completed ? '⭐ ' + prog.bestScore : 'À jouer'}</span>` : '<span class="lock">🔒</span>');
       b.addEventListener('click', () => { if (!unlocked) return; Audio.play('click'); openLevelModal(n); });
       grid.appendChild(b);
       if (isCurrent && !current) current = b;
@@ -175,8 +178,7 @@
     $('lv-balls').textContent = lvl.balls;
     $('lv-pieces').textContent = lvl.pieces.length;
     $('lv-best').textContent = prog && prog.completed ? `⭐ ${prog.bestScore}` : '–';
-    const tech = lvl.newTech && techByKey(lvl.newTech);
-    $('lv-tech').innerHTML = tech ? `<img src="assets/tech/${tech.key}.svg" alt=""> Nouvelle techno : <b>${tech.name}</b>` : '';
+    $('lv-tech').innerHTML = '';
     chosenBooster = null;
     document.querySelectorAll('.bst').forEach((b) => { b.classList.remove('sel'); const locked = n < POWER_UNLOCK[b.dataset.b]; b.classList.toggle('locked', locked); b.querySelector('em').textContent = locked ? `🔒 Niv. ${POWER_UNLOCK[b.dataset.b]}` : 'Gratuit'; });
     $('btn-level-play').textContent = prog && prog.attempts && !prog.completed ? 'Réessaie' : 'Jouer';
@@ -252,13 +254,7 @@
       status: onStatus,
       end: onEnd,
     });
-    const tech = levelData.newTech && techByKey(levelData.newTech);
-    const banner = $('tech-banner');
-    banner.classList.add('hidden');
-    if (tech) {                                                    // bandeau uniquement quand une nouvelle techno apparaît
-      banner.innerHTML = `<img src="assets/tech/${tech.key}.svg" alt=""> Nouvelle techno : ${tech.name}`;
-      void banner.offsetWidth; banner.classList.remove('hidden');
-    }
+    $('tech-banner').classList.add('hidden');
     startTuto(n);
   }
 
@@ -302,34 +298,34 @@
   }
 
   // ============================== résultat ==============================
-  let lastBonus = 0;
-  const chestBonus = (n) => 20 + Math.floor(n / 10) * 5;                 // niveau 10 : 25 pts, niveau 20 : 30 pts, … niveau 200 : 120 pts
-  async function onEnd({ won, score, ballsLeft }) {
+  async function onEnd({ won, ballsLeft }) {
     endTuto();
     $('result').classList.remove('hidden');
     if (won) {
+      const B = blockSize(), done = ((currentLevel - 1) % B) + 1;
       const ratio = ballsLeft / levelData.balls, stars = ratio >= 0.5 ? 3 : ratio >= 0.25 ? 2 : 1;
-      const done = ((currentLevel - 1) % 10) + 1;
-      const prev = Storage.progressOf(currentLevel), first = !(prev && prev.completed);
-      const bonus = first && done === 10 ? chestBonus(currentLevel) : 0;          // coffre ouvert au 10/10
-      lastBonus = bonus;
+      const reward = levelData.reward && techByKey(levelData.reward);          // techno débloquée à la fin du palier
+      const unlockedNow = done === B && reward;
       $('panel-win').classList.remove('hidden');
       $('btn-result-next').classList.toggle('hidden', currentLevel >= TOTAL_LEVELS);          // dernier niveau : pas de suivant
-      $('result-score').textContent = score;
-      $('result-text').textContent = `${ballsLeft} balle(s) restante(s) = ${ballsLeft} point(s)` + (bonus ? ` · 🎁 coffre : +${bonus} points !` : '');
-      document.querySelector('#panel-win .chest').innerHTML = bonus ? `🎁<small>+${bonus} pts</small>` : `🎁<small>Au 10/10</small>`;
-      document.querySelector('#panel-win .chest').classList.toggle('open', !!bonus);
-      if (bonus) setTimeout(() => Audio.play('win'), 900);
+      $('result-score').textContent = POINTS_PER_WIN;
+      $('result-text').textContent = unlockedNow ? `🎉 Nouvelle techno débloquée : ${reward.name} !` : `Niveau réussi ! +${POINTS_PER_WIN} points`;
+      const chest = document.querySelector('#panel-win .chest');
+      const endKey = meta.levels[Math.ceil(currentLevel / B) * B - 1] && meta.levels[Math.ceil(currentLevel / B) * B - 1].reward;
+      const nextT = reward || (endKey && techByKey(endKey));
+      chest.innerHTML = nextT ? techCube(nextT) + `<small>${unlockedNow ? 'Débloquée !' : 'Prochaine'}</small>` : '🏆';
+      chest.classList.toggle('open', !!unlockedNow);
+      if (unlockedNow) setTimeout(() => Audio.play('win'), 900);
       $('result-stars').textContent = '';
-      $('result-bar').style.width = '0'; $('result-bar-text').textContent = `${done}/10`;
-      setTimeout(() => { $('result-bar').style.width = (done * 10) + '%'; }, 60);
+      $('result-bar').style.width = '0'; $('result-bar-text').textContent = `${done}/${B}`;
+      setTimeout(() => { $('result-bar').style.width = (done * 100 / B) + '%'; }, 60);
       setTimeout(() => Audio.play('coin'), 300);
       for (let i = 0; i < stars; i++) setTimeout(() => { $('result-stars').insertAdjacentHTML('beforeend', '<span>⭐</span>'); Audio.play('star'); }, 500 + i * 300);
     } else {
       $('lose-ribbon').textContent = `NIVEAU ${currentLevel}`;
       $('panel-lose').classList.remove('hidden');
     }
-    await Storage.saveResult(currentLevel, won ? score + (lastBonus || 0) : score, won);
+    await Storage.saveResult(currentLevel, won ? POINTS_PER_WIN : 0, won);
   }
   const goNext = () => { Audio.play('click'); if (currentLevel >= TOTAL_LEVELS) openHome(); else openLevelModalAndStart(currentLevel + 1); };
   async function openLevelModalAndStart(n) { $('result').classList.add('hidden'); startLevel(n); }

@@ -2,7 +2,8 @@
   "id": 191,
   "name": "Niveau 191",
   "theme": "volcano",
-  "newTech": null,
+  "block": 38,
+  "reward": null,
   "balls": 78,
   "cubeWeight": 2,
   "techs": [

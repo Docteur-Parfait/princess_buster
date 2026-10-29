@@ -2,7 +2,8 @@
   "id": 28,
   "name": "Niveau 28",
   "theme": "snow",
-  "newTech": null,
+  "block": 5,
+  "reward": null,
   "balls": 22,
   "cubeWeight": 1.84,
   "techs": [
@@ -21,26 +22,20 @@
     "react",
     "vuejs",
     "angular",
-    "python",
-    "django",
-    "mysql",
-    "mongodb",
-    "docker",
-    "git",
-    "go"
+    "python"
   ],
   "rows": 4,
   "cols": 5,
   "pieces": [
-    {"tech":"typescript","layer":0,"col":0,"row":0,"w":1,"h":2},
-    {"tech":"css3","layer":0,"col":2,"row":0,"w":1,"h":1},
-    {"tech":"git","layer":0,"col":4,"row":0,"w":1,"h":1},
-    {"tech":"go","layer":0,"col":2,"row":1,"w":1,"h":1},
-    {"tech":"docker","layer":0,"col":4,"row":1,"w":1,"h":1},
-    {"tech":"docker","layer":0,"col":0,"row":2,"w":1,"h":1},
-    {"tech":"angular","layer":0,"col":2,"row":2,"w":1,"h":2},
-    {"tech":"javascript","layer":0,"col":4,"row":2,"w":1,"h":1},
-    {"tech":"go","layer":0,"col":0,"row":3,"w":1,"h":1},
-    {"tech":"react","layer":0,"col":4,"row":3,"w":1,"h":1}
+    {"tech":"bootstrap","layer":0,"col":0,"row":0,"w":1,"h":2},
+    {"tech":"html5","layer":0,"col":2,"row":0,"w":1,"h":1},
+    {"tech":"angular","layer":0,"col":4,"row":0,"w":1,"h":1},
+    {"tech":"python","layer":0,"col":2,"row":1,"w":1,"h":1},
+    {"tech":"angular","layer":0,"col":4,"row":1,"w":1,"h":1},
+    {"tech":"vuejs","layer":0,"col":0,"row":2,"w":1,"h":1},
+    {"tech":"nodejs","layer":0,"col":2,"row":2,"w":1,"h":2},
+    {"tech":"bootstrap","layer":0,"col":4,"row":2,"w":1,"h":1},
+    {"tech":"python","layer":0,"col":0,"row":3,"w":1,"h":1},
+    {"tech":"laravel","layer":0,"col":4,"row":3,"w":1,"h":1}
   ]
 }

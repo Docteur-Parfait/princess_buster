@@ -22,10 +22,20 @@ if (-not $env:JAVA_HOME) {
 }
 if ($env:JAVA_HOME) { $env:Path = "$env:JAVA_HOME\bin;$env:Path" }
 
+# --- environnement MSVC (éditeur de liens + Windows SDK) : on charge vcvars64.bat d'une installation complète ---
+$vcvars = @(
+  "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat",
+  "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat",
+  "${env:ProgramFiles}\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat"
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+if ($vcvars) {
+  cmd /c "`"$vcvars`" >nul && set" | ForEach-Object { if ($_ -match '^([^=]+)=(.*)$') { Set-Item -Path "env:$($Matches[1])" -Value $Matches[2] } }
+} else { Write-Warning "vcvars64.bat introuvable : installe les Build Tools Visual Studio (charge de travail C++)." }
+
 # --- compilation ---
-$args = @('tauri', 'android', 'build', '--apk')
-if ($Target -ne 'all') { $args += @('--target', $Target) }
-npx @args
+$tauriArgs = @('tauri', 'android', 'build', '--apk')
+if ($Target -ne 'all') { $tauriArgs += @('--target', $Target) }
+npx @tauriArgs
 if ($LASTEXITCODE -ne 0) { throw "Échec de la compilation Tauri" }
 
 # --- alignement + signature ---

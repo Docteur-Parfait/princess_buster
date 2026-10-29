@@ -2,7 +2,8 @@
   "id": 192,
   "name": "Niveau 192",
   "theme": "neon",
-  "newTech": null,
+  "block": 38,
+  "reward": null,
   "balls": 153,
   "cubeWeight": 2,
   "techs": [

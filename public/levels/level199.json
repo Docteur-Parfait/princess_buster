@@ -2,7 +2,8 @@
   "id": 199,
   "name": "Niveau 199",
   "theme": "candy",
-  "newTech": null,
+  "block": 39,
+  "reward": null,
   "balls": 137,
   "cubeWeight": 2,
   "techs": [
