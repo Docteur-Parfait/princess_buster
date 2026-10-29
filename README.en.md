@@ -77,7 +77,7 @@ npm run levels    # regenerates levels (overwrites public/levels)
 
 ## Levels
 
-A **new technology is unlocked every 5 levels**: the levels of a block only use technologies unlocked so far. The reward chest shows the **next technology**; winning the 5th level of the block unlocks it. You start with 11 technologies (HTML5, CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js) and reach 50, ending with the AIs (ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama), plus 12 rotating backgrounds.
+A **new technology is unlocked every 5 levels**, step by step: levels 1-5 only use **HTML5 and CSS3**, JavaScript joins at level 6, PHP at level 11, then Sass, Bootstrap, TypeScript, jQuery, Tailwind CSS, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git, the AIs (ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama), Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter and Dart. 41 technologies are unlocked by level 200; the last 9 are ready for future levels. The reward chest shows the **next technology**. There are 12 rotating backgrounds.
 
 A level is a `public/levels/levelNNN.json` file with `balls`, `cubeWeight`, `rows`, `cols` and a list of `pieces` (`tech`, `col`, `row`, `w`, `h`, `layer`). See the [French README](README.md#créer-ou-modifier-un-niveau) for the full format, and run `npm test` to validate your changes.
 

@@ -46,7 +46,7 @@ Pour tester en local exactement comme sur Vercel : `npx vercel dev`.
 ## Après le premier déploiement
 
 1. **Teste** l'adresse sur ton téléphone : l'écran d'accueil, un niveau, le plein écran, la rotation portrait/paysage.
-2. **Aperçu de partage** : dans `public/index.html`, remplace `content="assets/og.jpg"` par l'adresse complète, par exemple `content="https://princess-buster.vercel.app/assets/og.jpg"` (certains réseaux sociaux exigent une URL absolue), puis `git push`.
+2. **SEO et aperçu de partage** : `public/index.html`, `public/robots.txt` et `public/sitemap.xml` utilisent l'adresse `https://princess-buster.vercel.app`. Si ton adresse est différente, remplace-la partout (recherche `princess-buster.vercel.app`) puis `git push`. L'image d'aperçu est `public/assets/og.jpg` (1200×630). Teste le rendu avec le [Débogueur de partage Facebook](https://developers.facebook.com/tools/debug/) ou en collant le lien dans WhatsApp, puis déclare le site dans la [Search Console Google](https://search.google.com/search-console) (ajoute le `sitemap.xml`).
 3. **Installer comme une application** : sur Android (Chrome) → menu ⋮ → *Installer l'application* ; sur iPhone (Safari) → Partager → *Sur l'écran d'accueil*.
 4. Ajoute l'adresse dans le **README** (badge ou lien « Jouer en ligne ») et dans la description du dépôt GitHub (champ *Website*).
 

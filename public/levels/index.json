@@ -1,5 +1,5 @@
 {
- "startTechs": 11,
+ "startTechs": 2,
  "blockSize": 5,
  "techs": [
   {
@@ -13,6 +13,16 @@
    "color": "#2965f1"
   },
   {
+   "key": "javascript",
+   "name": "JavaScript",
+   "color": "#f7df1e"
+  },
+  {
+   "key": "php",
+   "name": "PHP",
+   "color": "#777bb4"
+  },
+  {
    "key": "sass",
    "name": "Sass",
    "color": "#cc6699"
@@ -21,11 +31,6 @@
    "key": "bootstrap",
    "name": "Bootstrap",
    "color": "#7952b3"
-  },
-  {
-   "key": "javascript",
-   "name": "JavaScript",
-   "color": "#f7df1e"
   },
   {
    "key": "typescript",
@@ -41,11 +46,6 @@
    "key": "tailwindcss",
    "name": "Tailwind CSS",
    "color": "#38bdf8"
-  },
-  {
-   "key": "php",
-   "name": "PHP",
-   "color": "#777bb4"
   },
   {
    "key": "laravel",
@@ -106,6 +106,56 @@
    "key": "git",
    "name": "Git",
    "color": "#f05032"
+  },
+  {
+   "key": "openai",
+   "name": "ChatGPT",
+   "color": "#10a37f"
+  },
+  {
+   "key": "claude",
+   "name": "Claude",
+   "color": "#d97757"
+  },
+  {
+   "key": "gemini",
+   "name": "Gemini",
+   "color": "#4285f4"
+  },
+  {
+   "key": "grok",
+   "name": "Grok",
+   "color": "#3b3b4f"
+  },
+  {
+   "key": "mistral",
+   "name": "Mistral AI",
+   "color": "#fa520f"
+  },
+  {
+   "key": "perplexity",
+   "name": "Perplexity",
+   "color": "#20808d"
+  },
+  {
+   "key": "huggingface",
+   "name": "Hugging Face",
+   "color": "#ffb000"
+  },
+  {
+   "key": "copilot",
+   "name": "GitHub Copilot",
+   "color": "#6e40c9"
+  },
+  {
+   "key": "ollama",
+   "name": "Ollama",
+   "color": "#4b5563"
+  },
+  {
+   "key": "llama",
+   "name": "Llama",
+   "color": "#0866ff"
   },
   {
    "key": "go",
@@ -201,56 +251,6 @@
    "key": "bash",
    "name": "Bash",
    "color": "#4eaa25"
-  },
-  {
-   "key": "openai",
-   "name": "ChatGPT",
-   "color": "#10a37f"
-  },
-  {
-   "key": "claude",
-   "name": "Claude",
-   "color": "#d97757"
-  },
-  {
-   "key": "gemini",
-   "name": "Gemini",
-   "color": "#4285f4"
-  },
-  {
-   "key": "grok",
-   "name": "Grok",
-   "color": "#3b3b4f"
-  },
-  {
-   "key": "mistral",
-   "name": "Mistral AI",
-   "color": "#fa520f"
-  },
-  {
-   "key": "perplexity",
-   "name": "Perplexity",
-   "color": "#20808d"
-  },
-  {
-   "key": "huggingface",
-   "name": "Hugging Face",
-   "color": "#ffb000"
-  },
-  {
-   "key": "copilot",
-   "name": "GitHub Copilot",
-   "color": "#6e40c9"
-  },
-  {
-   "key": "ollama",
-   "name": "Ollama",
-   "color": "#4b5563"
-  },
-  {
-   "key": "llama",
-   "name": "Llama",
-   "color": "#0866ff"
   }
  ],
  "themes": [
@@ -273,161 +273,161 @@
    "file": "level001.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "typescript"
+   "icon": "css3"
   },
   {
    "id": 2,
    "file": "level002.json",
    "theme": "night",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "html5"
   },
   {
    "id": 3,
    "file": "level003.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "javascript"
+   "icon": "css3"
   },
   {
    "id": 4,
    "file": "level004.json",
    "theme": "snow",
    "reward": null,
-   "icon": "laravel"
+   "icon": "html5"
   },
   {
    "id": 5,
    "file": "level005.json",
    "theme": "desert",
-   "reward": "express",
-   "icon": "bootstrap"
+   "reward": "javascript",
+   "icon": "css3"
   },
   {
    "id": 6,
    "file": "level006.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "jquery"
+   "icon": "html5"
   },
   {
    "id": 7,
    "file": "level007.json",
    "theme": "candy",
    "reward": null,
-   "icon": "express"
+   "icon": "javascript"
   },
   {
    "id": 8,
    "file": "level008.json",
    "theme": "forest",
    "reward": null,
-   "icon": "javascript"
+   "icon": "css3"
   },
   {
    "id": 9,
    "file": "level009.json",
    "theme": "space",
    "reward": null,
-   "icon": "laravel"
+   "icon": "html5"
   },
   {
    "id": 10,
    "file": "level010.json",
    "theme": "autumn",
-   "reward": "react",
-   "icon": "sass"
+   "reward": "php",
+   "icon": "javascript"
   },
   {
    "id": 11,
    "file": "level011.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "bootstrap"
+   "icon": "php"
   },
   {
    "id": 12,
    "file": "level012.json",
    "theme": "neon",
    "reward": null,
-   "icon": "php"
+   "icon": "html5"
   },
   {
    "id": 13,
    "file": "level013.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "html5"
+   "icon": "css3"
   },
   {
    "id": 14,
    "file": "level014.json",
    "theme": "night",
    "reward": null,
-   "icon": "typescript"
+   "icon": "javascript"
   },
   {
    "id": 15,
    "file": "level015.json",
    "theme": "sunset",
-   "reward": "vuejs",
-   "icon": "nodejs"
+   "reward": "sass",
+   "icon": "php"
   },
   {
    "id": 16,
    "file": "level016.json",
    "theme": "snow",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "html5"
   },
   {
    "id": 17,
    "file": "level017.json",
    "theme": "desert",
    "reward": null,
-   "icon": "css3"
+   "icon": "html5"
   },
   {
    "id": 18,
    "file": "level018.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "jquery"
+   "icon": "html5"
   },
   {
    "id": 19,
    "file": "level019.json",
    "theme": "candy",
    "reward": null,
-   "icon": "express"
+   "icon": "html5"
   },
   {
    "id": 20,
    "file": "level020.json",
    "theme": "forest",
-   "reward": "angular",
-   "icon": "sass"
+   "reward": "bootstrap",
+   "icon": "html5"
   },
   {
    "id": 21,
    "file": "level021.json",
    "theme": "space",
    "reward": null,
-   "icon": "html5"
+   "icon": "php"
   },
   {
    "id": 22,
    "file": "level022.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "typescript"
+   "icon": "javascript"
   },
   {
    "id": 23,
    "file": "level023.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "css3"
   },
   {
    "id": 24,
@@ -440,8 +440,8 @@
    "id": 25,
    "file": "level025.json",
    "theme": "meadow",
-   "reward": "python",
-   "icon": "typescript"
+   "reward": "typescript",
+   "icon": "bootstrap"
   },
   {
    "id": 26,
@@ -455,63 +455,63 @@
    "file": "level027.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "tailwindcss"
+   "icon": "javascript"
   },
   {
    "id": 28,
    "file": "level028.json",
    "theme": "snow",
    "reward": null,
-   "icon": "react"
+   "icon": "html5"
   },
   {
    "id": 29,
    "file": "level029.json",
    "theme": "desert",
    "reward": null,
-   "icon": "css3"
+   "icon": "bootstrap"
   },
   {
    "id": 30,
    "file": "level030.json",
    "theme": "ocean",
-   "reward": "django",
-   "icon": "jquery"
+   "reward": "jquery",
+   "icon": "php"
   },
   {
    "id": 31,
    "file": "level031.json",
    "theme": "candy",
    "reward": null,
-   "icon": "sass"
+   "icon": "php"
   },
   {
    "id": 32,
    "file": "level032.json",
    "theme": "forest",
    "reward": null,
-   "icon": "tailwindcss"
+   "icon": "html5"
   },
   {
    "id": 33,
    "file": "level033.json",
    "theme": "space",
    "reward": null,
-   "icon": "react"
+   "icon": "bootstrap"
   },
   {
    "id": 34,
    "file": "level034.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "html5"
+   "icon": "javascript"
   },
   {
    "id": 35,
    "file": "level035.json",
    "theme": "volcano",
-   "reward": "mysql",
-   "icon": "typescript"
+   "reward": "tailwindcss",
+   "icon": "jquery"
   },
   {
    "id": 36,
@@ -525,63 +525,63 @@
    "file": "level037.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "typescript"
+   "icon": "bootstrap"
   },
   {
    "id": 38,
    "file": "level038.json",
    "theme": "night",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "css3"
   },
   {
    "id": 39,
    "file": "level039.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "python"
+   "icon": "typescript"
   },
   {
    "id": 40,
    "file": "level040.json",
    "theme": "snow",
-   "reward": "mongodb",
-   "icon": "sass"
+   "reward": "laravel",
+   "icon": "javascript"
   },
   {
    "id": 41,
    "file": "level041.json",
    "theme": "desert",
    "reward": null,
-   "icon": "python"
+   "icon": "bootstrap"
   },
   {
    "id": 42,
    "file": "level042.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "css3"
+   "icon": "html5"
   },
   {
    "id": 43,
    "file": "level043.json",
    "theme": "candy",
    "reward": null,
-   "icon": "jquery"
+   "icon": "bootstrap"
   },
   {
    "id": 44,
    "file": "level044.json",
    "theme": "forest",
    "reward": null,
-   "icon": "express"
+   "icon": "html5"
   },
   {
    "id": 45,
    "file": "level045.json",
    "theme": "space",
-   "reward": "docker",
-   "icon": "django"
+   "reward": "nodejs",
+   "icon": "bootstrap"
   },
   {
    "id": 46,
@@ -595,84 +595,84 @@
    "file": "level047.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "python"
+   "icon": "sass"
   },
   {
    "id": 48,
    "file": "level048.json",
    "theme": "neon",
    "reward": null,
-   "icon": "html5"
+   "icon": "laravel"
   },
   {
    "id": 49,
    "file": "level049.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "typescript"
+   "icon": "php"
   },
   {
    "id": 50,
    "file": "level050.json",
    "theme": "night",
-   "reward": "git",
-   "icon": "nodejs"
+   "reward": "express",
+   "icon": "tailwindcss"
   },
   {
    "id": 51,
    "file": "level051.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "bootstrap"
+   "icon": "php"
   },
   {
    "id": 52,
    "file": "level052.json",
    "theme": "snow",
    "reward": null,
-   "icon": "php"
+   "icon": "tailwindcss"
   },
   {
    "id": 53,
    "file": "level053.json",
    "theme": "desert",
    "reward": null,
-   "icon": "vuejs"
+   "icon": "css3"
   },
   {
    "id": 54,
    "file": "level054.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "mongodb"
+   "icon": "typescript"
   },
   {
    "id": 55,
    "file": "level055.json",
    "theme": "candy",
-   "reward": "go",
-   "icon": "sass"
+   "reward": "react",
+   "icon": "express"
   },
   {
    "id": 56,
    "file": "level056.json",
    "theme": "forest",
    "reward": null,
-   "icon": "django"
+   "icon": "jquery"
   },
   {
    "id": 57,
    "file": "level057.json",
    "theme": "space",
    "reward": null,
-   "icon": "go"
+   "icon": "react"
   },
   {
    "id": 58,
    "file": "level058.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "javascript"
+   "icon": "sass"
   },
   {
    "id": 59,
@@ -685,988 +685,988 @@
    "id": 60,
    "file": "level060.json",
    "theme": "neon",
-   "reward": "rust",
-   "icon": "angular"
+   "reward": "vuejs",
+   "icon": "css3"
   },
   {
    "id": 61,
    "file": "level061.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "jquery"
+   "icon": "express"
   },
   {
    "id": 62,
    "file": "level062.json",
    "theme": "night",
    "reward": null,
-   "icon": "express"
+   "icon": "javascript"
   },
   {
    "id": 63,
    "file": "level063.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "django"
+   "icon": "jquery"
   },
   {
    "id": 64,
    "file": "level064.json",
    "theme": "snow",
    "reward": null,
-   "icon": "go"
+   "icon": "react"
   },
   {
    "id": 65,
    "file": "level065.json",
    "theme": "desert",
-   "reward": "kotlin",
-   "icon": "bootstrap"
+   "reward": "angular",
+   "icon": "php"
   },
   {
    "id": 66,
    "file": "level066.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "mongodb"
+   "icon": "html5"
   },
   {
    "id": 67,
    "file": "level067.json",
    "theme": "candy",
    "reward": null,
-   "icon": "kotlin"
+   "icon": "bootstrap"
   },
   {
    "id": 68,
    "file": "level068.json",
    "theme": "forest",
    "reward": null,
-   "icon": "javascript"
+   "icon": "nodejs"
   },
   {
    "id": 69,
    "file": "level069.json",
    "theme": "space",
    "reward": null,
-   "icon": "laravel"
+   "icon": "html5"
   },
   {
    "id": 70,
    "file": "level070.json",
    "theme": "autumn",
-   "reward": "swift",
-   "icon": "angular"
+   "reward": "python",
+   "icon": "bootstrap"
   },
   {
    "id": 71,
    "file": "level071.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "typescript"
+   "icon": "php"
   },
   {
    "id": 72,
    "file": "level072.json",
    "theme": "neon",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "tailwindcss"
   },
   {
    "id": 73,
    "file": "level073.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "python"
+   "icon": "vuejs"
   },
   {
    "id": 74,
    "file": "level074.json",
    "theme": "night",
    "reward": null,
-   "icon": "git"
+   "icon": "javascript"
   },
   {
    "id": 75,
    "file": "level075.json",
    "theme": "sunset",
-   "reward": "java",
-   "icon": "html5"
+   "reward": "django",
+   "icon": "jquery"
   },
   {
    "id": 76,
    "file": "level076.json",
    "theme": "snow",
    "reward": null,
-   "icon": "django"
+   "icon": "typescript"
   },
   {
    "id": 77,
    "file": "level077.json",
    "theme": "desert",
    "reward": null,
-   "icon": "go"
+   "icon": "express"
   },
   {
    "id": 78,
    "file": "level078.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "html5"
+   "icon": "django"
   },
   {
    "id": 79,
    "file": "level079.json",
    "theme": "candy",
    "reward": null,
-   "icon": "typescript"
+   "icon": "sass"
   },
   {
    "id": 80,
    "file": "level080.json",
    "theme": "forest",
-   "reward": "csharp",
-   "icon": "nodejs"
+   "reward": "mysql",
+   "icon": "laravel"
   },
   {
    "id": 81,
    "file": "level081.json",
    "theme": "space",
    "reward": null,
-   "icon": "html5"
+   "icon": "laravel"
   },
   {
    "id": 82,
    "file": "level082.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "typescript"
+   "icon": "angular"
   },
   {
    "id": 83,
    "file": "level083.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "css3"
   },
   {
    "id": 84,
    "file": "level084.json",
    "theme": "neon",
    "reward": null,
-   "icon": "python"
+   "icon": "typescript"
   },
   {
    "id": 85,
    "file": "level085.json",
    "theme": "meadow",
-   "reward": "cplusplus",
-   "icon": "git"
+   "reward": "mongodb",
+   "icon": "express"
   },
   {
    "id": 86,
    "file": "level086.json",
    "theme": "night",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "react"
   },
   {
    "id": 87,
    "file": "level087.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "python"
+   "icon": "mysql"
   },
   {
    "id": 88,
    "file": "level088.json",
    "theme": "snow",
    "reward": null,
-   "icon": "git"
+   "icon": "php"
   },
   {
    "id": 89,
    "file": "level089.json",
    "theme": "desert",
    "reward": null,
-   "icon": "java"
+   "icon": "tailwindcss"
   },
   {
    "id": 90,
    "file": "level090.json",
    "theme": "ocean",
-   "reward": "ruby",
-   "icon": "sass"
+   "reward": "docker",
+   "icon": "vuejs"
   },
   {
    "id": 91,
    "file": "level091.json",
    "theme": "candy",
    "reward": null,
-   "icon": "git"
+   "icon": "python"
   },
   {
    "id": 92,
    "file": "level092.json",
    "theme": "forest",
    "reward": null,
-   "icon": "java"
+   "icon": "html5"
   },
   {
    "id": 93,
    "file": "level093.json",
    "theme": "space",
    "reward": null,
-   "icon": "css3"
+   "icon": "bootstrap"
   },
   {
    "id": 94,
    "file": "level094.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "jquery"
+   "icon": "nodejs"
   },
   {
    "id": 95,
    "file": "level095.json",
    "theme": "volcano",
-   "reward": "flutter",
-   "icon": "express"
+   "reward": "git",
+   "icon": "python"
   },
   {
    "id": 96,
    "file": "level096.json",
    "theme": "neon",
    "reward": null,
-   "icon": "html5"
+   "icon": "mongodb"
   },
   {
    "id": 97,
    "file": "level097.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "typescript"
+   "icon": "javascript"
   },
   {
    "id": 98,
    "file": "level098.json",
    "theme": "night",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "jquery"
   },
   {
    "id": 99,
    "file": "level099.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "python"
+   "icon": "react"
   },
   {
    "id": 100,
    "file": "level100.json",
    "theme": "snow",
-   "reward": "dart",
-   "icon": "git"
+   "reward": "openai",
+   "icon": "mysql"
   },
   {
    "id": 101,
    "file": "level101.json",
    "theme": "desert",
    "reward": null,
-   "icon": "laravel"
+   "icon": "openai"
   },
   {
    "id": 102,
    "file": "level102.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "angular"
+   "icon": "sass"
   },
   {
    "id": 103,
    "file": "level103.json",
    "theme": "candy",
    "reward": null,
-   "icon": "docker"
+   "icon": "laravel"
   },
   {
    "id": 104,
    "file": "level104.json",
    "theme": "forest",
    "reward": null,
-   "icon": "swift"
+   "icon": "angular"
   },
   {
    "id": 105,
    "file": "level105.json",
    "theme": "space",
-   "reward": "nextjs",
-   "icon": "flutter"
+   "reward": "claude",
+   "icon": "docker"
   },
   {
    "id": 106,
    "file": "level106.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "mongodb"
+   "icon": "css3"
   },
   {
    "id": 107,
    "file": "level107.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "kotlin"
+   "icon": "typescript"
   },
   {
    "id": 108,
    "file": "level108.json",
    "theme": "neon",
    "reward": null,
-   "icon": "ruby"
+   "icon": "express"
   },
   {
    "id": 109,
    "file": "level109.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "css3"
+   "icon": "django"
   },
   {
    "id": 110,
    "file": "level110.json",
    "theme": "night",
-   "reward": "svelte",
-   "icon": "jquery"
+   "reward": "gemini",
+   "icon": "openai"
   },
   {
    "id": 111,
    "file": "level111.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "cplusplus"
+   "icon": "php"
   },
   {
    "id": 112,
    "file": "level112.json",
    "theme": "snow",
    "reward": null,
-   "icon": "svelte"
+   "icon": "tailwindcss"
   },
   {
    "id": 113,
    "file": "level113.json",
    "theme": "desert",
    "reward": null,
-   "icon": "javascript"
+   "icon": "vuejs"
   },
   {
    "id": 114,
    "file": "level114.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "laravel"
+   "icon": "mongodb"
   },
   {
    "id": 115,
    "file": "level115.json",
    "theme": "candy",
-   "reward": "redis",
-   "icon": "angular"
+   "reward": "grok",
+   "icon": "gemini"
   },
   {
    "id": 116,
    "file": "level116.json",
    "theme": "forest",
    "reward": null,
-   "icon": "sass"
+   "icon": "bootstrap"
   },
   {
    "id": 117,
    "file": "level117.json",
    "theme": "space",
    "reward": null,
-   "icon": "tailwindcss"
+   "icon": "nodejs"
   },
   {
    "id": 118,
    "file": "level118.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "react"
+   "icon": "python"
   },
   {
    "id": 119,
    "file": "level119.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "mysql"
+   "icon": "git"
   },
   {
    "id": 120,
    "file": "level120.json",
    "theme": "neon",
-   "reward": "postgresql",
-   "icon": "rust"
+   "reward": "mistral",
+   "icon": "html5"
   },
   {
    "id": 121,
    "file": "level121.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "jquery"
   },
   {
    "id": 122,
    "file": "level122.json",
    "theme": "night",
    "reward": null,
-   "icon": "python"
+   "icon": "react"
   },
   {
    "id": 123,
    "file": "level123.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "git"
+   "icon": "mysql"
   },
   {
    "id": 124,
    "file": "level124.json",
    "theme": "snow",
    "reward": null,
-   "icon": "java"
+   "icon": "claude"
   },
   {
    "id": 125,
    "file": "level125.json",
    "theme": "desert",
-   "reward": "graphql",
-   "icon": "dart"
+   "reward": "perplexity",
+   "icon": "css3"
   },
   {
    "id": 126,
    "file": "level126.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "mongodb"
+   "icon": "laravel"
   },
   {
    "id": 127,
    "file": "level127.json",
    "theme": "candy",
    "reward": null,
-   "icon": "kotlin"
+   "icon": "angular"
   },
   {
    "id": 128,
    "file": "level128.json",
    "theme": "forest",
    "reward": null,
-   "icon": "ruby"
+   "icon": "docker"
   },
   {
    "id": 129,
    "file": "level129.json",
    "theme": "space",
    "reward": null,
-   "icon": "redis"
+   "icon": "grok"
   },
   {
    "id": 130,
    "file": "level130.json",
    "theme": "autumn",
-   "reward": "kubernetes",
-   "icon": "sass"
+   "reward": "huggingface",
+   "icon": "javascript"
   },
   {
    "id": 131,
    "file": "level131.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "csharp"
+   "icon": "express"
   },
   {
    "id": 132,
    "file": "level132.json",
    "theme": "neon",
    "reward": null,
-   "icon": "nextjs"
+   "icon": "django"
   },
   {
    "id": 133,
    "file": "level133.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "kubernetes"
+   "icon": "openai"
   },
   {
    "id": 134,
    "file": "level134.json",
    "theme": "night",
    "reward": null,
-   "icon": "javascript"
+   "icon": "perplexity"
   },
   {
    "id": 135,
    "file": "level135.json",
    "theme": "sunset",
-   "reward": "firebase",
-   "icon": "laravel"
+   "reward": "copilot",
+   "icon": "php"
   },
   {
    "id": 136,
    "file": "level136.json",
    "theme": "snow",
    "reward": null,
-   "icon": "postgresql"
+   "icon": "vuejs"
   },
   {
    "id": 137,
    "file": "level137.json",
    "theme": "desert",
    "reward": null,
-   "icon": "css3"
+   "icon": "mongodb"
   },
   {
    "id": 138,
    "file": "level138.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "jquery"
+   "icon": "gemini"
   },
   {
    "id": 139,
    "file": "level139.json",
    "theme": "candy",
    "reward": null,
-   "icon": "express"
+   "icon": "copilot"
   },
   {
    "id": 140,
    "file": "level140.json",
    "theme": "forest",
-   "reward": "nginx",
-   "icon": "django"
+   "reward": "ollama",
+   "icon": "sass"
   },
   {
    "id": 141,
    "file": "level141.json",
    "theme": "space",
    "reward": null,
-   "icon": "bootstrap"
+   "icon": "python"
   },
   {
    "id": 142,
    "file": "level142.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "php"
+   "icon": "git"
   },
   {
    "id": 143,
    "file": "level143.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "vuejs"
+   "icon": "mistral"
   },
   {
    "id": 144,
    "file": "level144.json",
    "theme": "neon",
    "reward": null,
-   "icon": "mongodb"
+   "icon": "html5"
   },
   {
    "id": 145,
    "file": "level145.json",
    "theme": "meadow",
-   "reward": "bash",
-   "icon": "kotlin"
+   "reward": "llama",
+   "icon": "bootstrap"
   },
   {
    "id": 146,
    "file": "level146.json",
    "theme": "night",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "mysql"
   },
   {
    "id": 147,
    "file": "level147.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "python"
+   "icon": "claude"
   },
   {
    "id": 148,
    "file": "level148.json",
    "theme": "snow",
    "reward": null,
-   "icon": "git"
+   "icon": "huggingface"
   },
   {
    "id": 149,
    "file": "level149.json",
    "theme": "desert",
    "reward": null,
-   "icon": "java"
+   "icon": "css3"
   },
   {
    "id": 150,
    "file": "level150.json",
    "theme": "ocean",
-   "reward": "openai",
-   "icon": "dart"
+   "reward": "go",
+   "icon": "typescript"
   },
   {
    "id": 151,
    "file": "level151.json",
    "theme": "candy",
    "reward": null,
-   "icon": "mysql"
+   "icon": "docker"
   },
   {
    "id": 152,
    "file": "level152.json",
    "theme": "forest",
    "reward": null,
-   "icon": "rust"
+   "icon": "grok"
   },
   {
    "id": 153,
    "file": "level153.json",
    "theme": "space",
    "reward": null,
-   "icon": "cplusplus"
+   "icon": "ollama"
   },
   {
    "id": 154,
    "file": "level154.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "svelte"
+   "icon": "javascript"
   },
   {
    "id": 155,
    "file": "level155.json",
    "theme": "volcano",
-   "reward": "claude",
-   "icon": "firebase"
+   "reward": "rust",
+   "icon": "jquery"
   },
   {
    "id": 156,
    "file": "level156.json",
    "theme": "neon",
    "reward": null,
-   "icon": "swift"
+   "icon": "openai"
   },
   {
    "id": 157,
    "file": "level157.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "flutter"
+   "icon": "perplexity"
   },
   {
    "id": 158,
    "file": "level158.json",
    "theme": "night",
    "reward": null,
-   "icon": "postgresql"
+   "icon": "go"
   },
   {
    "id": 159,
    "file": "level159.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "bash"
+   "icon": "php"
   },
   {
    "id": 160,
    "file": "level160.json",
    "theme": "snow",
-   "reward": "gemini",
-   "icon": "sass"
+   "reward": "kotlin",
+   "icon": "tailwindcss"
   },
   {
    "id": 161,
    "file": "level161.json",
    "theme": "desert",
    "reward": null,
-   "icon": "nextjs"
+   "icon": "gemini"
   },
   {
    "id": 162,
    "file": "level162.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "kubernetes"
+   "icon": "copilot"
   },
   {
    "id": 163,
    "file": "level163.json",
    "theme": "candy",
    "reward": null,
-   "icon": "claude"
+   "icon": "kotlin"
   },
   {
    "id": 164,
    "file": "level164.json",
    "theme": "forest",
    "reward": null,
-   "icon": "bootstrap"
+   "icon": "sass"
   },
   {
    "id": 165,
    "file": "level165.json",
    "theme": "space",
-   "reward": "grok",
-   "icon": "php"
+   "reward": "swift",
+   "icon": "laravel"
   },
   {
    "id": 166,
    "file": "level166.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "nginx"
+   "icon": "mistral"
   },
   {
    "id": 167,
    "file": "level167.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "grok"
+   "icon": "llama"
   },
   {
    "id": 168,
    "file": "level168.json",
    "theme": "neon",
    "reward": null,
-   "icon": "javascript"
+   "icon": "html5"
   },
   {
    "id": 169,
    "file": "level169.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "laravel"
+   "icon": "bootstrap"
   },
   {
    "id": 170,
    "file": "level170.json",
    "theme": "night",
-   "reward": "mistral",
-   "icon": "angular"
+   "reward": "java",
+   "icon": "nodejs"
   },
   {
    "id": 171,
    "file": "level171.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "html5"
+   "icon": "huggingface"
   },
   {
    "id": 172,
    "file": "level172.json",
    "theme": "snow",
    "reward": null,
-   "icon": "typescript"
+   "icon": "rust"
   },
   {
    "id": 173,
    "file": "level173.json",
    "theme": "desert",
    "reward": null,
-   "icon": "nodejs"
+   "icon": "css3"
   },
   {
    "id": 174,
    "file": "level174.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "python"
+   "icon": "typescript"
   },
   {
    "id": 175,
    "file": "level175.json",
    "theme": "candy",
-   "reward": "perplexity",
-   "icon": "git"
+   "reward": "csharp",
+   "icon": "express"
   },
   {
    "id": 176,
    "file": "level176.json",
    "theme": "forest",
    "reward": null,
-   "icon": "jquery"
+   "icon": "ollama"
   },
   {
    "id": 177,
    "file": "level177.json",
    "theme": "space",
    "reward": null,
-   "icon": "express"
+   "icon": "swift"
   },
   {
    "id": 178,
    "file": "level178.json",
    "theme": "autumn",
    "reward": null,
-   "icon": "django"
+   "icon": "javascript"
   },
   {
    "id": 179,
    "file": "level179.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "go"
+   "icon": "jquery"
   },
   {
    "id": 180,
    "file": "level180.json",
    "theme": "neon",
-   "reward": "huggingface",
-   "icon": "csharp"
+   "reward": "cplusplus",
+   "icon": "react"
   },
   {
    "id": 181,
    "file": "level181.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "react"
+   "icon": "go"
   },
   {
    "id": 182,
    "file": "level182.json",
    "theme": "night",
    "reward": null,
-   "icon": "mysql"
+   "icon": "csharp"
   },
   {
    "id": 183,
    "file": "level183.json",
    "theme": "sunset",
    "reward": null,
-   "icon": "rust"
+   "icon": "php"
   },
   {
    "id": 184,
    "file": "level184.json",
    "theme": "snow",
    "reward": null,
-   "icon": "cplusplus"
+   "icon": "tailwindcss"
   },
   {
    "id": 185,
    "file": "level185.json",
    "theme": "desert",
-   "reward": "copilot",
-   "icon": "svelte"
+   "reward": "ruby",
+   "icon": "vuejs"
   },
   {
    "id": 186,
    "file": "level186.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "mongodb"
+   "icon": "kotlin"
   },
   {
    "id": 187,
    "file": "level187.json",
    "theme": "candy",
    "reward": null,
-   "icon": "kotlin"
+   "icon": "ruby"
   },
   {
    "id": 188,
    "file": "level188.json",
    "theme": "forest",
    "reward": null,
-   "icon": "ruby"
+   "icon": "sass"
   },
   {
    "id": 189,
    "file": "level189.json",
    "theme": "space",
    "reward": null,
-   "icon": "redis"
+   "icon": "laravel"
   },
   {
    "id": 190,
    "file": "level190.json",
    "theme": "autumn",
-   "reward": "ollama",
-   "icon": "nginx"
+   "reward": "flutter",
+   "icon": "angular"
   },
   {
    "id": 191,
    "file": "level191.json",
    "theme": "volcano",
    "reward": null,
-   "icon": "swift"
+   "icon": "java"
   },
   {
    "id": 192,
    "file": "level192.json",
    "theme": "neon",
    "reward": null,
-   "icon": "flutter"
+   "icon": "html5"
   },
   {
    "id": 193,
    "file": "level193.json",
    "theme": "meadow",
    "reward": null,
-   "icon": "postgresql"
+   "icon": "bootstrap"
   },
   {
    "id": 194,
    "file": "level194.json",
    "theme": "night",
    "reward": null,
-   "icon": "bash"
+   "icon": "nodejs"
   },
   {
    "id": 195,
    "file": "level195.json",
    "theme": "sunset",
-   "reward": "llama",
-   "icon": "mistral"
+   "reward": "dart",
+   "icon": "python"
   },
   {
    "id": 196,
    "file": "level196.json",
    "theme": "snow",
    "reward": null,
-   "icon": "dart"
+   "icon": "cplusplus"
   },
   {
    "id": 197,
    "file": "level197.json",
    "theme": "desert",
    "reward": null,
-   "icon": "graphql"
+   "icon": "css3"
   },
   {
    "id": 198,
    "file": "level198.json",
    "theme": "ocean",
    "reward": null,
-   "icon": "openai"
+   "icon": "typescript"
   },
   {
    "id": 199,
    "file": "level199.json",
    "theme": "candy",
    "reward": null,
-   "icon": "perplexity"
+   "icon": "express"
   },
   {
    "id": 200,
    "file": "level200.json",
    "theme": "forest",
    "reward": null,
-   "icon": "html5"
+   "icon": "django"
   }
  ]
 }

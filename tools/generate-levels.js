@@ -25,8 +25,16 @@ const TECHS = [
 ].map(([key, name, color]) => ({ key, name, color }));
 
 // Une nouvelle technologie est débloquée tous les 5 niveaux (récompense du coffre) :
-// les niveaux d'un palier n'utilisent que les technologies déjà débloquées. 11 au départ + 39 déblocages = 50 au niveau 200.
-const START_TECHS = 11, BLOCK = 5;
+// les niveaux d'un palier n'utilisent que les technologies déjà débloquées.
+// On démarre avec HTML5 + CSS3 uniquement, puis JavaScript (niveau 6), PHP (niveau 11), etc. dans l'ordre ci-dessous.
+// 2 au départ + 39 déblocages = 41 technologies jouables au niveau 200 ; les dernières de la liste arrivent au-delà.
+const ORDER = ['html5', 'css3', 'javascript', 'php', 'sass', 'bootstrap', 'typescript', 'jquery', 'tailwindcss', 'laravel', 'nodejs', 'express',
+  'react', 'vuejs', 'angular', 'python', 'django', 'mysql', 'mongodb', 'docker', 'git',
+  'openai', 'claude', 'gemini', 'grok', 'mistral', 'perplexity', 'huggingface', 'copilot', 'ollama', 'llama',
+  'go', 'rust', 'kotlin', 'swift', 'java', 'csharp', 'cplusplus', 'ruby', 'flutter', 'dart',
+  'nextjs', 'svelte', 'redis', 'postgresql', 'graphql', 'kubernetes', 'firebase', 'nginx', 'bash'];
+TECHS.sort((a, b) => ORDER.indexOf(a.key) - ORDER.indexOf(b.key));
+const START_TECHS = 2, BLOCK = 5;
 
 // Fonds (définis dans public/js/game.js) : un thème différent d'un niveau au suivant
 const THEMES = ['meadow', 'night', 'sunset', 'snow', 'desert', 'ocean', 'candy', 'forest', 'space', 'autumn', 'volcano', 'neon'];
@@ -149,7 +157,7 @@ for (let id = 1; id <= TOTAL; id++) {
   const block = Math.floor((id - 1) / BLOCK), poolSize = Math.min(TECHS.length, START_TECHS + block);
   pool = TECHS.slice(0, poolSize).map((t) => t.key);
   // récompense du coffre (dernier niveau du palier) : la prochaine technologie à débloquer
-  newTech = id % BLOCK === 0 && poolSize < TECHS.length ? TECHS[poolSize].key : null;
+  newTech = id % BLOCK === 0 && id < TOTAL && poolSize < TECHS.length ? TECHS[poolSize].key : null;
   const focus = pool[pool.length - 1];                    // la dernière débloquée revient souvent
 
   // forme et taille
