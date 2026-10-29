@@ -49,6 +49,11 @@ A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits 
 - 🔊 Background music and SFX synthesized with WebAudio (no audio files)
 - 🧩 **Zero npm dependencies**: Node.js and a browser are enough (Matter.js is bundled)
 
+## Install and play
+
+- 📱 **Install as an app (PWA)**: open the game in Chrome (Android) → ⋮ menu → **Install app**; on iPhone (Safari) → Share → **Add to Home Screen**. No APK needed: it opens full screen like a native app.
+- 🌐 **Browser**: [Vercel deployment](docs/DEPLOY-VERCEL.md), playable on phone, tablet and desktop.
+
 ## Quick start
 
 Requires [Node.js](https://nodejs.org) **22.5+** (built-in `node:sqlite`).
@@ -95,7 +100,7 @@ API: `POST /api/player`, `POST /api/progress`, `GET /api/leaderboard`. Dev short
 
 ## Roadmap
 
-- [ ] Desktop and Android/iOS apps with [Tauri](https://tauri.app)
+- [ ] Desktop app with [Tauri](https://tauri.app)
 - [ ] Special pieces (explosive, unbreakable, bouncy)
 - [ ] Power-ups (triple shot, bomb…)
 - [ ] More levels and technologies (Go, Rust, Kotlin, Swift…)

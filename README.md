@@ -87,8 +87,8 @@ Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 
 ## Télécharger et jouer
 
-- 🤖 **Android** : télécharge le fichier `.apk` depuis la page [**Releases**](https://github.com/princesse-aku/princess_buster/releases) puis installe-le (autorise l'installation depuis cette source). Pour le compiler toi-même : [docs/ANDROID.md](docs/ANDROID.md).
-- 🌐 **Navigateur** : [déploiement Vercel](docs/DEPLOY-VERCEL.md) (jouable sur téléphone, tablette et PC, installable comme une application).
+- 📱 **Installer comme une application (PWA)** : ouvre le jeu dans Chrome (Android) → menu ⋮ → **Installer l'application** ; sur iPhone (Safari) → Partager → **Sur l'écran d'accueil**. Pas d'APK à télécharger : le jeu s'ouvre en plein écran comme une vraie application.
+- 🌐 **Navigateur** : [déploiement Vercel](docs/DEPLOY-VERCEL.md) (jouable sur téléphone, tablette et PC).
 - 💻 **En local** : voir ci-dessous.
 
 [![Déployer avec Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fprincesse-aku%2Fprincess_buster)
@@ -214,7 +214,7 @@ http://localhost:3000/?name=Ada&level=12&autoplay=1&clean=1   → idem sans band
 
 ## Feuille de route
 
-- [ ] Application **desktop et Android/iOS avec [Tauri](https://tauri.app)** (`public/` est déjà le `frontendDist` ; `storage.js` à brancher sur `tauri-plugin-sql`, mêmes tables)
+- [ ] Application **desktop avec [Tauri](https://tauri.app)** (optionnel : l'installation PWA suffit sur mobile) (`public/` est déjà le `frontendDist` ; `storage.js` à brancher sur `tauri-plugin-sql`, mêmes tables)
 - [ ] Pièces spéciales (explosives, indestructibles, rebondissantes)
 - [ ] Bonus achetables (triple tir, bombe…)
 - [ ] Plus de niveaux et de technologies (Go, Rust, Kotlin, Swift…)

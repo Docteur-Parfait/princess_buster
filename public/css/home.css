@@ -30,7 +30,7 @@
 .home-bg .h2 { right: -160px; bottom: 230px; width: 640px; height: 280px; background: #43b250; }
 .home-bg .ground { left: 0; right: 0; bottom: 0; height: 46%; background: linear-gradient(#46b84a, #2f9b3f 55%, #1f6d2c); border-top: 5px solid #9df08a; }
 
-.topbar { position: absolute !important; top: 14px; left: 14px; right: 14px; z-index: 5 !important; display: flex; align-items: center; gap: 10px; }
+.topbar { position: absolute !important; top: calc(14px + env(safe-area-inset-top, 0px)); left: 14px; right: 14px; z-index: 5 !important; display: flex; align-items: center; gap: 10px; }
 .topbar .btn.round { margin-left: auto; width: 56px; height: 56px; }
 .avatar-btn { width: 66px; height: 66px; border-radius: 18px; border: 4px solid var(--gold); background: linear-gradient(#9fe6ff, #3a6bff); box-shadow: 0 5px 0 var(--purple), 0 0 10px rgba(255, 210, 63, 0.22); font-size: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform .1s; }
 .avatar-btn:active { transform: translateY(3px); }
