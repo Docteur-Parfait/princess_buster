@@ -1,0 +1,31 @@
+{
+  "id": 12,
+  "name": "Niveau 12 - React",
+  "newTech": "react",
+  "balls": 22,
+  "cubeWeight": 1.48,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express",
+    "react"
+  ],
+  "grid": [
+    ". . . react . . .",
+    ". . bootstrap react css3 . .",
+    ". nodejs nodejs html5 sass tailwindcss .",
+    "laravel react css3 react react css3 nodejs",
+    ". react react react react html5 .",
+    ". . php css3 tailwindcss . .",
+    ". . . javascript . . ."
+  ]
+}

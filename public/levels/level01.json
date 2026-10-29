@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "name": "Niveau 1 - CSS3",
+  "newTech": "css3",
+  "balls": 10,
+  "cubeWeight": 1.04,
+  "techs": [
+    "html5",
+    "css3"
+  ],
+  "grid": [
+    "css3 css3 html5",
+    "css3 html5 css3",
+    "html5 html5 css3"
+  ]
+}

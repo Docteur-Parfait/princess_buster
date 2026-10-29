@@ -1,0 +1,31 @@
+{
+  "id": 14,
+  "name": "Niveau 14 - Angular",
+  "newTech": "angular",
+  "balls": 25,
+  "cubeWeight": 1.56,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express",
+    "react",
+    "vuejs",
+    "angular"
+  ],
+  "grid": [
+    "angular angular tailwindcss typescript react laravel",
+    "css3 css3 laravel tailwindcss angular php",
+    "angular typescript css3 sass css3 react",
+    "nodejs angular angular sass angular nodejs",
+    "tailwindcss laravel nodejs angular express laravel"
+  ]
+}

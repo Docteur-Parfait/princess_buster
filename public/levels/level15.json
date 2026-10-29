@@ -1,0 +1,32 @@
+{
+  "id": 15,
+  "name": "Niveau 15 - Python",
+  "newTech": "python",
+  "balls": 14,
+  "cubeWeight": 1.6,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express",
+    "react",
+    "vuejs",
+    "angular",
+    "python"
+  ],
+  "grid": [
+    ". . . python . . .",
+    "angular laravel css3 bootstrap laravel python python",
+    "react sass express javascript python javascript python",
+    ". . . html5 . . .",
+    ". . . vuejs . . ."
+  ]
+}

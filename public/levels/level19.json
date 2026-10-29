@@ -1,0 +1,35 @@
+{
+  "id": 19,
+  "name": "Niveau 19 - Docker",
+  "newTech": "docker",
+  "balls": 13,
+  "cubeWeight": 1.76,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express",
+    "react",
+    "vuejs",
+    "angular",
+    "python",
+    "django",
+    "mysql",
+    "mongodb",
+    "docker"
+  ],
+  "grid": [
+    ". . . vuejs . . .",
+    ". . bootstrap mongodb mongodb . .",
+    ". docker django docker docker typescript .",
+    "php vuejs bootstrap typescript python jquery python"
+  ]
+}

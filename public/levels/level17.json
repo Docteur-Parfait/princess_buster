@@ -1,0 +1,35 @@
+{
+  "id": 17,
+  "name": "Niveau 17 - MySQL",
+  "newTech": "mysql",
+  "balls": 14,
+  "cubeWeight": 1.68,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express",
+    "react",
+    "vuejs",
+    "angular",
+    "python",
+    "django",
+    "mysql"
+  ],
+  "grid": [
+    "css3 django mysql python javascript react mysql",
+    "tailwindcss . . . . . mysql",
+    "angular . . . . . react",
+    "vuejs . . . . . mysql",
+    "mysql . . . . . php",
+    "mysql . . . . . mysql"
+  ]
+}

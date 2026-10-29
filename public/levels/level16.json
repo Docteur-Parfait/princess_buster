@@ -1,0 +1,33 @@
+{
+  "id": 16,
+  "name": "Niveau 16 - Django",
+  "newTech": "django",
+  "balls": 17,
+  "cubeWeight": 1.64,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express",
+    "react",
+    "vuejs",
+    "angular",
+    "python",
+    "django"
+  ],
+  "grid": [
+    "vuejs . django . typescript . tailwindcss",
+    "react . express . django . django",
+    "nodejs . javascript . django . html5",
+    "django . css3 . php . django",
+    "django . django . django . django"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "id": 13,
+  "name": "Niveau 13 - Vue.js",
+  "newTech": "vuejs",
+  "balls": 11,
+  "cubeWeight": 1.52,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express",
+    "react",
+    "vuejs"
+  ],
+  "grid": [
+    ". . vuejs jquery . .",
+    ". . css3 vuejs . .",
+    ". . express vuejs . .",
+    ". . jquery vuejs . .",
+    ". . laravel php . .",
+    ". . css3 html5 . ."
+  ]
+}

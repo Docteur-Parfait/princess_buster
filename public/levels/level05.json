@@ -1,0 +1,22 @@
+{
+  "id": 5,
+  "name": "Niveau 5 - TypeScript",
+  "newTech": "typescript",
+  "balls": 15,
+  "cubeWeight": 1.2,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript"
+  ],
+  "grid": [
+    ". . . . javascript",
+    ". . . css3 typescript",
+    ". . typescript typescript html5",
+    ". typescript typescript sass typescript",
+    "bootstrap css3 javascript typescript css3"
+  ]
+}

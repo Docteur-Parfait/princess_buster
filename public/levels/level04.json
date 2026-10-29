@@ -1,0 +1,20 @@
+{
+  "id": 4,
+  "name": "Niveau 4 - JavaScript",
+  "newTech": "javascript",
+  "balls": 12,
+  "cubeWeight": 1.16,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript"
+  ],
+  "grid": [
+    "sass . html5 . html5",
+    "bootstrap . css3 . javascript",
+    "bootstrap . sass . html5",
+    "css3 . css3 . bootstrap"
+  ]
+}

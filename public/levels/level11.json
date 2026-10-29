@@ -1,0 +1,28 @@
+{
+  "id": 11,
+  "name": "Niveau 11 - Express",
+  "newTech": "express",
+  "balls": 12,
+  "cubeWeight": 1.44,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express"
+  ],
+  "grid": [
+    "javascript . . . express",
+    "express . . . express",
+    "laravel express javascript express express",
+    "bootstrap . . . laravel",
+    "laravel . . . express"
+  ]
+}

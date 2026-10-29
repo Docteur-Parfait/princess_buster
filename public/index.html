@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Princess Buster</title>
+  <link rel="icon" href="assets/logo.webp" type="image/webp">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="stage">
+    <!-- 1. Nom du joueur -->
+    <section id="screen-name" class="screen active">
+      <img class="logo big" src="assets/logo.webp" alt="Princess Buster">
+      <p class="tagline">Fais tomber toutes les technos !</p>
+      <form id="name-form">
+        <label for="name-input">Ton nom</label>
+        <input id="name-input" maxlength="20" autocomplete="off" placeholder="Princess" required>
+        <button class="btn" type="submit">Jouer</button>
+      </form>
+    </section>
+
+    <!-- 2. Choix du niveau -->
+    <section id="screen-menu" class="screen">
+      <img class="logo small" src="assets/logo.webp" alt="Princess Buster">
+      <div class="profile"><span id="player-name"></span><span class="total">⭐ <b id="total-score">0</b></span></div>
+      <div id="level-grid"></div>
+      <div class="menu-actions">
+        <button class="btn blue" id="btn-leaderboard">🏆 Classement</button>
+        <button class="btn round" id="btn-music-menu" title="Musique">🎵</button>
+        <button class="btn round" id="btn-sfx-menu" title="Bruitages">🔊</button>
+        <button class="btn red small" id="btn-change-player">Changer de joueur</button>
+      </div>
+      <div id="leaderboard" class="modal hidden">
+        <div class="panel"><h2>🏆 Classement</h2><ol id="leaderboard-list"></ol><button class="btn green" id="btn-close-lb">Fermer</button></div>
+      </div>
+    </section>
+
+    <!-- 3. Jeu -->
+    <section id="screen-game" class="screen">
+      <canvas id="canvas"></canvas>
+      <div class="hud">
+        <div class="pill"><span class="ball-icon"></span><b id="hud-balls">0</b></div>
+        <div class="pill lvl-pill"><span id="hud-level">Niveau 1</span></div>
+        <div class="hud-buttons">
+          <button class="btn round" id="btn-restart" title="Recommencer">⟳</button>
+          <button class="btn round" id="btn-music" title="Musique">🎵</button>
+          <button class="btn round" id="btn-sfx" title="Bruitages">🔊</button>
+          <button class="btn round red" id="btn-exit" title="Quitter">✕</button>
+        </div>
+      </div>
+      <div id="tech-banner" class="hidden"></div>
+      <div id="hud-cubes" class="pill small">Cubes : <b>0</b></div>
+      <div class="controls">
+        <button class="btn round" id="btn-left" title="Déplacer le canon à gauche (A)">◀</button>
+        <button class="btn round" id="btn-right" title="Déplacer le canon à droite (D)">▶</button>
+      </div>
+      <div class="hint">Glisse pour viser, relâche pour tirer</div>
+
+      <div id="result" class="modal hidden">
+        <div class="panel">
+          <h2 id="result-title"></h2>
+          <div id="result-stars" class="stars"></div>
+          <p id="result-text"></p>
+          <div class="score-big"><span id="result-score">0</span> <small>pts</small></div>
+          <div class="row">
+            <button class="btn blue" id="btn-result-menu">Menu</button>
+            <button class="btn orange" id="btn-result-retry">Rejouer</button>
+            <button class="btn green" id="btn-result-next">Suivant ▶</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="vendor/matter.min.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

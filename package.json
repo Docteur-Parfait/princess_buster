@@ -1,0 +1,11 @@
+{
+  "name": "princess-buster",
+  "version": "0.1.0",
+  "description": "Princess Buster - tirez sur les piles de technologies !",
+  "private": true,
+  "scripts": {
+    "start": "node server/server.js",
+    "levels": "node tools/generate-levels.js"
+  },
+  "engines": { "node": ">=22.5" }
+}

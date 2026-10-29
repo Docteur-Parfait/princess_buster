@@ -1,0 +1,38 @@
+{
+  "id": 20,
+  "name": "Niveau 20 - Git",
+  "newTech": "git",
+  "balls": 31,
+  "cubeWeight": 1.8,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel",
+    "nodejs",
+    "express",
+    "react",
+    "vuejs",
+    "angular",
+    "python",
+    "django",
+    "mysql",
+    "mongodb",
+    "docker",
+    "git"
+  ],
+  "grid": [
+    "docker jquery css3 docker typescript jquery python",
+    "angular git bootstrap mongodb mysql laravel php",
+    "git git git git mysql git django",
+    "git django react git git git php",
+    "mysql nodejs git mysql git javascript javascript",
+    "django git express nodejs docker mongodb git"
+  ]
+}

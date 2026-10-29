@@ -1,0 +1,26 @@
+{
+  "id": 9,
+  "name": "Niveau 9 - Laravel",
+  "newTech": "laravel",
+  "balls": 14,
+  "cubeWeight": 1.36,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss",
+    "php",
+    "laravel"
+  ],
+  "grid": [
+    "php . php . laravel .",
+    ". tailwindcss . css3 . sass",
+    "javascript . html5 . css3 .",
+    ". tailwindcss . laravel . typescript",
+    "laravel . laravel . jquery ."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": 7,
+  "name": "Niveau 7 - Tailwind CSS",
+  "newTech": "tailwindcss",
+  "balls": 11,
+  "cubeWeight": 1.28,
+  "techs": [
+    "html5",
+    "css3",
+    "sass",
+    "bootstrap",
+    "javascript",
+    "typescript",
+    "jquery",
+    "tailwindcss"
+  ],
+  "grid": [
+    "sass tailwindcss javascript html5 html5",
+    "tailwindcss . . . tailwindcss",
+    "tailwindcss . . . jquery",
+    "javascript . . . jquery"
+  ]
+}
