@@ -8,11 +8,51 @@
   let levelData = null;
   const levelCache = new Map();
 
-  // Avatar = icône d'utilisateur ; le joueur choisit seulement la couleur du fond
-  const AVATAR_BG = ['linear-gradient(#9fe6ff, #3a6bff)', 'linear-gradient(#ff9ad6, #e0278f)', 'linear-gradient(#8bff6a, #159a2a)', 'linear-gradient(#ffe46b, #f59a00)',
-    'linear-gradient(#c9a3ff, #6a2cd8)', 'linear-gradient(#ff8a8a, #d4202a)', 'linear-gradient(#7ef0e0, #0f9a95)', 'linear-gradient(#b0b8d8, #4a4f80)'];
-  const USER_SVG = '<svg viewBox="0 0 24 24" width="62%" height="62%" fill="#fff" style="filter:drop-shadow(0 2px 0 rgba(28,10,66,.45))" aria-hidden="true"><circle cx="12" cy="8" r="4.3"/><path d="M3.6 21.2c0-4.7 3.8-7.8 8.4-7.8s8.4 3.1 8.4 7.8z"/></svg>';
-  function applyAvatar(el, i) { el.innerHTML = USER_SVG; el.parentElement.style.background = AVATAR_BG[i] || AVATAR_BG[0]; }
+  // Avatars : portraits humains dessinés (SVG généré), variés (peau, coiffure, accessoires, vêtements)
+  const AVATARS = [
+    { skin: '#f6d3b3', hair: '#3b2414', style: 'short', shirt: '#3a6bff', bg: ['#9fe6ff', '#4a7bff'] },
+    { skin: '#8d5524', hair: '#1c1410', style: 'afro', shirt: '#ff3fa4', bg: ['#ffd6f0', '#ff6fc0'], glasses: true },
+    { skin: '#e0ac82', hair: '#1c1410', style: 'long', shirt: '#2fc92b', bg: ['#c8ffb0', '#4fd23a'] },
+    { skin: '#5c3a21', hair: '#0e0a08', style: 'braids', shirt: '#ffb300', bg: ['#fff0a0', '#ffb300'] },
+    { skin: '#ffe0bd', hair: '#c9a24a', style: 'ponytail', shirt: '#7a2cff', bg: ['#d9c2ff', '#8a4cff'] },
+    { skin: '#c68642', hair: '#2b1a12', style: 'bald', shirt: '#e32636', bg: ['#ffc2c8', '#ff6a75'], beard: true },
+    { skin: '#f6d3b3', hair: '#b5452a', style: 'curly', shirt: '#0f9a95', bg: ['#b8fff4', '#27c9c0'], glasses: true },
+    { skin: '#8d5524', hair: '#2b1a12', style: 'hijab', shirt: '#4a4f80', scarf: '#ff8ad0', bg: ['#e8ecff', '#9aa6e8'] },
+    { skin: '#e0ac82', hair: '#1c1410', style: 'cap', shirt: '#ff7a1a', cap: '#2a50d8', bg: ['#ffe0b8', '#ffa040'] },
+    { skin: '#5c3a21', hair: '#e8e8f0', style: 'short', shirt: '#6a2cd8', bg: ['#e6d6ff', '#a47cf0'], beard: true, glasses: true },
+    { skin: '#ffe0bd', hair: '#1d3b8a', style: 'bun', shirt: '#d4202a', bg: ['#c8dcff', '#5a8cff'] },
+    { skin: '#c68642', hair: '#5a3a1a', style: 'long', shirt: '#159a2a', bg: ['#d6ffd0', '#58d060'], glasses: true },
+  ];
+  function avatarSVG(a) {
+    const d = (c, k) => { const n = parseInt(c.slice(1), 16), f = (v) => Math.max(0, Math.min(255, Math.round(v * k))); return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`; };
+    const skinD = d(a.skin, 0.82), hairD = d(a.hair, 0.7), shirtD = d(a.shirt, 0.75);
+    let back = '', front = '';
+    switch (a.style) {
+      case 'long': back = `<path d="M25 46 Q22 18 50 18 Q78 18 75 46 L78 84 Q64 76 62 62 L38 62 Q36 76 22 84Z" fill="${a.hair}"/>`; front = `<path d="M30 42 Q32 24 50 24 Q68 24 70 42 Q60 32 50 32 Q40 32 30 42Z" fill="${a.hair}"/>`; break;
+      case 'afro': back = `<circle cx="50" cy="36" r="30" fill="${a.hair}"/>`; front = `<path d="M31 40 Q34 28 50 28 Q66 28 69 40 Q58 34 50 34 Q42 34 31 40Z" fill="${a.hair}"/>`; break;
+      case 'braids': back = `<path d="M26 44 Q24 20 50 20 Q76 20 74 44 L76 88 L68 88 L67 56 L33 56 L32 88 L24 88Z" fill="${a.hair}"/><g stroke="${hairD}" stroke-width="1.5"><path d="M28 62h4M28 70h4M28 78h4M68 62h4M68 70h4M68 78h4"/></g>`; front = `<path d="M30 42 Q32 25 50 25 Q68 25 70 42 Q58 33 50 33 Q42 33 30 42Z" fill="${a.hair}"/>`; break;
+      case 'ponytail': back = `<path d="M66 36 Q88 36 84 62 Q82 74 74 78 Q80 62 72 50Z" fill="${a.hair}"/>`; front = `<path d="M29 44 Q29 21 50 21 Q71 21 71 44 Q64 33 50 33 Q36 33 29 44Z" fill="${a.hair}"/>`; break;
+      case 'bun': back = `<circle cx="50" cy="15" r="9" fill="${a.hair}"/>`; front = `<path d="M29 44 Q29 21 50 21 Q71 21 71 44 Q64 33 50 33 Q36 33 29 44Z" fill="${a.hair}"/>`; break;
+      case 'curly': front = [[34, 26], [44, 21], [56, 21], [66, 26], [30, 36], [70, 36], [40, 28], [60, 28]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="${a.hair}"/>`).join(''); break;
+      case 'hijab': back = `<path d="M25 52 Q22 16 50 16 Q78 16 75 52 Q76 76 62 88 L38 88 Q24 76 25 52Z" fill="${a.scarf}"/>`; break;
+      case 'cap': front = `<path d="M29 40 Q29 18 50 18 Q71 18 71 40Z" fill="${a.cap}"/><path d="M26 40 H78 Q80 44 74 44 H28Z" fill="${d(a.cap, 0.8)}"/>`; break;
+      case 'bald': break;
+      default: front = `<path d="M29 46 Q27 20 50 20 Q73 20 71 46 Q66 32 50 32 Q34 32 29 46Z" fill="${a.hair}"/>`;
+    }
+    const face = a.style === 'hijab'
+      ? `<ellipse cx="50" cy="48" rx="17" ry="21" fill="${a.skin}"/>`
+      : `<circle cx="30.5" cy="48" r="4.5" fill="${a.skin}"/><circle cx="69.5" cy="48" r="4.5" fill="${a.skin}"/><ellipse cx="50" cy="46" rx="20" ry="23" fill="${a.skin}"/>`;
+    const beard = a.beard ? `<path d="M31 50 Q32 76 50 76 Q68 76 69 50 Q62 64 50 64 Q38 64 31 50Z" fill="${a.hair}"/>` : '';
+    const glasses = a.glasses ? `<g fill="none" stroke="#2a1a3a" stroke-width="2"><circle cx="42" cy="46" r="6.5"/><circle cx="58" cy="46" r="6.5"/><path d="M48.5 46h3"/></g>` : '';
+    return `<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true">${back}
+      <path d="M16 100 Q16 74 50 74 Q84 74 84 100Z" fill="${a.shirt}"/><path d="M40 74 Q50 86 60 74Z" fill="${shirtD}"/>
+      <rect x="43" y="60" width="14" height="16" rx="5" fill="${skinD}"/>${face}
+      <g fill="#2a1a3a"><circle cx="42" cy="46" r="2.4"/><circle cx="58" cy="46" r="2.4"/></g>
+      <g stroke="${hairD}" stroke-width="2" stroke-linecap="round"><path d="M37.5 39.5 Q42 37.5 46 39.5"/><path d="M54 39.5 Q58 37.5 62.5 39.5"/></g>
+      <circle cx="36" cy="54" r="3.4" fill="#ff7a8a" opacity=".35"/><circle cx="64" cy="54" r="3.4" fill="#ff7a8a" opacity=".35"/>
+      ${beard}<path d="M43 55 Q50 62 57 55" fill="none" stroke="#2a1a3a" stroke-width="2.2" stroke-linecap="round"/>${glasses}${front}</svg>`;
+  }
+  function applyAvatar(el, i) { const a = AVATARS[i] || AVATARS[0]; el.innerHTML = avatarSVG(a); el.parentElement.style.background = `linear-gradient(${a.bg[0]}, ${a.bg[1]})`; }
   const THEME_NAMES = { meadow: '🌳 Prairie', night: '🌙 Nuit étoilée', sunset: '🌅 Coucher de soleil', snow: '❄️ Neige', desert: '🏜️ Désert', ocean: '🌊 Océan', candy: '🍭 Bonbons', forest: '🌲 Forêt', space: '🪐 Espace', autumn: '🍂 Automne', volcano: '🌋 Volcan', neon: '🌆 Ville néon' };
   const POWER_UNLOCK = { triple: 3, super: 10 };               // niveau d'apparition des bonus
   const store = {
@@ -219,7 +259,7 @@
     $('rename-input').value = p.name;
     $('prof-score').textContent = Storage.totalScore();
     $('prof-done').textContent = p.progress.filter((r) => r.completed).length;
-    $('avatars').innerHTML = AVATAR_BG.map((bg, i) => `<button type="button" data-a="${i}" class="${i === avatarOf() ? 'sel' : ''}" style="background:${bg}">${USER_SVG}</button>`).join('');
+    $('avatars').innerHTML = AVATARS.map((a, i) => `<button type="button" data-a="${i}" class="${i === avatarOf() ? 'sel' : ''}" style="background:linear-gradient(${a.bg[0]}, ${a.bg[1]})">${avatarSVG(a)}</button>`).join('');
     openModal('modal-profile');
   }
   $('btn-avatar').onclick = () => { Audio.play('click'); openProfile(); };
@@ -372,7 +412,7 @@
   }, 16);
 
   // ============================== raccourcis de développement ==============================
-  // /?name=Ada  -> connexion directe · &level=8 -> niveau direct · &autoplay=1 -> robot · &clean=1 -> sans aide · &screen=menu|home
+  // /?name=Ada  -> connexion directe · &level=8 -> niveau direct · &autoplay=1 -> robot · &clean=1 -> sans aide · &screen=menu|home|profile
   const qs = new URLSearchParams(location.search);
   if (qs.get('clean')) stage.classList.add('clean');
   if (qs.get('name')) {
@@ -382,6 +422,7 @@
       const lvl = parseInt(qs.get('level'), 10);
       if (lvl >= 1 && lvl <= TOTAL_LEVELS) { await startLevel(lvl); if (qs.get('autoplay') === 'instant') fastForward(); else if (qs.get('autoplay')) autoplay(); }
       else if (qs.get('screen') === 'menu') openMenu();
+      else if (qs.get('screen') === 'profile') { await openHome(); openProfile(); }
       else openHome();
     });
   } else route();
