@@ -51,6 +51,7 @@ A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits 
 
 ## Install and play
 
+- ▶️ **Play online**: <https://princess-buster.vercel.app/>
 - 📱 **Install as an app (PWA)**: open the game in Chrome (Android) → ⋮ menu → **Install app**; on iPhone (Safari) → Share → **Add to Home Screen**. No APK needed: it opens full screen like a native app.
 - 🌐 **Browser**: [Vercel deployment](docs/DEPLOY-VERCEL.md), playable on phone, tablet and desktop.
 

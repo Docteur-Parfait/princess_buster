@@ -87,6 +87,7 @@ Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 
 ## Télécharger et jouer
 
+- ▶️ **Jouer en ligne** : <https://princess-buster.vercel.app/>
 - 📱 **Installer comme une application (PWA)** : ouvre le jeu dans Chrome (Android) → menu ⋮ → **Installer l'application** ; sur iPhone (Safari) → Partager → **Sur l'écran d'accueil**. Pas d'APK à télécharger : le jeu s'ouvre en plein écran comme une vraie application.
 - 🌐 **Navigateur** : [déploiement Vercel](docs/DEPLOY-VERCEL.md) (jouable sur téléphone, tablette et PC).
 - 💻 **En local** : voir ci-dessous.
