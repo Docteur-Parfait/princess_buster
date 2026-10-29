@@ -100,10 +100,12 @@ const Game = (() => {
     }));
   }
 
-  function tintColor(hex, amt) { // amt>0 éclaircit, <0 assombrit
-    const n = parseInt(hex.slice(1), 16);
+  function tintColor(hex, amt) { // amt>0 éclaircit, <0 assombrit (accepte #rrggbb ou rgb(r,g,b))
+    let r, g, b;
+    const m = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/.exec(hex);
+    if (m) { r = +m[1]; g = +m[2]; b = +m[3]; } else { const n = parseInt(hex.slice(1), 16); r = n >> 16; g = (n >> 8) & 255; b = n & 255; }
     const f = (c) => Math.max(0, Math.min(255, Math.round(amt > 0 ? c + (255 - c) * amt : c * (1 + amt))));
-    return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
+    return `rgb(${f(r)},${f(g)},${f(b)})`;
   }
 
   // Niveau -> liste de pièces {tech,col,row,w,h}. Ancien format « grid » (cubes 1x1) toujours accepté,
