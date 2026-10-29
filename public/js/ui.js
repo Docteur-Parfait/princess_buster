@@ -2,7 +2,7 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const stage = $('stage');
-  let TOTAL_LEVELS = 200;       // mis à jour depuis levels/index.json
+  let TOTAL_LEVELS = 250;       // mis à jour depuis levels/index.json
   let meta = null;              // { techs, themes, levels }
   let currentLevel = 1;
   let levelData = null;

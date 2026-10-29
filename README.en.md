@@ -39,7 +39,7 @@ A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits 
 
 ## Features
 
-- 🎯 **200 levels** described in JSON files, with **50 technologies** (including AI logos: ChatGPT, Claude, Gemini, Grok, Mistral…) introduced progressively
+- 🎯 **250 levels** described in JSON files, with **50 technologies** (including AI logos: ChatGPT, Claude, Gemini, Grok, Mistral…) introduced progressively
 - 🎨 **12 backgrounds** that change from level to level: meadow, night, sunset, snow, desert, ocean, candy, forest, space, autumn, volcano, neon
 - 🧱 **Mixed piece shapes**: squares, wide or tall rectangles, 2×2, 3×1, 3×2
 - 🌌 **Simulated depth**: depending on shot angle and impact point a piece falls **behind the table, left or right**; up to 3 hidden rows behind the front pieces
@@ -62,7 +62,7 @@ npm start
 Then open <http://localhost:3000>.
 
 ```bash
-npm test          # validates the 200 levels
+npm test          # validates the 250 levels
 npm run levels    # regenerates levels (overwrites public/levels)
 ```
 
@@ -77,7 +77,7 @@ npm run levels    # regenerates levels (overwrites public/levels)
 
 ## Levels
 
-A **new technology is unlocked every 5 levels**, step by step: levels 1-5 only use **HTML5 and CSS3**, JavaScript joins at level 6, PHP at level 11, then Sass, Bootstrap, TypeScript, jQuery, Tailwind CSS, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git, the AIs (ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama), Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter and Dart. 41 technologies are unlocked by level 200; the last 9 are ready for future levels. The reward chest shows the **next technology**. There are 12 rotating backgrounds.
+A **new technology is unlocked every 5 levels**, step by step: levels 1-5 only use **HTML5 and CSS3**, JavaScript joins at level 6, PHP at level 11, then Sass, Bootstrap, TypeScript, jQuery, Tailwind CSS, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git, the AIs (ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama), Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter and Dart. All 50 technologies are unlocked by level 240 (Bash last). The reward chest shows the **next technology**. There are 12 rotating backgrounds.
 
 A level is a `public/levels/levelNNN.json` file with `balls`, `cubeWeight`, `rows`, `cols` and a list of `pieces` (`tech`, `col`, `row`, `w`, `h`, `layer`). See the [French README](README.md#créer-ou-modifier-un-niveau) for the full format, and run `npm test` to validate your changes.
 

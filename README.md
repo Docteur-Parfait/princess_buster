@@ -34,7 +34,7 @@
 - [Fonctionnalités](#fonctionnalités)
 - [Démarrage rapide](#démarrage-rapide)
 - [Contrôles](#contrôles)
-- [Les 200 niveaux](#les-20-niveaux)
+- [Les 250 niveaux](#les-250-niveaux)
 - [Créer ou modifier un niveau](#créer-ou-modifier-un-niveau)
 - [Architecture du projet](#architecture-du-projet)
 - [API et sauvegarde](#api-et-sauvegarde)
@@ -71,7 +71,7 @@ Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 
 ## Fonctionnalités
 
-- 🎯 **200 niveaux** décrits dans des fichiers JSON, avec **50 technologies** (dont les logos des IA : ChatGPT, Claude, Gemini, Grok, Mistral…) introduites progressivement, HTML5 et CSS3 d'abord
+- 🎯 **250 niveaux** décrits dans des fichiers JSON, avec **50 technologies** (dont les logos des IA : ChatGPT, Claude, Gemini, Grok, Mistral…) introduites progressivement, HTML5 et CSS3 d'abord
 - 🎨 **12 décors** qui changent à chaque niveau : prairie, nuit, coucher de soleil, neige, désert, océan, bonbons, forêt, espace, automne, volcan, néon
 - 🧱 **Pièces de formats variés** : carrés, rectangles larges ou hauts, 2×2, 3×1, 3×2 (les grandes piles rapetissent pour tenir à l'écran)
 - 🌌 **Profondeur simulée** : selon l'angle du tir et l'endroit touché, une pièce tombe **derrière la table, à gauche ou à droite** ; jusqu'à 3 rangées cachées les unes derrière les autres
@@ -106,7 +106,7 @@ npm start
 Ouvre ensuite <http://localhost:3000> (sur ton téléphone : `http://<ip-de-ton-pc>:3000` sur le même réseau).
 
 ```bash
-npm test          # valide les 200 niveaux (formats, techs, thèmes, aucun cube suspendu)
+npm test          # valide les 250 niveaux (formats, techs, thèmes, aucun cube suspendu)
 npm run levels    # régénère les niveaux (attention : écrase les fichiers de public/levels)
 ```
 
@@ -121,10 +121,10 @@ npm run levels    # régénère les niveaux (attention : écrase les fichiers de
 | Annuler un tir | Ramener le doigt vers le canon avant de relâcher | — |
 | Plein écran | Bouton ⛶ | — |
 
-## Les 200 niveaux
+## Les 250 niveaux
 
 - **Une nouvelle technologie tous les 5 niveaux** : les 5 niveaux d'un palier n'utilisent que les technologies déjà débloquées. Le **coffre de récompense** affiché pendant le palier montre la **prochaine technologie** ; en gagnant le 5ᵉ niveau tu la débloques (barre de progression 5/5), puis elle apparaît dans les 5 niveaux suivants.
-- **Progression pas à pas** : les niveaux 1 à 5 n'utilisent que **HTML5 et CSS3**. Après chaque palier de 5 niveaux, une technologie s'ajoute : JavaScript (niveau 6), PHP (niveau 11), puis Sass, Bootstrap, TypeScript, jQuery, Tailwind CSS, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git, les **IA** (ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama), puis Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter et Dart. **41 technologies** sont débloquées au niveau 200 ; les 9 dernières (Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash) sont prêtes pour de futurs niveaux.
+- **Progression pas à pas** : les niveaux 1 à 5 n'utilisent que **HTML5 et CSS3**. Après chaque palier de 5 niveaux, une technologie s'ajoute : JavaScript (niveau 6), PHP (niveau 11), puis Sass, Bootstrap, TypeScript, jQuery, Tailwind CSS, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git, les **IA** (ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama), puis Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter et Dart. Les **50 technologies** sont toutes débloquées au niveau 240 (Bash en dernier).
 - **Décors** : 12 thèmes qui tournent à chaque niveau (`meadow`, `night`, `sunset`, `snow`, `desert`, `ocean`, `candy`, `forest`, `space`, `autumn`, `volcano`, `neon`), définis dans `public/js/game.js`.
 - **Difficulté** : piles plus grandes (jusqu'à 9×8), pièces plus lourdes et plus grandes, rangées cachées derrière (2 rangées dès le niveau 5, 3 dès le niveau 100).
 
@@ -180,7 +180,7 @@ princess_buster/
 │   │   ├── ui.js            # écrans, navigation, entrées (souris/tactile/clavier), plein écran
 │   │   ├── audio.js         # musique + bruitages synthétisés (WebAudio)
 │   │   └── storage.js       # sauvegarde : API SQLite avec repli localStorage
-│   ├── levels/              # index.json + level001..200.json
+│   ├── levels/              # index.json + level001..250.json
 │   ├── assets/              # logo.png + tech/*.svg (50 logos de technologies et d'IA)
 │   └── vendor/matter.min.js
 ├── server/server.js         # serveur de test : fichiers statiques + API SQLite (node:sqlite)

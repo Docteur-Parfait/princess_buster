@@ -1,9 +1,9 @@
-// Génère public/levels/levelNNN.json (200 niveaux) + index.json  (node tools/generate-levels.js)
+// Génère public/levels/levelNNN.json (250 niveaux) + index.json  (node tools/generate-levels.js)
 // Les niveaux sont ensuite éditables à la main : ce sont de simples fichiers JSON.
 const fs = require('fs');
 const path = require('path');
 
-const TOTAL = 200;
+const TOTAL = 250;
 
 const TECHS = [
   ['html5', 'HTML5', '#e44d26'], ['css3', 'CSS3', '#2965f1'], ['sass', 'Sass', '#cc6699'], ['bootstrap', 'Bootstrap', '#7952b3'],
@@ -27,7 +27,7 @@ const TECHS = [
 // Une nouvelle technologie est débloquée tous les 5 niveaux (récompense du coffre) :
 // les niveaux d'un palier n'utilisent que les technologies déjà débloquées.
 // On démarre avec HTML5 + CSS3 uniquement, puis JavaScript (niveau 6), PHP (niveau 11), etc. dans l'ordre ci-dessous.
-// 2 au départ + 39 déblocages = 41 technologies jouables au niveau 200 ; les dernières de la liste arrivent au-delà.
+// 2 au départ + 48 déblocages (niveaux 5 à 240) = les 50 technologies jouables à partir du niveau 241.
 const ORDER = ['html5', 'css3', 'javascript', 'php', 'sass', 'bootstrap', 'typescript', 'jquery', 'tailwindcss', 'laravel', 'nodejs', 'express',
   'react', 'vuejs', 'angular', 'python', 'django', 'mysql', 'mongodb', 'docker', 'git',
   'openai', 'claude', 'gemini', 'grok', 'mistral', 'perplexity', 'huggingface', 'copilot', 'ollama', 'llama',
