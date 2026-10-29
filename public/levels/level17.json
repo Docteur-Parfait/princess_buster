@@ -25,11 +25,11 @@
     "mysql"
   ],
   "grid": [
-    "css3 django mysql python javascript react mysql",
-    "tailwindcss . . . . . mysql",
-    "angular . . . . . react",
-    "vuejs . . . . . mysql",
-    "mysql . . . . . php",
-    "mysql . . . . . mysql"
+    "css3 . . . . . django",
+    "mysql . . . . . python",
+    "javascript . . . . . react",
+    "mysql . . . . . tailwindcss",
+    "mysql . . . . . angular",
+    "react vuejs mysql mysql php mysql mysql"
   ]
 }

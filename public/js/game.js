@@ -2,11 +2,12 @@
 const Game = (() => {
   const { Engine, Bodies, Body, Composite, Events, Sleeping } = Matter;
 
-  const W = 540, H = 960;
+  const W = 540;
+  let H = 960;                       // hauteur logique, adaptée à l'écran (800..1100)
   const CUBE = 60;
-  const PLATFORM_Y = 560;            // surface supérieure de la table
+  let PLATFORM_Y = 560;              // surface supérieure de la table
   const PLATFORM_H = 18;
-  const CANNON_Y = 880;
+  let CANNON_Y = 880;
   const BALL_R = 15, BALL_SPEED = 27;
   const MAX_ANGLE = 78 * Math.PI / 180;   // écart max par rapport à la verticale
   const FIRE_COOLDOWN = 320;
@@ -14,13 +15,22 @@ const Game = (() => {
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   const DPR = 2;
-  canvas.width = W * DPR; canvas.height = H * DPR;
+  // Adapte la hauteur logique au format de l'écran (téléphone, tablette...)
+  function setSize(h) {
+    H = Math.max(800, Math.min(1100, Math.round(h)));
+    PLATFORM_Y = Math.max(480, Math.min(650, Math.round(H * 0.58)));
+    CANNON_Y = H - 100;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    canvas.style.height = H + 'px';
+  }
+  setSize(960);
 
   let techs = {};            // key -> { name, color, img }
   let engine, platform, cubes, balls, particles;
   let platformW = 300, loopId = 0;
   let level = null, ballsLeft = 0, running = false, finished = false;
-  let cannonX = W / 2, aim = 0;            // aim = angle (rad) par rapport à la verticale, + = droite
+  const cannonX = W / 2;                   // canon fixe au centre
+  let aim = 0;            // aim = angle (rad) par rapport à la verticale, + = droite
   let aiming = false, lastShot = 0, settleTimer = 0, shake = 0, time = 0, lastHitSfx = 0;
   let callbacks = {};
   let acc = 0, prev = 0, flash = 0, comboCount = 0, comboTime = 0, comboX = W / 2, comboY = 400;
@@ -44,6 +54,17 @@ const Game = (() => {
     return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
   }
 
+  // Aucun cube ne reste suspendu : chaque colonne retombe sur la table (garde-fou si un JSON est mal écrit)
+  function supported(rows) {
+    const cols = Math.max(...rows.map((r) => r.length));
+    const out = rows.map(() => Array(cols).fill('.'));
+    for (let c = 0; c < cols; c++) {
+      let put = rows.length - 1;
+      for (let r = rows.length - 1; r >= 0; r--) if (rows[r][c] && rows[r][c] !== '.') out[put--][c] = rows[r][c];
+    }
+    return out;
+  }
+
   // --- niveau ---
   function start(lvl, cb) {
     callbacks = cb || {};
@@ -52,9 +73,9 @@ const Game = (() => {
     engine.gravity.y = 1.1;
     cubes = []; balls = []; particles = [];
     ballsLeft = lvl.balls; lastShot = -1000; finished = false; settleTimer = 0; aiming = false; shake = 0;
-    cannonX = W / 2; aim = 0;
+    aim = 0;
 
-    const rows = lvl.grid.map((r) => r.trim().split(/\s+/));
+    const rows = supported(lvl.grid.map((r) => r.trim().split(/\s+/)));
     const cols = Math.max(...rows.map((r) => r.length));
     platformW = Math.max(250, cols * CUBE + 36);
     platform = Bodies.rectangle(W / 2, PLATFORM_Y + PLATFORM_H / 2, platformW, PLATFORM_H, { isStatic: true, friction: 1, restitution: 0, collisionFilter: { category: 0x0002, mask: 0x0001 } });
@@ -119,7 +140,6 @@ const Game = (() => {
     const dx = px - cannonX, dy = CANNON_Y - py;
     aim = Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, Math.atan2(dx, Math.max(dy, 1))));
   }
-  function moveCannon(dx) { cannonX = Math.max(70, Math.min(W - 70, cannonX + dx)); }
   function rotate(da) { aim = Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, aim + da)); }
 
   function burst(x, y, color, n) {
@@ -197,7 +217,7 @@ const Game = (() => {
   }
 
   // --- rendu ---
-  const STARS = Array.from({ length: 70 }, (_, i) => ({ x: (i * 97.3) % W, y: (i * 61.7) % 640, r: 0.8 + (i % 4) * 0.6, p: i * 0.9, c: i % 5 === 0 ? '#ffd23f' : i % 7 === 0 ? '#5fd4ff' : '#fff' }));
+  const STARS = Array.from({ length: 70 }, (_, i) => ({ x: (i * 97.3) % W, y: (i * 61.7) % 640 + 10, r: 0.8 + (i % 4) * 0.6, p: i * 0.9, c: i % 5 === 0 ? '#ffd23f' : i % 7 === 0 ? '#5fd4ff' : '#fff' }));
   const PALETTE = ['#ffd23f', '#ff3fa4', '#5fd4ff', '#fff3a0'];
 
   function render() {
@@ -228,15 +248,16 @@ const Game = (() => {
   }
 
   function drawBackground() {
-    const sky = ctx.createLinearGradient(0, 0, 0, 700);
+    const GROUND = PLATFORM_Y + 150, dy = GROUND - 710;
+    const sky = ctx.createLinearGradient(0, 0, 0, GROUND);
     sky.addColorStop(0, '#0f0a52'); sky.addColorStop(.55, '#3a2bc0'); sky.addColorStop(1, '#b03fd0');
     ctx.fillStyle = sky; ctx.fillRect(-20, -20, W + 40, H + 40);
     // halo magique derrière la pile
-    const halo = ctx.createRadialGradient(W / 2, 420, 20, W / 2, 420, 330);
+    const halo = ctx.createRadialGradient(W / 2, PLATFORM_Y - 140, 20, W / 2, PLATFORM_Y - 140, 330);
     halo.addColorStop(0, 'rgba(255,210,63,.35)'); halo.addColorStop(.5, 'rgba(255,63,164,.18)'); halo.addColorStop(1, 'rgba(255,63,164,0)');
-    ctx.fillStyle = halo; ctx.fillRect(0, 60, W, 700);
+    ctx.fillStyle = halo; ctx.fillRect(0, 60, W, GROUND);
     // rayons tournants
-    ctx.save(); ctx.translate(W / 2, 420); ctx.rotate(time * 0.00006);
+    ctx.save(); ctx.translate(W / 2, PLATFORM_Y - 140); ctx.rotate(time * 0.00006);
     ctx.fillStyle = 'rgba(255,255,255,.045)';
     for (let i = 0; i < 10; i++) { ctx.rotate(Math.PI / 5); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-60, -700); ctx.lineTo(60, -700); ctx.fill(); }
     ctx.restore();
@@ -247,9 +268,10 @@ const Game = (() => {
       if (s.r > 2) { drawStar(s.x, s.y, s.r * 2.6, 0); ctx.fill(); } else { ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill(); }
     });
     ctx.globalAlpha = 1;
+    ctx.save(); ctx.translate(0, dy);
     // lune dorée
     ctx.fillStyle = 'rgba(255,243,160,.95)'; ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 40;
-    ctx.beginPath(); ctx.arc(455, 235, 26, 0, 7); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(455, 235 - dy, 26, 0, 7); ctx.fill(); ctx.shadowBlur = 0;
     // silhouette de château au loin
     ctx.fillStyle = '#2a1280';
     ctx.beginPath(); ctx.moveTo(0, 700); ctx.lineTo(0, 620); ctx.lineTo(40, 620); ctx.lineTo(40, 575); ctx.lineTo(55, 545); ctx.lineTo(70, 575); ctx.lineTo(70, 610); ctx.lineTo(110, 610); ctx.lineTo(110, 640); ctx.lineTo(170, 640); ctx.lineTo(170, 700); ctx.fill();
@@ -257,11 +279,12 @@ const Game = (() => {
     // collines violettes + sol brillant
     ctx.fillStyle = '#4a1a9a'; ctx.beginPath(); ctx.ellipse(110, 720, 330, 110, 0, Math.PI, 0); ctx.fill();
     ctx.fillStyle = '#5f22b8'; ctx.beginPath(); ctx.ellipse(450, 730, 330, 95, 0, Math.PI, 0); ctx.fill();
-    const ground = ctx.createLinearGradient(0, 710, 0, H);
+    const ground = ctx.createLinearGradient(0, 710, 0, H - dy);
     ground.addColorStop(0, '#7a2cff'); ground.addColorStop(.35, '#4b1fb0'); ground.addColorStop(1, '#1c0d66');
-    ctx.fillStyle = ground; ctx.fillRect(-20, 710, W + 40, H);
+    ctx.fillStyle = ground; ctx.fillRect(-20, 710, W + 40, H + 400);
     ctx.fillStyle = '#ffd23f'; ctx.fillRect(-20, 708, W + 40, 5);
     ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(-20, 713, W + 40, 3);
+    ctx.restore();
   }
 
   function drawPedestal() {
@@ -368,7 +391,7 @@ const Game = (() => {
   }
 
   return {
-    W, H, loadTechs, start, stop, fire, moveCannon, rotate, setAimToward, canFire,
+    get W() { return W; }, get H() { return H; }, setSize, loadTechs, start, stop, fire, rotate, setAimToward, canFire,
     get cannonX() { return cannonX; }, get cannonY() { return CANNON_Y; },
     set aiming(v) { aiming = v; }, get aiming() { return aiming; },
     get ballsLeft() { return ballsLeft; }, get cubesLeft() { return cubes ? cubes.length : 0; },

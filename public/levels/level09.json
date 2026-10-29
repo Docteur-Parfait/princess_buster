@@ -17,10 +17,10 @@
     "laravel"
   ],
   "grid": [
+    ". . . . . .",
+    ". . . . . .",
     "php . php . laravel .",
-    ". tailwindcss . css3 . sass",
-    "javascript . html5 . css3 .",
-    ". tailwindcss . laravel . typescript",
-    "laravel . laravel . jquery ."
+    "tailwindcss css3 sass javascript html5 css3",
+    "tailwindcss laravel typescript laravel laravel jquery"
   ]
 }

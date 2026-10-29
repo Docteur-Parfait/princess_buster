@@ -10,7 +10,10 @@ npm start        # http://localhost:3000  (Node >= 22.5, aucune dépendance npm)
 
 ## Contrôles
 - Glisser (souris/doigt) pour viser, relâcher pour tirer (glisser vers le bas = annuler)
-- ◀ ▶ ou `A`/`D` : déplacer le canon horizontalement · `←`/`→` : orienter · `Espace` : tirer
+- Le canon est fixe au centre : tu ne fais que l'orienter. Clavier : `←`/`→` (ou `A`/`D`) pour orienter, `Espace` pour tirer
+
+## Adaptation écrans
+Largeur logique 540, hauteur logique adaptée au format (téléphone, tablette, paysage). Aucun cube n'est suspendu : chaque colonne repose sur la table (générateur + garde-fou dans `game.js`).
 
 ## Structure
 - `public/levels/levelNN.json` : 20 niveaux (balles, poids des cubes, grille de technos). Régénérables : `npm run levels` (`tools/generate-levels.js`)

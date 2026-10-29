@@ -124,3 +124,10 @@ html, body { margin: 0; height: 100%; background: #05041f; overflow: hidden; fon
 #leaderboard-list { text-align: left; font-size: 24px; font-weight: 800; padding-left: 36px; min-height: 120px; }
 #leaderboard-list li { margin: 6px 0; }
 #leaderboard-list li span { float: right; color: var(--gold); }
+
+/* Adaptation tablette / téléphone : le menu défile si l'écran est court, cibles tactiles confortables */
+#screen-menu { overflow-y: auto; overflow-x: hidden; touch-action: pan-y; justify-content: flex-start; padding-bottom: 20px; scrollbar-width: none; }
+#screen-menu::-webkit-scrollbar { display: none; }
+#screen-menu > .modal { position: fixed; }
+.hint { bottom: 12px; left: 20px; right: 20px; }
+@media (hover: none) { .btn:hover { transform: none; filter: none; } .level:hover { transform: none; } }

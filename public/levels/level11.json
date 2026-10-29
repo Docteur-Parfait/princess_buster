@@ -21,8 +21,8 @@
   "grid": [
     "javascript . . . express",
     "express . . . express",
-    "laravel express javascript express express",
-    "bootstrap . . . laravel",
-    "laravel . . . express"
+    "laravel . . . express",
+    "javascript . . . express",
+    "express bootstrap laravel laravel express"
   ]
 }

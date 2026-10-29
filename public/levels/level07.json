@@ -15,9 +15,9 @@
     "tailwindcss"
   ],
   "grid": [
-    "sass tailwindcss javascript html5 html5",
-    "tailwindcss . . . tailwindcss",
-    "tailwindcss . . . jquery",
-    "javascript . . . jquery"
+    "sass . . . tailwindcss",
+    "javascript . . . html5",
+    "html5 . . . tailwindcss",
+    "tailwindcss tailwindcss jquery javascript jquery"
   ]
 }

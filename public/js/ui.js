@@ -6,12 +6,17 @@
   let currentLevel = 1;
   let levelData = null;
 
-  // --- mise à l'échelle de la scène 540x960 ---
+  // --- mise à l'échelle : largeur logique 540, hauteur logique adaptée au format de l'écran ---
   function fit() {
-    const s = Math.min(innerWidth / Game.W, innerHeight / Game.H);
-    document.getElementById('stage').style.setProperty('--s', s);
+    const vw = innerWidth, vh = innerHeight;
+    const h = Math.max(800, Math.min(1100, Math.round(Game.W * vh / vw)));
+    const scale = Math.min(vw / Game.W, vh / h);
+    Game.setSize(h);
+    const stage = document.getElementById('stage');
+    stage.style.height = h + 'px';
+    stage.style.setProperty('--s', scale);
   }
-  addEventListener('resize', fit); fit();
+  addEventListener('resize', fit); addEventListener('orientationchange', fit); fit();
 
   function show(name) {
     document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === 'screen-' + name));
@@ -158,17 +163,7 @@
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', () => { Game.aiming = false; });
 
-  // déplacer le canon horizontalement (maintenir pour continuer)
-  function holdButton(id, fn) {
-    const el = $(id); let t = null;
-    const stopHold = () => { clearInterval(t); t = null; };
-    el.addEventListener('pointerdown', (e) => { e.preventDefault(); Audio.init(); fn(); t = setInterval(fn, 16); });
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => el.addEventListener(ev, stopHold));
-  }
-  holdButton('btn-left', () => Game.moveCannon(-5));
-  holdButton('btn-right', () => Game.moveCannon(5));
-
-  // clavier : ←/→ tourner, A/D déplacer, Espace tirer
+  // clavier : ←/→ orienter le canon, Espace tirer
   const keys = new Set();
   addEventListener('keydown', (e) => {
     keys.add(e.key.toLowerCase());
@@ -177,10 +172,8 @@
   addEventListener('keyup', (e) => keys.delete(e.key.toLowerCase()));
   setInterval(() => {
     if (!$('screen-game').classList.contains('active') || document.activeElement === $('name-input')) return;
-    if (keys.has('arrowleft')) Game.rotate(-0.02);
-    if (keys.has('arrowright')) Game.rotate(0.02);
-    if (keys.has('a') || keys.has('q')) Game.moveCannon(-5);
-    if (keys.has('d')) Game.moveCannon(5);
+    if (keys.has('arrowleft') || keys.has('a') || keys.has('q')) Game.rotate(-0.02);
+    if (keys.has('arrowright') || keys.has('d')) Game.rotate(0.02);
   }, 16);
 
   window.PB = { startLevel, openMenu }; // pratique pour les tests

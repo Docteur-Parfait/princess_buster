@@ -26,11 +26,11 @@
     "mongodb"
   ],
   "grid": [
-    "tailwindcss . css3 . python . mongodb",
-    ". angular . angular . mongodb .",
-    "django . mongodb . express . bootstrap",
-    ". mongodb . typescript . django .",
-    "mongodb . javascript . mongodb . html5",
-    ". php . angular . sass ."
+    ". . . . . . .",
+    ". . . . . . .",
+    ". . . . . . .",
+    "tailwindcss css3 python mongodb angular angular mongodb",
+    "django mongodb express bootstrap mongodb typescript django",
+    "mongodb javascript mongodb html5 php angular sass"
   ]
 }

@@ -21,11 +21,11 @@
   ],
   "grid": [
     ". . . react . . .",
-    ". . bootstrap react css3 . .",
-    ". nodejs nodejs html5 sass tailwindcss .",
-    "laravel react css3 react react css3 nodejs",
-    ". react react react react html5 .",
-    ". . php css3 tailwindcss . .",
-    ". . . javascript . . ."
+    ". . . bootstrap . . .",
+    ". . react css3 nodejs . .",
+    ". . nodejs html5 sass . .",
+    ". tailwindcss laravel react css3 react .",
+    ". react css3 nodejs react react .",
+    "react react html5 php css3 tailwindcss javascript"
   ]
 }

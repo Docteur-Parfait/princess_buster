@@ -24,9 +24,9 @@
   ],
   "grid": [
     ". . . python . . .",
-    "angular laravel css3 bootstrap laravel python python",
-    "react sass express javascript python javascript python",
-    ". . . html5 . . .",
-    ". . . vuejs . . ."
+    ". . . angular . . .",
+    ". . . laravel . . .",
+    "css3 bootstrap laravel python python react sass",
+    "express javascript python javascript python html5 vuejs"
   ]
 }

@@ -60,6 +60,17 @@ const PLAN = [
   ['columns', 7, 5], ['arch', 7, 6], ['checker', 7, 6], ['pyramid', 7, 6], ['wall', 7, 6],
 ];
 
+// Aucun cube suspendu : chaque cube repose sur un cube (ou sur la table). Chaque colonne retombe vers le bas.
+function dropToSupport(rows) {
+  const cols = Math.max(...rows.map((r) => r.length));
+  const out = rows.map(() => Array(cols).fill('.'));
+  for (let c = 0; c < cols; c++) {
+    let put = rows.length - 1;
+    for (let r = rows.length - 1; r >= 0; r--) if (rows[r][c] === 'x') out[put--][c] = 'x';
+  }
+  return out.map((r) => r.join(''));
+}
+
 // pseudo-aléatoire déterministe
 function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
 
@@ -73,6 +84,7 @@ PLAN.forEach(([shape, w, h], i) => {
   const newest = pool[pool.length - 1];
   const rand = rng(id * 7919);
   let rows = shapes[shape](w, h);
+  rows = dropToSupport(rows);
   const grid = rows.map((row) => [...row].map((c) => {
     if (c !== 'x') return '.';
     // la technologie « nouvelle » du niveau apparaît plus souvent
