@@ -308,6 +308,7 @@
       const ratio = ballsLeft / levelData.balls, stars = ratio >= 0.5 ? 3 : ratio >= 0.25 ? 2 : 1;
       const done = ((currentLevel - 1) % 10) + 1;
       $('panel-win').classList.remove('hidden');
+      $('btn-result-next').classList.toggle('hidden', currentLevel >= TOTAL_LEVELS);          // dernier niveau : pas de suivant
       $('result-score').textContent = score;
       $('result-text').textContent = `${ballsLeft} balle(s) restante(s) = ${ballsLeft} point(s)`;
       $('result-stars').textContent = '';
