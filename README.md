@@ -230,6 +230,7 @@ Lis le [guide de contribution](CONTRIBUTING.md) et le [code de conduite](CODE_OF
 
 - Code : [licence MIT](LICENSE) © 2026 princesse-aku
 - Le **logo « Princess Buster »** (`public/assets/logo.png`) n'est **pas** couvert par la licence MIT : tous droits réservés à l'auteur du projet
+- Les **avatars** (`public/assets/avatars/`) sont des illustrations de l'auteur du projet : tous droits réservés, non couverts par la licence MIT
 - Logos des technologies : [Devicon](https://devicon.dev) (MIT) et logos d'IA : [Simple Icons](https://simpleicons.org) (CC0) ; le logo de Grok est un dessin original évoquant la marque. Les marques appartiennent à leurs propriétaires respectifs
 - Physique : [Matter.js](https://brm.io/matter-js/) (MIT)
 - Inspiration de gameplay : les jeux de tir de cubes en piles pour mobile. Aucun asset de ces jeux n'est utilisé ici

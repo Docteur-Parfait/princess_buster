@@ -110,5 +110,6 @@ Contributions are welcome! Read the [contributing guide](CONTRIBUTING.md) (Frenc
 
 - Code: [MIT](LICENSE) © 2026 princesse-aku
 - The **"Princess Buster" logo** (`public/assets/logo.png`) is **not** covered by the MIT license: all rights reserved by the project author
+- The **avatars** (`public/assets/avatars/`) are illustrations by the project author: all rights reserved, not covered by the MIT license
 - Technology logos: [Devicon](https://devicon.dev) (MIT) and AI logos: [Simple Icons](https://simpleicons.org) (CC0); the Grok mark is an original drawing. Trademarks belong to their respective owners
 - Physics: [Matter.js](https://brm.io/matter-js/) (MIT)

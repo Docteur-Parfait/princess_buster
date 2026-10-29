@@ -8,69 +8,10 @@
   let levelData = null;
   const levelCache = new Map();
 
-  // Avatars : portraits humains dessinés (SVG généré) et animés (clignement des yeux, respiration) ; peau, coiffure, regard et accessoires variés
-  const AVATARS = [
-    { skin: '#f6d3b3', hair: '#3b2414', style: 'short', shirt: '#3a6bff', bg: ['#9fe6ff', '#4a7bff'], eye: '#4a2f1a', mouth: 'smile', necklace: false },
-    { skin: '#8d5524', hair: '#1c1410', style: 'afro', shirt: '#ff3fa4', bg: ['#ffd6f0', '#ff6fc0'], glasses: true, eye: '#2a1a10', mouth: 'smile', lashes: true, earring: true },
-    { skin: '#e0ac82', hair: '#1c1410', style: 'long', shirt: '#2fc92b', bg: ['#c8ffb0', '#4fd23a'], eye: '#3a2418', mouth: 'soft', lashes: true, necklace: true },
-    { skin: '#5c3a21', hair: '#0e0a08', style: 'braids', shirt: '#ffb300', bg: ['#fff0a0', '#ffb300'], eye: '#1a0e08', mouth: 'smile', lashes: true, earring: true },
-    { skin: '#ffe0bd', hair: '#c9a24a', style: 'ponytail', shirt: '#7a2cff', bg: ['#d9c2ff', '#8a4cff'], eye: '#3b86d8', mouth: 'smile', lashes: true, freckles: true },
-    { skin: '#c68642', hair: '#2b1a12', style: 'bald', shirt: '#e32636', bg: ['#ffc2c8', '#ff6a75'], beard: true, eye: '#2a1a10', mouth: 'smirk' },
-    { skin: '#f6d3b3', hair: '#b5452a', style: 'curly', shirt: '#0f9a95', bg: ['#b8fff4', '#27c9c0'], glasses: true, eye: '#3f8a4a', mouth: 'smile', freckles: true },
-    { skin: '#8d5524', hair: '#2b1a12', style: 'hijab', shirt: '#4a4f80', scarf: '#ff8ad0', bg: ['#e8ecff', '#9aa6e8'], eye: '#2a1a10', mouth: 'soft', lashes: true },
-    { skin: '#e0ac82', hair: '#1c1410', style: 'cap', shirt: '#ff7a1a', cap: '#2a50d8', bg: ['#ffe0b8', '#ffa040'], eye: '#3a2418', mouth: 'smirk' },
-    { skin: '#5c3a21', hair: '#e8e8f0', style: 'short', shirt: '#6a2cd8', bg: ['#e6d6ff', '#a47cf0'], beard: true, glasses: true, eye: '#1a0e08', mouth: 'smile' },
-    { skin: '#ffe0bd', hair: '#1d3b8a', style: 'bun', shirt: '#d4202a', bg: ['#c8dcff', '#5a8cff'], eye: '#3a2418', mouth: 'smile', lashes: true, earring: true },
-    { skin: '#c68642', hair: '#5a3a1a', style: 'long', shirt: '#159a2a', bg: ['#d6ffd0', '#58d060'], glasses: true, eye: '#4a2f1a', mouth: 'soft', lashes: true, necklace: true },
-  ];
-  let avUid = 0;
-  function avatarSVG(a, idx = 0) {
-    const id = 'av' + (++avUid);
-    const mix = (c, k) => { const n = parseInt(c.slice(1), 16), f = (v) => Math.max(0, Math.min(255, Math.round(k >= 1 ? v * k : v + (255 - v) * (1 - k)))); return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`; };
-    const dark = (c, k) => mix(c, k), light = (c, k) => mix(c, 1 - k);
-    const skinL = light(a.skin, 0.22), skinD = dark(a.skin, 0.84), skinDD = dark(a.skin, 0.66);
-    const hairL = light(a.hair, 0.28), hairD = dark(a.hair, 0.7), shirtD = dark(a.shirt, 0.72), shirtL = light(a.shirt, 0.25);
-    const delay = ((idx * 0.37) % 3).toFixed(2);
-    let back = '', front = '';
-    const shine = (d) => `<path d="${d}" fill="none" stroke="${hairL}" stroke-width="1.8" stroke-linecap="round" opacity=".55"/>`;
-    switch (a.style) {
-      case 'long': back = `<path d="M25 46 Q22 17 50 17 Q78 17 75 46 L79 86 Q64 78 62 62 L38 62 Q36 78 21 86Z" fill="${a.hair}"/>`; front = `<path d="M29 44 Q31 22 50 22 Q69 22 71 44 Q63 31 53 29 Q44 33 29 44Z" fill="${a.hair}"/>${shine('M38 28 Q50 22 62 28')}`; break;
-      case 'afro': back = `<circle cx="50" cy="36" r="31" fill="${a.hair}"/><circle cx="30" cy="48" r="8" fill="${a.hair}"/><circle cx="70" cy="48" r="8" fill="${a.hair}"/>`; front = `<path d="M31 41 Q34 27 50 27 Q66 27 69 41 Q58 34 50 34 Q42 34 31 41Z" fill="${a.hair}"/>${shine('M36 22 Q50 14 64 22')}`; break;
-      case 'braids': back = `<path d="M26 44 Q24 19 50 19 Q76 19 74 44 L77 90 L68 90 L67 56 L33 56 L32 90 L23 90Z" fill="${a.hair}"/><g stroke="${hairD}" stroke-width="1.6" stroke-linecap="round"><path d="M27 62l5 2M27 70l5 2M27 78l5 2M27 86l5 2M73 62l-5 2M73 70l-5 2M73 78l-5 2M73 86l-5 2"/></g>`; front = `<path d="M29 43 Q31 24 50 24 Q69 24 71 43 Q58 32 50 32 Q42 32 29 43Z" fill="${a.hair}"/>${shine('M37 26 Q50 20 63 26')}`; break;
-      case 'ponytail': back = `<path d="M66 34 Q90 32 85 64 Q83 77 73 82 Q80 64 71 50Z" fill="${a.hair}"/>`; front = `<path d="M28 45 Q28 20 50 20 Q72 20 72 45 Q65 32 50 32 Q35 32 28 45Z" fill="${a.hair}"/>${shine('M36 25 Q50 18 64 25')}`; break;
-      case 'bun': back = `<circle cx="50" cy="14" r="9.5" fill="${a.hair}"/><circle cx="47" cy="12" r="3" fill="${hairL}" opacity=".4"/>`; front = `<path d="M28 45 Q28 20 50 20 Q72 20 72 45 Q65 32 50 32 Q35 32 28 45Z" fill="${a.hair}"/>${shine('M36 25 Q50 18 64 25')}`; break;
-      case 'curly': front = [[33, 27], [43, 21], [57, 21], [67, 27], [29, 38], [71, 38], [39, 28], [61, 28], [50, 24]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9.5" fill="${a.hair}"/>`).join('') + `<circle cx="42" cy="22" r="3" fill="${hairL}" opacity=".35"/>`; break;
-      case 'hijab': back = `<path d="M24 52 Q21 14 50 14 Q79 14 76 52 Q77 78 62 90 L38 90 Q23 78 24 52Z" fill="${a.scarf}"/><path d="M24 52 Q23 28 36 20 Q30 40 33 64 Q27 74 38 90 Q23 78 24 52Z" fill="${dark(a.scarf, 0.82)}" opacity=".5"/>`; break;
-      case 'cap': front = `<path d="M29 40 Q29 17 50 17 Q71 17 71 40Z" fill="${a.cap}"/><path d="M25 40 H79 Q82 45 74 45 H28Z" fill="${dark(a.cap, 0.78)}"/><path d="M38 21 Q50 15 62 21" fill="none" stroke="${light(a.cap, 0.35)}" stroke-width="2" stroke-linecap="round" opacity=".6"/>`; break;
-      case 'bald': front = `<path d="M33 30 Q50 22 67 30" fill="none" stroke="${skinL}" stroke-width="3" stroke-linecap="round" opacity=".5"/>`; break;
-      default: front = `<path d="M29 47 Q26 19 50 19 Q74 19 71 47 Q67 31 50 31 Q33 31 29 47Z" fill="${a.hair}"/>${shine('M36 24 Q50 17 64 24')}`;
-    }
-    const hijab = a.style === 'hijab';
-    const faceD = hijab ? 'M33 47 Q33 29 50 29 Q67 29 67 47 Q67 66 50 70 Q33 66 33 47Z' : 'M30 45 Q30 23 50 23 Q70 23 70 45 Q70 67 50 71 Q30 67 30 45Z';
-    const ears = hijab ? '' : `<circle cx="30.2" cy="48" r="4.6" fill="${a.skin}"/><circle cx="30.4" cy="48.4" r="2" fill="${skinD}" opacity=".5"/><circle cx="69.8" cy="48" r="4.6" fill="${a.skin}"/><circle cx="69.6" cy="48.4" r="2" fill="${skinD}" opacity=".5"/>`;
-    const eye = (cx, side) => `<g class="eye" style="--d:${delay}s"><ellipse cx="${cx}" cy="46.5" rx="4.1" ry="3.4" fill="#fff"/><circle cx="${cx}" cy="46.7" r="2.45" fill="${a.eye}"/><circle cx="${cx}" cy="46.7" r="1.15" fill="#120a0a"/><circle cx="${cx + 0.9}" cy="45.7" r=".8" fill="#fff"/></g>`
-      + `<path d="M${cx - 4.6} 46 Q${cx} ${42.2} ${cx + 4.6} 46" fill="none" stroke="#2a1a3a" stroke-width="1.5" stroke-linecap="round"/>`
-      + (a.lashes ? `<path d="M${cx + side * 4.4} 45.4 l${side * 1.7} -1.4 M${cx + side * 3.4} 44.3 l${side * 1.3} -1.7" stroke="#2a1a3a" stroke-width="1.1" stroke-linecap="round"/>` : '');
-    const brow = (x1, x2, side) => `<path d="M${x1} ${side < 0 ? 39 : 38.2} Q${(x1 + x2) / 2} ${side < 0 ? 35.8 : 35.8} ${x2} ${side < 0 ? 38.2 : 39}" fill="none" stroke="${hairD}" stroke-width="2.5" stroke-linecap="round"/>`;
-    const mouth = { smile: `<path d="M42.5 58 Q50 66 57.5 58 Q50 61.2 42.5 58Z" fill="#fff" stroke="#9a3a3a" stroke-width="1.5" stroke-linejoin="round"/><path d="M45 61.5 Q50 64 55 61.5" fill="#e86a7a" opacity=".55"/>`, soft: `<path d="M43.5 59 Q50 64.5 56.5 59" fill="none" stroke="#b04a5a" stroke-width="2.2" stroke-linecap="round"/>`, smirk: `<path d="M43.5 60 Q50.5 63 57.5 57.5" fill="none" stroke="#9a3a3a" stroke-width="2.2" stroke-linecap="round"/>` }[a.mouth || 'smile'];
-    const beard = a.beard ? `<path d="M30.5 49 Q30 77 50 77 Q70 77 69.5 49 Q64 66 50 66 Q36 66 30.5 49Z" fill="${a.hair}"/><path d="M40 63 Q50 60 60 63 Q50 65.5 40 63Z" fill="${hairD}" opacity=".6"/>` : '';
-    const glasses = a.glasses ? `<g fill="rgba(255,255,255,.12)" stroke="#2a1a3a" stroke-width="2"><rect x="34" y="40.5" width="13" height="11" rx="4.5"/><rect x="53" y="40.5" width="13" height="11" rx="4.5"/></g><path d="M47 45.5h6M34 45h-3M66 45h3" stroke="#2a1a3a" stroke-width="1.8" fill="none"/><path d="M36 43l4-1" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>` : '';
-    const freckles = a.freckles ? `<g fill="${skinDD}" opacity=".55"><circle cx="36.5" cy="53" r=".9"/><circle cx="39.5" cy="54.5" r=".9"/><circle cx="35" cy="56" r=".8"/><circle cx="63.5" cy="53" r=".9"/><circle cx="60.5" cy="54.5" r=".9"/><circle cx="65" cy="56" r=".8"/></g>` : '';
-    const earring = a.earring && !hijab ? `<circle cx="29.5" cy="54.5" r="2" fill="#ffd23f" stroke="#c97900" stroke-width=".6"/><circle cx="70.5" cy="54.5" r="2" fill="#ffd23f" stroke="#c97900" stroke-width=".6"/>` : '';
-    const necklace = a.necklace ? `<path d="M40.5 77 Q50 90 59.5 77" fill="none" stroke="#ffd23f" stroke-width="1.6"/><circle cx="50" cy="87" r="2.6" fill="#ffd23f" stroke="#c97900" stroke-width=".6"/>` : '';
-    return `<svg viewBox="9 9 82 82" width="100%" height="100%" aria-hidden="true"><defs>
-        <radialGradient id="${id}f" cx=".4" cy=".34" r=".8"><stop offset="0" stop-color="${skinL}"/><stop offset=".55" stop-color="${a.skin}"/><stop offset="1" stop-color="${skinD}"/></radialGradient>
-        <linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${shirtL}"/><stop offset="1" stop-color="${a.shirt}"/></linearGradient></defs>
-      <path d="M13 100 Q13 75 50 75 Q87 75 87 100Z" fill="url(#${id}s)"/><path d="M50 75 Q87 75 87 100 H64 Q72 86 50 75Z" fill="${shirtD}" opacity=".28"/>
-      <path d="M40 75.5 L50 89 L60 75.5 Q50 73 40 75.5Z" fill="${skinD}"/><path d="M40 75.5 L50 89 L60 75.5" fill="none" stroke="${shirtD}" stroke-width="2" stroke-linejoin="round"/>${necklace}
-      <g class="bob" style="--d:${delay}s">${back}
-        <path d="M43.5 60 H56.5 V77 Q50 82 43.5 77Z" fill="${skinD}"/><ellipse cx="50" cy="70.5" rx="13" ry="3.4" fill="${skinDD}" opacity=".4"/>
-        ${ears}<path d="${faceD}" fill="url(#${id}f)"/>
-        <circle cx="36" cy="55" r="4" fill="#ff7a8a" opacity=".3"/><circle cx="64" cy="55" r="4" fill="#ff7a8a" opacity=".3"/>${freckles}
-        <path d="M50 47.5 Q47.4 53.6 51.3 54.8" fill="none" stroke="${skinDD}" stroke-width="1.6" stroke-linecap="round"/>
-        ${beard}${mouth}${eye(41.5, -1)}${eye(58.5, 1)}${brow(36.5, 46.5, -1)}${brow(53.5, 63.5, 1)}${glasses}${earring}${front}</g></svg>`;
-  }
-  function applyAvatar(el, i) { const a = AVATARS[i] || AVATARS[0]; el.innerHTML = avatarSVG(a, i); el.parentElement.style.background = `linear-gradient(${a.bg[0]}, ${a.bg[1]})`; }
+  // Avatars : portraits illustrés (assets/avatars/av01.jpg … av15.jpg)
+  const AVATAR_COUNT = 15;
+  const avatarSrc = (i) => `assets/avatars/av${String((i % AVATAR_COUNT) + 1).padStart(2, '0')}.jpg`;
+  function applyAvatar(el, i) { el.innerHTML = `<img src="${avatarSrc(i)}" alt="" draggable="false">`; el.parentElement.style.background = '#f3e3c3'; }
   const THEME_NAMES = { meadow: '🌳 Prairie', night: '🌙 Nuit étoilée', sunset: '🌅 Coucher de soleil', snow: '❄️ Neige', desert: '🏜️ Désert', ocean: '🌊 Océan', candy: '🍭 Bonbons', forest: '🌲 Forêt', space: '🪐 Espace', autumn: '🍂 Automne', volcano: '🌋 Volcan', neon: '🌆 Ville néon' };
   const POWER_UNLOCK = { triple: 3, super: 10 };               // niveau d'apparition des bonus
   const store = {
@@ -277,7 +218,7 @@
     $('rename-input').value = p.name;
     $('prof-score').textContent = Storage.totalScore();
     $('prof-done').textContent = p.progress.filter((r) => r.completed).length;
-    $('avatars').innerHTML = AVATARS.map((a, i) => `<button type="button" data-a="${i}" class="${i === avatarOf() ? 'sel' : ''}" style="background:linear-gradient(${a.bg[0]}, ${a.bg[1]})">${avatarSVG(a, i)}</button>`).join('');
+    $('avatars').innerHTML = Array.from({ length: AVATAR_COUNT }, (_, i) => `<button type="button" data-a="${i}" class="${i === avatarOf() ? 'sel' : ''}"><img src="${avatarSrc(i)}" alt="" loading="lazy" draggable="false"></button>`).join('');
     openModal('modal-profile');
   }
   $('btn-avatar').onclick = () => { Audio.play('click'); openProfile(); };
