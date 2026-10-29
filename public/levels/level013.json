@@ -3,8 +3,8 @@
   "name": "Niveau 13",
   "theme": "meadow",
   "newTech": "vuejs",
-  "balls": 31,
-  "cubeWeight": 1.46,
+  "balls": 23,
+  "cubeWeight": 1.39,
   "techs": [
     "html5",
     "css3",

@@ -3,8 +3,8 @@
   "name": "Niveau 2",
   "theme": "night",
   "newTech": "sass",
-  "balls": 11,
-  "cubeWeight": 1.07,
+  "balls": 9,
+  "cubeWeight": 1.06,
   "techs": [
     "html5",
     "css3",

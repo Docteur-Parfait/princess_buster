@@ -39,7 +39,7 @@ A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits 
 
 ## Features
 
-- 🎯 **200 levels** described in JSON files, with **40 technologies** introduced progressively
+- 🎯 **200 levels** described in JSON files, with **50 technologies** (including AI logos: ChatGPT, Claude, Gemini, Grok, Mistral…) introduced progressively
 - 🎨 **12 backgrounds** that change from level to level: meadow, night, sunset, snow, desert, ocean, candy, forest, space, autumn, volcano, neon
 - 🧱 **Mixed piece shapes**: squares, wide or tall rectangles, 2×2, 3×1, 3×2
 - 🌌 **Simulated depth**: depending on shot angle and impact point a piece falls **behind the table, left or right**; up to 3 hidden rows behind the front pieces
@@ -77,7 +77,7 @@ npm run levels    # regenerates levels (overwrites public/levels)
 
 ## Levels
 
-Levels 1-20 each introduce a new technology (HTML5 from the start): CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git. Levels 21-200 add 19 more (Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash) and 12 rotating backgrounds.
+Levels 1-20 each introduce a new technology (HTML5 from the start): CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git. Levels 21-200 add 29 more, one every 6 levels (Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash, then the AIs: ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama) and 12 rotating backgrounds.
 
 A level is a `public/levels/levelNNN.json` file with `balls`, `cubeWeight`, `rows`, `cols` and a list of `pieces` (`tech`, `col`, `row`, `w`, `h`, `layer`). See the [French README](README.md#créer-ou-modifier-un-niveau) for the full format, and run `npm test` to validate your changes.
 
@@ -110,5 +110,5 @@ Contributions are welcome! Read the [contributing guide](CONTRIBUTING.md) (Frenc
 
 - Code: [MIT](LICENSE) © 2026 princesse-aku
 - The **"Princess Buster" logo** (`public/assets/logo.png`) is **not** covered by the MIT license: all rights reserved by the project author
-- Technology logos: [Devicon](https://devicon.dev) (MIT); trademarks belong to their respective owners
+- Technology logos: [Devicon](https://devicon.dev) (MIT) and AI logos: [Simple Icons](https://simpleicons.org) (CC0); the Grok mark is an original drawing. Trademarks belong to their respective owners
 - Physics: [Matter.js](https://brm.io/matter-js/) (MIT)

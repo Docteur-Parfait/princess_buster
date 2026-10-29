@@ -3,8 +3,8 @@
   "name": "Niveau 9",
   "theme": "space",
   "newTech": "laravel",
-  "balls": 33,
-  "cubeWeight": 1.31,
+  "balls": 32,
+  "cubeWeight": 1.27,
   "techs": [
     "html5",
     "css3",

@@ -3,8 +3,8 @@
   "name": "Niveau 25",
   "theme": "meadow",
   "newTech": null,
-  "balls": 44,
-  "cubeWeight": 1.88,
+  "balls": 38,
+  "cubeWeight": 1.75,
   "techs": [
     "html5",
     "css3",

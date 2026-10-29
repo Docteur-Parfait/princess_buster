@@ -12,13 +12,17 @@ const TECHS = [
   ['react', 'React', '#61dafb'], ['vuejs', 'Vue.js', '#42b883'], ['angular', 'Angular', '#dd0031'], ['python', 'Python', '#3776ab'],
   ['django', 'Django', '#44b78b'], ['mysql', 'MySQL', '#f29111'], ['mongodb', 'MongoDB', '#47a248'], ['docker', 'Docker', '#2496ed'],
   ['git', 'Git', '#f05032'],
-  // technologies introduites après le niveau 20
+  // technologies introduites après le niveau 20 (une tous les 6 niveaux)
   ['go', 'Go', '#00add8'], ['rust', 'Rust', '#ce412b'], ['kotlin', 'Kotlin', '#7f52ff'], ['swift', 'Swift', '#f05138'],
   ['java', 'Java', '#e76f00'], ['csharp', 'C#', '#68217a'], ['cplusplus', 'C++', '#00599c'], ['ruby', 'Ruby', '#cc342d'],
   ['flutter', 'Flutter', '#02569b'], ['dart', 'Dart', '#0175c2'], ['nextjs', 'Next.js', '#6b7280'], ['svelte', 'Svelte', '#ff3e00'],
   ['redis', 'Redis', '#dc382d'], ['postgresql', 'PostgreSQL', '#336791'], ['graphql', 'GraphQL', '#e10098'], ['kubernetes', 'Kubernetes', '#326ce5'],
   ['firebase', 'Firebase', '#ffca28'], ['nginx', 'Nginx', '#009639'], ['bash', 'Bash', '#4eaa25'],
-].map(([key, name, color], i) => ({ key, name, color, intro: i === 0 ? 1 : i <= 20 ? i : 20 + (i - 20) * 9 }));
+  // intelligences artificielles (dernières technologies débloquées)
+  ['openai', 'ChatGPT', '#10a37f'], ['claude', 'Claude', '#d97757'], ['gemini', 'Gemini', '#4285f4'], ['grok', 'Grok', '#3b3b4f'],
+  ['mistral', 'Mistral AI', '#fa520f'], ['perplexity', 'Perplexity', '#20808d'], ['huggingface', 'Hugging Face', '#ffb000'],
+  ['copilot', 'GitHub Copilot', '#6e40c9'], ['ollama', 'Ollama', '#4b5563'], ['llama', 'Llama', '#0866ff'],
+].map(([key, name, color], i) => ({ key, name, color, intro: i === 0 ? 1 : i <= 20 ? i : 20 + (i - 20) * 6 }));
 
 // Fonds (définis dans public/js/game.js) : un thème différent d'un niveau au suivant
 const THEMES = ['meadow', 'night', 'sunset', 'snow', 'desert', 'ocean', 'candy', 'forest', 'space', 'autumn', 'volcano', 'neon'];
@@ -168,20 +172,19 @@ for (let id = 1; id <= TOTAL; id++) {
     back.push(...fillPieces(bmask, id, rand).map((p) => ({ tech: pick(), layer, ...p })));
     return bh;
   };
-  let bh1 = heights;
-  if (id >= 5) bh1 = addLayer(1, id < 10 ? 0.5 : id < 15 ? 0.75 : 1, heights);
-  if (id >= 100) addLayer(2, clamp(0.4 + (id - 100) / 150, 0.4, 1), bh1);
+  // UNE seule rangée cachée derrière la première, et seulement sur certains niveaux (environ 6 sur 10 à partir du niveau 6)
+  if (id >= 6 && (id * 7) % 10 < 6) addLayer(1, id < 12 ? 0.5 : id < 25 ? 0.75 : 1, heights);
   front.forEach((p) => { p.row += rowsTotal - mask.length; });
 
   pieces = [...front, ...back];
   pieces.sort((a, b) => a.layer - b.layer || a.row - b.row || a.col - b.col);
   // Une balle ne fait tomber que la pièce visée. Distance parcourue par coup = 14 x 0,8 / (masse x 0,06) avec
-  // masse = racine(surface) x poids ; profondeur à franchir = 135 - 45 x rangée.
-  const weight = +Math.min(2.4, 1 + id * 0.035).toFixed(2);
-  const hits = pieces.reduce((t, p) => t + Math.max(1, Math.ceil((135 - 45 * p.layer) / (186.7 / (Math.sqrt(p.w * p.h) * weight)))), 0);
+  // masse = racine(surface) x poids ; profondeur à franchir = 110 - 45 x rangée.
+  const weight = +Math.min(2.0, 1 + id * 0.03).toFixed(2);
+  const hits = pieces.reduce((t, p) => t + Math.max(1, Math.ceil((110 - 45 * p.layer) / (186.7 / (Math.sqrt(p.w * p.h) * weight)))), 0);
   const mass = hits;
   // marge de balles : serrée au début (le joueur est bon), plus généreuse quand 3 rangées de profondeur s'empilent
-  const ratio = id <= 60 ? 1.05 - id * 0.0012 : id <= 100 ? 0.98 : 0.98 + (id - 100) * 0.0016;
+  const ratio = id <= 60 ? 1.05 - id * 0.0012 : id <= 100 ? 1.02 : 1.02 + (id - 100) * 0.0008;
   balls = Math.max(5, Math.round(hits * ratio) + 2);
   theme = THEMES[(id - 1) % THEMES.length];
   // la difficulté (quantité de pièces) doit augmenter avec le niveau : on retire les tirages trop légers

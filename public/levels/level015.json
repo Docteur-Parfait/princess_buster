@@ -3,8 +3,8 @@
   "name": "Niveau 15",
   "theme": "sunset",
   "newTech": "python",
-  "balls": 54,
-  "cubeWeight": 1.52,
+  "balls": 34,
+  "cubeWeight": 1.45,
   "techs": [
     "html5",
     "css3",
@@ -41,17 +41,14 @@
     {"tech":"sass","layer":0,"col":0,"row":4,"w":1,"h":1},
     {"tech":"javascript","layer":0,"col":2,"row":4,"w":3,"h":1},
     {"tech":"javascript","layer":0,"col":6,"row":4,"w":1,"h":1},
-    {"tech":"typescript","layer":1,"col":3,"row":0,"w":1,"h":1},
-    {"tech":"css3","layer":1,"col":3,"row":1,"w":1,"h":1},
-    {"tech":"typescript","layer":1,"col":0,"row":2,"w":3,"h":1},
-    {"tech":"python","layer":1,"col":3,"row":2,"w":2,"h":1},
-    {"tech":"javascript","layer":1,"col":5,"row":2,"w":1,"h":1},
-    {"tech":"html5","layer":1,"col":6,"row":2,"w":1,"h":1},
-    {"tech":"python","layer":1,"col":0,"row":3,"w":2,"h":1},
-    {"tech":"sass","layer":1,"col":2,"row":3,"w":2,"h":2},
-    {"tech":"angular","layer":1,"col":4,"row":3,"w":2,"h":1},
-    {"tech":"javascript","layer":1,"col":6,"row":3,"w":1,"h":1},
-    {"tech":"python","layer":1,"col":0,"row":4,"w":2,"h":1},
-    {"tech":"typescript","layer":1,"col":4,"row":4,"w":3,"h":1}
+    {"tech":"python","layer":1,"col":3,"row":0,"w":1,"h":1},
+    {"tech":"typescript","layer":1,"col":3,"row":1,"w":1,"h":1},
+    {"tech":"python","layer":1,"col":0,"row":2,"w":1,"h":1},
+    {"tech":"angular","layer":1,"col":3,"row":2,"w":1,"h":1},
+    {"tech":"javascript","layer":1,"col":4,"row":2,"w":3,"h":1},
+    {"tech":"typescript","layer":1,"col":0,"row":3,"w":1,"h":1},
+    {"tech":"bootstrap","layer":1,"col":3,"row":3,"w":2,"h":2},
+    {"tech":"sass","layer":1,"col":5,"row":3,"w":2,"h":2},
+    {"tech":"nodejs","layer":1,"col":0,"row":4,"w":1,"h":1}
   ]
 }

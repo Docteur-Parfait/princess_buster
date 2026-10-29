@@ -1,0 +1,68 @@
+/* ===================== Accueil illustré (inspiré de la référence) + HUD + bonus ===================== */
+.home-svg { position: absolute !important; inset: 0; width: 100%; height: 100%; z-index: 0 !important; display: block; }
+.svg-cloud.c1 { animation: cl1 22s ease-in-out infinite alternate; transform: translate(330px, 120px); }
+.svg-cloud.c2 { animation: cl2 30s ease-in-out infinite alternate; transform: translate(150px, 255px); }
+.svg-cloud.c3 { animation: cl3 26s ease-in-out infinite alternate; transform: translate(470px, 330px); }
+@keyframes cl1 { to { transform: translate(430px, 120px); } }
+@keyframes cl2 { to { transform: translate(240px, 255px); } }
+@keyframes cl3 { to { transform: translate(380px, 330px); } }
+
+.chest-bar { position: absolute !important; top: 96px; left: 14px; right: 14px; z-index: 5 !important; display: flex; align-items: center; }
+.chest-bar .bar { flex: 1; width: auto; height: 32px; }
+.chest-bar .bar span { line-height: 24px; font-size: 20px; }
+.chest-bar .chest { width: 56px; height: 56px; font-size: 32px; margin-left: -10px; }
+
+.side { position: absolute !important; top: 160px; z-index: 5 !important; display: flex; flex-direction: column; gap: 16px; }
+.side.left { left: 12px; }
+.side.right { right: 12px; }
+.side-btn { position: relative; width: 72px; height: 72px; border-radius: 20px; border: 4px solid var(--gold); background: linear-gradient(#6fa8ff, #2a4fd8); box-shadow: 0 5px 0 var(--purple); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: transform .1s; }
+.side-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--purple); }
+.side-btn .ico { font-size: 34px; line-height: 1; }
+.side-btn em { position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 14px; font-weight: 800; padding: 1px 10px; border-radius: 10px; background: linear-gradient(#ffc24a, #f08a00); border: 3px solid var(--purple); text-shadow: var(--ink); white-space: nowrap; }
+
+/* gobelet : les éléments HTML sont calés sur le dessin SVG (ancré en bas), avec le même facteur d'échelle */
+.home-center { position: absolute !important; left: 50%; bottom: calc(250px * var(--hk, 1)); width: 0; height: 0; margin: 0 !important; z-index: 3 !important; display: block !important; flex: none; }
+.podium { position: absolute; left: -150px; bottom: 0; width: 300px; height: 300px; transform: scale(var(--hk, 1)); transform-origin: 50% 100%; }
+.podium .mini-stack { bottom: 138px; }
+.podium .plate { top: auto; bottom: 62px; min-width: 150px; padding: 4px 18px 6px; }
+.podium .plate b { font-size: 44px; }
+.podium .plate small { font-size: 16px; }
+.floaters { left: -190px; top: auto; bottom: 120px; width: 380px; height: 300px; margin: 0; transform: scale(var(--hk, 1)); transform-origin: 50% 100%; }
+.mc { width: 56px; height: 56px; padding: 9px; border-radius: 14px; border: 3px solid rgba(28, 10, 66, .95); background: linear-gradient(var(--c1), var(--c2)); box-shadow: 0 4px 0 rgba(28, 10, 66, .95), inset 0 3px 0 rgba(255, 255, 255, .3); }
+.floaters .fl { width: 52px; height: 52px; padding: 9px; border-radius: 16px; border: 3px solid rgba(28, 10, 66, .95); background: linear-gradient(var(--c1), var(--c2)); box-shadow: 0 5px 0 rgba(28, 10, 66, .95), inset 0 3px 0 rgba(255, 255, 255, .3); }
+
+.home-actions { bottom: 56px; }
+.btn.big.play { position: relative; display: flex; flex-direction: column; align-items: center; line-height: 1; padding: 14px 90px 16px; min-width: 330px; }
+.btn.big.play small { font-size: 18px; letter-spacing: 2px; margin-bottom: 4px; opacity: .95; }
+.btn.big.play b { font-size: 50px; }
+.btn.big.play .diff-ico { position: absolute; left: -16px; top: -22px; width: 56px; height: 56px; border-radius: 50%; background: #fff; border: 4px solid var(--purple); display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 30px; box-shadow: 0 4px 0 rgba(0, 0, 0, .25); }
+.btn.big.play.diff-easy { background: linear-gradient(#8bff6a, #2fc92b 50%, #159a2a); }
+.btn.big.play.diff-normal { background: linear-gradient(#9fe6ff, #3aa0ff 50%, #2a50d8); }
+.btn.big.play.diff-hard { background: linear-gradient(#ffcf6b, #ff9a1a 50%, #e25a00); }
+.btn.big.play.diff-extreme { background: linear-gradient(#ff7a85, #e32636 50%, #a30f1c); }
+.btn.big.play { color: #fff; text-shadow: 0 3px 0 rgba(59, 10, 110, .9); }
+#stage.short .home-actions .btn.big { padding: 8px 60px; min-width: 0; }
+
+/* --- HUD de jeu : compteur de balles au centre, niveau à gauche, réglages à droite --- */
+.hud { justify-content: space-between; }
+.balls-pill { position: absolute; left: 50%; top: 0; transform: translateX(-50%); }
+#hud-cubes { display: none !important; }
+.hud .lvl-pill { margin-top: 8px; }
+
+/* --- fiche de niveau : choix du bonus --- */
+.boosters-title { margin-top: 12px; font-size: 20px; color: var(--purple); }
+.boosters { display: flex; gap: 22px; justify-content: center; margin: 10px 0 12px; }
+.bst { position: relative; width: 92px; height: 92px; border-radius: 22px; border: 4px solid #c9a24a; background: linear-gradient(#f2f6ff, #c3d1fa); cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: transform .1s; }
+.bst:hover { transform: translateY(-2px); }
+.bst.sel { border-color: #2fc92b; box-shadow: 0 0 0 3px #b8f5a8; }
+.bst em { position: absolute; bottom: -14px; font-style: normal; font-size: 15px; font-weight: 800; color: #fff; padding: 1px 12px; border-radius: 12px; background: linear-gradient(#6be83a, #2fb21f); border: 3px solid var(--purple); text-shadow: var(--ink); white-space: nowrap; }
+.bst .pw-ico.super { color: #ffb300; text-shadow: 0 2px 0 #a86a00; }
+.bst.locked { filter: grayscale(1) brightness(.85); cursor: default; }
+.bst.locked em { background: linear-gradient(#8a8fc0, #4a4f80); }
+@media (hover: none) { .bst:hover { transform: none; } }
+
+/* ajustements */
+.side-btn em { font-size: 12px; padding: 0 7px; bottom: -12px; }
+.btn.big.play { overflow: visible; }
+.btn.big.play::after { display: none; }
+.btn.big.play .diff-ico { left: -14px; top: -20px; z-index: 2; }

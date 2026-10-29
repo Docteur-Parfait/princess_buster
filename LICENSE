@@ -27,6 +27,6 @@ Ce que la licence MIT ci-dessus NE couvre PAS / What the MIT license does NOT co
   l'auteur du projet. Il ne peut pas être réutilisé pour un autre projet sans accord.
   The "Princess Buster" logo is all rights reserved by the project author.
 - Les logos des technologies (public/assets/tech/*.svg) viennent de Devicon
-  (https://devicon.dev, licence MIT) ; les marques appartiennent à leurs propriétaires
+  (https://devicon.dev, licence MIT) et de Simple Icons (https://simpleicons.org, CC0) ; le logo de Grok est un dessin original ; les marques appartiennent à leurs propriétaires
   respectifs (HTML5, CSS3, JavaScript, Laravel, Docker, etc.).
 - Matter.js (public/vendor/matter.min.js) : licence MIT, © Liam Brummitt.

@@ -3,8 +3,8 @@
   "name": "Niveau 6",
   "theme": "ocean",
   "newTech": "jquery",
-  "balls": 8,
-  "cubeWeight": 1.21,
+  "balls": 7,
+  "cubeWeight": 1.18,
   "techs": [
     "html5",
     "css3",

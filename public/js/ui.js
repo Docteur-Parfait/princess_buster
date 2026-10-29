@@ -22,6 +22,7 @@
     const r = Game.fit(innerWidth, innerHeight);
     stage.style.width = r.W + 'px'; stage.style.height = r.H + 'px';
     stage.style.setProperty('--s', r.scale);
+    stage.style.setProperty('--hk', Math.max(r.W / 540, r.H / 960));
     stage.classList.toggle('wide', r.W >= 760);
     stage.classList.toggle('short', r.H < 820);
   }
@@ -106,16 +107,23 @@
     $('home-score').textContent = Storage.totalScore();
     $('home-level').textContent = next;
     show('home');
-    // petite pyramide de cubes aux technos du niveau + tuiles qui flottent
+    // petite pyramide de cubes colorés (logos blancs) + tuiles qui flottent
     const lvl = await getLevel(next), pool = lvl.techs.slice(-8);
     const pick = (i) => techByKey(pool[i % pool.length]);
-    const rows = [1, 2, 3];
-    $('mini-stack').innerHTML = rows.map((n, r) => `<div class="mr">${Array.from({ length: n }, (_, c) => { const t = pick(r * 3 + c); return `<div class="mc" style="--c:${t.color};--d:${(r + c) * 0.25}s"><img src="assets/tech/${t.key}.svg" alt=""></div>`; }).join('')}</div>`).join('');
-    const spots = [[-50, 70], [296, 90], [-56, 250], [300, 270], [20, 0], [232, 6]];
-    $('floaters').innerHTML = spots.map(([x, y], i) => { const t = pick(i + 2); return `<div class="fl" style="left:${x}px;top:${y}px;--d:${i * 0.7}s"><img src="assets/tech/${t.key}.svg" alt=""></div>`; }).join('');
+    const cube = (cls, t, style) => { const col = Game.techColors(t.key); return `<div class="${cls}" style="--c1:${col.c1};--c2:${col.c2};${style}"><img src="${Game.whiteURL(t.key)}" alt=""></div>`; };
+    $('mini-stack').innerHTML = [1, 2, 3].map((n, r) => `<div class="mr">${Array.from({ length: n }, (_, c) => cube('mc', pick(r * 3 + c), `--d:${(r + c) * 0.25}s`)).join('')}</div>`).join('');
+    const spots = [[52, 120], [284, 128], [84, 12], [250, 6]];
+    $('floaters').innerHTML = spots.map(([x, y], i) => cube('fl', pick(i + 2), `left:${x}px;top:${y}px;--d:${i * 0.7}s`)).join('');
+    // progression des 10 niveaux en cours + niveau de difficulté du bouton Jouer
+    const done = ((next - 1) % 10);
+    $('home-bar').style.width = (done * 10) + '%'; $('home-bar-text').textContent = `${done}/10`;
+    const tier = next < 20 ? ['easy', 'FACILE', '🙂'] : next < 60 ? ['normal', 'NORMAL', '😎'] : next < 120 ? ['hard', 'DIFFICILE', '😈'] : ['extreme', 'EXTRA DIFFICILE', '💀'];
+    $('btn-play').className = `btn big play diff-${tier[0]}`; $('play-diff').textContent = tier[1]; $('play-ico').textContent = tier[2];
     refreshToggles();
   }
   $('btn-play').onclick = () => { Audio.init(); Audio.play('click'); openLevelModal(nextLevelToPlay()); };
+  $('btn-full-home').onclick = toggleFullscreen;
+  $('btn-profile').onclick = () => { Audio.play('click'); openProfile(); };
   $('btn-levels').onclick = () => { Audio.play('click'); openMenu(); };
   $('btn-menu-back').onclick = () => { Audio.play('click'); openHome(); };
 
@@ -150,6 +158,13 @@
   }
 
   // fiche de niveau (« NIVEAU 4 »)
+  let chosenBooster = null;
+  document.querySelectorAll('.bst').forEach((b) => b.addEventListener('click', () => {
+    if (b.classList.contains('locked')) return;
+    Audio.play('click');
+    chosenBooster = chosenBooster === b.dataset.b ? null : b.dataset.b;
+    document.querySelectorAll('.bst').forEach((x) => x.classList.toggle('sel', x.dataset.b === chosenBooster));
+  }));
   async function openLevelModal(n) {
     const lvl = await getLevel(n), prog = Storage.progressOf(n);
     $('lv-ribbon').textContent = `NIVEAU ${n}`;
@@ -159,8 +174,10 @@
     $('lv-best').textContent = prog && prog.completed ? `⭐ ${prog.bestScore}` : '–';
     const tech = lvl.newTech && techByKey(lvl.newTech);
     $('lv-tech').innerHTML = tech ? `<img src="assets/tech/${tech.key}.svg" alt=""> Nouvelle techno : <b>${tech.name}</b>` : '';
+    chosenBooster = null;
+    document.querySelectorAll('.bst').forEach((b) => { b.classList.remove('sel'); const locked = n < POWER_UNLOCK[b.dataset.b]; b.classList.toggle('locked', locked); b.querySelector('em').textContent = locked ? `🔒 Niv. ${POWER_UNLOCK[b.dataset.b]}` : 'Gratuit'; });
     $('btn-level-play').textContent = prog && prog.attempts && !prog.completed ? 'Réessaie' : 'Jouer';
-    $('btn-level-play').onclick = () => { Audio.play('click'); closeModal('modal-level'); startLevel(n); };
+    $('btn-level-play').onclick = () => { Audio.play('click'); closeModal('modal-level'); startLevel(n).then(() => { if (chosenBooster) Game.arm(chosenBooster); }); };
     openModal('modal-level');
   }
 

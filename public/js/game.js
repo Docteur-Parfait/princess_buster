@@ -15,7 +15,7 @@ const Game = (() => {
   const BALL_R = 15, BALL_SPEED = 30;
   const MAX_ANGLE = 62 * Math.PI / 180;
   const FIRE_COOLDOWN = 320;
-  const DEPTH = 135;                  // profondeur de la table : au-delà, la pièce tombe derrière
+  const DEPTH = 110;                  // profondeur de la table : au-delà, la pièce tombe derrière
   const LAYER_Z = 45;                 // écart de profondeur entre deux rangées de pièces (une pièce « derrière » une autre)
   const THICK = 40;                   // épaisseur d'une pièce en profondeur
   const DEPTH_Y = 0.45;               // décalage écran (px) par unité de profondeur
@@ -49,9 +49,8 @@ const Game = (() => {
   function layout() {
     cannonX = W / 2;
     CANNON_Y = H - 6;
-    PLATFORM_Y = Math.round(Math.max(Math.min(H * 0.5, H - 290), levelRows * 60 + 125));
-    PLATFORM_Y = Math.min(PLATFORM_Y, H - 250);
-    cs = Math.max(0.6, Math.min(1, (H - PLATFORM_Y - 150) / 230));
+    PLATFORM_Y = Math.round(Math.min(H - 290, Math.max(400, H * 0.62)));                  // la table est tout près du canon
+    cs = Math.max(0.75, Math.min(1, (H - PLATFORM_Y - 60) / 240));
     MUZZLE = 178 * cs;
   }
 
@@ -66,6 +65,29 @@ const Game = (() => {
   let acc = 0, prev = 0, flash = 0, comboCount = 0, comboTime = 0, comboX = W / 2, comboY = 400, recoil = 0;
   const PALETTE = ['#ffd23f', '#ff3fa4', '#5fd4ff', '#fff3a0'];
 
+  // Cube de la couleur de la techno ; les couleurs très claires sont assombries pour que le logo blanc reste lisible
+  function baseColor(hex) {
+    const n = parseInt(hex.slice(1), 16), lum = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+    return lum > 0.6 ? tintColor(hex, -0.42) : lum > 0.5 ? tintColor(hex, -0.2) : hex;
+  }
+  // Logo en blanc : les parties colorées deviennent blanches, les parties déjà blanches deviennent transparentes (on voit la couleur du cube)
+  function whiteIcon(img, invert) {
+    try {
+      const c = document.createElement('canvas'); c.width = c.height = 128;
+      const x = c.getContext('2d'); x.drawImage(img, 0, 0, 128, 128);
+      const d = x.getImageData(0, 0, 128, 128), p = d.data;
+      for (let i = 0; i < p.length; i += 4) {
+        if (!p[i + 3]) continue;
+        const lum = (p[i] * 0.299 + p[i + 1] * 0.587 + p[i + 2] * 0.114) / 255;
+        if (invert) {                                    // logo « plein » à lettres sombres (JavaScript) : fond transparent, lettres blanches
+          if (lum < 0.4) { p[i] = p[i + 1] = p[i + 2] = 255; } else p[i + 3] = 0;
+        } else if (p[i] > 222 && p[i + 1] > 222 && p[i + 2] > 222) p[i + 3] = 0; else { p[i] = p[i + 1] = p[i + 2] = 255; }
+      }
+      x.putImageData(d, 0, 0);
+      return c;
+    } catch (e) { return img; }
+  }
+
   // --- chargement des logos (SVG -> blob avec taille explicite, compatible canvas partout) ---
   async function loadTechs(list) {
     await Promise.all(list.map(async (t) => {
@@ -74,7 +96,7 @@ const Game = (() => {
       const img = new Image();
       const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
       await new Promise((ok) => { img.onload = ok; img.onerror = ok; img.src = url; });
-      techs[t.key] = { ...t, img };
+      techs[t.key] = { ...t, img, white: whiteIcon(img, t.key === 'javascript'), base: baseColor(t.color) };
     }));
   }
 
@@ -110,7 +132,7 @@ const Game = (() => {
     const { pieces, rows, cols } = piecesOf(lvl);
     levelRows = rows; levelId = lvl.id || 1; layout();
     themeName = THEMES[lvl.theme] ? lvl.theme : 'night'; theme = THEMES[themeName];
-    CUBE = Math.max(30, Math.min(60, Math.floor((PLATFORM_Y - 112) / rows), Math.floor((W - 90) / cols)));   // les grandes piles rapetissent pour rester à l'écran
+    CUBE = Math.max(30, Math.min(72, Math.floor((PLATFORM_Y - 112) / rows), Math.floor((W - 64) / cols)));   // les grandes piles rapetissent pour rester à l'écran
     lite = pieces.length > 55;                                              // beaucoup de pièces : on allège les halos
     platformW = Math.max(250, cols * CUBE + 36);
     platform = Bodies.rectangle(W / 2, PLATFORM_Y + PLATFORM_H / 2, platformW, PLATFORM_H, { isStatic: true, friction: 1, restitution: 0, collisionFilter: { category: 0x0002, mask: 0x001C } });
@@ -151,7 +173,8 @@ const Game = (() => {
 
   // --- visée ---
   const muzzle = () => ({ x: cannonX + Math.sin(aim) * MUZZLE, y: CANNON_Y - Math.cos(aim) * MUZZLE });
-  const visY = (c) => c.position.y - c.z * DEPTH_Y;       // position écran d'une pièce (tient compte de la profondeur)
+  const slide = (c) => c.z - c.layer * LAYER_Z;                       // glissement réel (sans la profondeur de rangée)
+  const visY = (c) => c.position.y - slide(c) * DEPTH_Y;       // position écran d'une pièce (tient compte de la profondeur)
 
   // pièce visée en (x,y), avec une petite tolérance pour le doigt
   function cubeAt(x, y, tol = 10) {
@@ -226,10 +249,10 @@ const Game = (() => {
     const off = Math.max(-1, Math.min(1, (s.tx - c.position.x) / (c.pw * CUBE / 2)));   // -1 bord gauche … +1 bord droit
     Sleeping.set(c, false);
     const side = Math.min(1, Math.abs(ux) * 1.4 + Math.abs(off) * 0.25);       // 0 = tir de face, 1 = très de côté
-    c.vz += PUSH * Math.max(0.3, uy) * (1 - 0.7 * side) / m;                   // profondeur : surtout pour un tir de face
-    const lateral = (ux * 9 - off * 5) / m;                                   // latéral : angle d'arrivée + endroit touché
-    Body.setVelocity(c, { x: c.velocity.x + lateral, y: c.velocity.y - 1.2 / m });
-    Body.setAngularVelocity(c, c.angularVelocity + (off * 0.03 + ux * 0.02) / m);
+    c.vz += 0.8 * PUSH * Math.max(0.3, uy) * (1 - 0.7 * side) / m;                   // profondeur : surtout pour un tir de face
+    const lateral = (ux * 10 - off * 4) / m;                                  // latéral : angle d'arrivée + endroit touché
+    Body.setVelocity(c, { x: c.velocity.x + lateral, y: c.velocity.y - (3.5 + 5 * uy) / m });   // la pièce saute puis retombe : cascade
+    Body.setAngularVelocity(c, c.angularVelocity + (off * 0.09 + ux * 0.05) / m);
     for (const o of cubes) {           // pièces posées dessus : simple secousse
       if (o === c || o.layer !== c.layer) continue;
       if (Math.abs(o.position.y + o.ph * CUBE / 2 - (c.position.y - c.ph * CUBE / 2)) < 6 && Math.abs(o.position.x - c.position.x) < (o.pw + c.pw) * CUBE / 2 - 4) {
@@ -322,7 +345,7 @@ const Game = (() => {
       if (c.vz > 0 || c.z > 0) {
         c.z += c.vz; c.vz *= SLIDE_FRICTION; if (c.vz < 0.12) c.vz = 0;
         if (c.z > DEPTH) {
-          const sc = 1 - c.z * 0.0015;
+          const sc = 1 - slide(c) * 0.0015;
           ghosts.push({ tech: c.tech, pw: c.pw, ph: c.ph, x: c.position.x, y: visY(c), vx: c.velocity.x * 0.5, vy: -2.5, rot: c.angle, vr: (Math.random() - .5) * 0.1, sc, life: 1 });
           destroyed(c, c.position.x, PLATFORM_Y - 20);
           continue;
@@ -383,7 +406,7 @@ const Game = (() => {
     ghosts.forEach((g) => { ctx.globalAlpha = Math.max(0, g.life); drawPiece(g.tech, g.pw, g.ph, g.x, g.y, g.rot, g.sc, 0.35); });   // tombent DERRIÈRE la table
     ctx.globalAlpha = 1;
     drawPedestal();
-    [...cubes].sort((a, b) => b.z - a.z).forEach((c) => drawPiece(c.tech, c.pw, c.ph, c.position.x, visY(c), c.angle, 1 - c.z * 0.0015, Math.min(0.3, c.z / 300)));
+    [...cubes].sort((a, b) => b.z - a.z).forEach((c) => drawPiece(c.tech, c.pw, c.ph, c.position.x, visY(c), c.angle, 1 - slide(c) * 0.0015, Math.min(0.3, slide(c) / 300)));
     drawAimGuide();
     shots.forEach(drawShot);
     drawCannon();
@@ -475,7 +498,7 @@ const Game = (() => {
   }
 
   function drawBackground() {
-    const GROUND = PLATFORM_Y + 150, th = theme, flip = (levelId % 2) === 0;
+    const GROUND = PLATFORM_Y + 96, th = theme, flip = (levelId % 2) === 0;
     const sky = ctx.createLinearGradient(0, 0, 0, GROUND);
     sky.addColorStop(0, th.sky[0]); sky.addColorStop(.55, th.sky[1]); sky.addColorStop(1, th.sky[2]);
     ctx.fillStyle = sky; ctx.fillRect(-20, -20, W + 40, H + 40);
@@ -496,7 +519,7 @@ const Game = (() => {
     ctx.globalAlpha = 1;
     if (th.sun) {
       const sx = (flip ? 1 - th.sun.fx : th.sun.fx) * W;
-      ctx.save(); ctx.fillStyle = th.sun.c; ctx.shadowColor = th.sun.glow; ctx.shadowBlur = 50;
+      ctx.save(); ctx.fillStyle = th.sun.c; ctx.shadowColor = th.sun.glow; ctx.shadowBlur = 30;
       ctx.beginPath(); ctx.arc(sx, GROUND - th.sun.dy, th.sun.r, 0, 7); ctx.fill(); ctx.restore();
     }
     if (th.clouds) {
@@ -532,50 +555,62 @@ const Game = (() => {
     }
   }
 
+  const PED = 84;   // hauteur du pied (de la table au sol)
   function drawPedestal() {
-    const cx = W / 2, px = cx - platformW / 2, back = DEPTH * DEPTH_Y;
+    const cx = W / 2, px = cx - platformW / 2, back = DEPTH * DEPTH_Y, y0 = PLATFORM_Y;
+    // ombre au sol + socle
+    ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(cx, y0 + PED + 14, 120, 16, 0, 0, 7); ctx.fill();
+    const bg = ctx.createLinearGradient(0, y0 + PED - 14, 0, y0 + PED + 22);
+    bg.addColorStop(0, '#fff3a0'); bg.addColorStop(.4, '#ffd23f'); bg.addColorStop(1, '#c97900');
+    ctx.fillStyle = '#2a0a52'; ctx.beginPath(); ctx.ellipse(cx, y0 + PED + 12, 74, 22, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.ellipse(cx, y0 + PED + 6, 74, 20, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#7a2cff'; ctx.beginPath(); ctx.ellipse(cx, y0 + PED + 2, 52, 12, 0, 0, 7); ctx.fill();
+    // pied métallique
     const pg = ctx.createLinearGradient(cx - 24, 0, cx + 24, 0);
-    pg.addColorStop(0, '#5a2bd8'); pg.addColorStop(.5, '#a56bff'); pg.addColorStop(1, '#3a1590');
-    ctx.fillStyle = pg; ctx.fillRect(cx - 24, PLATFORM_Y + PLATFORM_H, 48, 110);
-    ctx.fillStyle = '#ffd23f'; ctx.fillRect(cx - 32, PLATFORM_Y + 52, 64, 9); ctx.fillRect(cx - 32, PLATFORM_Y + 112, 64, 10);
-    ctx.fillStyle = '#3b0a6e'; ctx.beginPath(); ctx.ellipse(cx, PLATFORM_Y + 142, 62, 24, 0, 0, 7); ctx.fill();
-    ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.ellipse(cx, PLATFORM_Y + 135, 62, 22, 0, Math.PI, 0); ctx.fill();
-    ctx.save(); ctx.translate(cx, PLATFORM_Y + 90); ctx.fillStyle = '#ff3fa4'; ctx.shadowColor = '#ff3fa4'; ctx.shadowBlur = 14 + 6 * Math.sin(time * 0.005);
-    ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(9, 0); ctx.lineTo(0, 11); ctx.lineTo(-9, 0); ctx.closePath(); ctx.fill(); ctx.restore();
-    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(cx, PLATFORM_Y + 158, 130, 18, 0, 0, 7); ctx.fill();
-    // dessus du plateau (profondeur visible : les pièces glissent dessus avant de tomber derrière)
-    const top = ctx.createLinearGradient(0, PLATFORM_Y - back, 0, PLATFORM_Y);
-    top.addColorStop(0, '#c98a00'); top.addColorStop(1, '#ffe98a');
-    ctx.fillStyle = top; ctx.beginPath(); ctx.moveTo(px, PLATFORM_Y); ctx.lineTo(px + platformW, PLATFORM_Y); ctx.lineTo(px + platformW - 16, PLATFORM_Y - back); ctx.lineTo(px + 16, PLATFORM_Y - back); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#3b0a6e'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.fillStyle = 'rgba(255,63,164,.22)'; ctx.fillRect(px + 30, PLATFORM_Y - back / 2 - 2, platformW - 60, 4);
-    // bord avant
-    const tg = ctx.createLinearGradient(0, PLATFORM_Y, 0, PLATFORM_Y + PLATFORM_H);
-    tg.addColorStop(0, '#fff3a0'); tg.addColorStop(.35, '#ffd23f'); tg.addColorStop(1, '#c97900');
-    ctx.fillStyle = tg; ctx.beginPath(); ctx.roundRect(px, PLATFORM_Y, platformW, PLATFORM_H, [2, 2, 14, 14]); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#ff3fa4';
-    for (let x = px + 24; x < px + platformW - 12; x += 48) { ctx.beginPath(); ctx.moveTo(x, PLATFORM_Y + 9); ctx.lineTo(x + 6, PLATFORM_Y + 4); ctx.lineTo(x + 12, PLATFORM_Y + 9); ctx.lineTo(x + 6, PLATFORM_Y + 14); ctx.fill(); }
+    pg.addColorStop(0, '#4a22b8'); pg.addColorStop(.3, '#b48cff'); pg.addColorStop(.6, '#7a45e8'); pg.addColorStop(1, '#2f1478');
+    ctx.fillStyle = pg; ctx.beginPath(); ctx.moveTo(cx - 20, y0 + PLATFORM_H); ctx.lineTo(cx + 20, y0 + PLATFORM_H); ctx.lineTo(cx + 28, y0 + PED); ctx.lineTo(cx - 28, y0 + PED); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ffd23f'; ctx.fillRect(cx - 27, y0 + PLATFORM_H + 6, 54, 6); ctx.fillRect(cx - 30, y0 + PED - 12, 60, 8);
+    ctx.save(); ctx.translate(cx, y0 + PLATFORM_H + 30); ctx.fillStyle = '#ff5fb0'; ctx.shadowColor = '#ff5fb0'; ctx.shadowBlur = 5;
+    ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(7, 0); ctx.lineTo(0, 8); ctx.lineTo(-7, 0); ctx.closePath(); ctx.fill(); ctx.restore();
+    // dessus du plateau en perspective : planches dorées
+    const top = ctx.createLinearGradient(0, y0 - back, 0, y0);
+    top.addColorStop(0, '#e9a23a'); top.addColorStop(1, '#ffe9a8');
+    ctx.fillStyle = top; ctx.beginPath(); ctx.moveTo(px, y0); ctx.lineTo(px + platformW, y0); ctx.lineTo(px + platformW - 18, y0 - back); ctx.lineTo(px + 18, y0 - back); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(150,90,20,.35)'; ctx.lineWidth = 1.5;
+    const planks = Math.max(3, Math.round(platformW / 44));
+    for (let i = 1; i < planks; i++) { const f = i / planks; ctx.beginPath(); ctx.moveTo(px + platformW * f, y0); ctx.lineTo(px + 18 + (platformW - 36) * f, y0 - back); ctx.stroke(); }
+    ctx.strokeStyle = '#2a0a52'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(px, y0); ctx.lineTo(px + 18, y0 - back); ctx.lineTo(px + platformW - 18, y0 - back); ctx.lineTo(px + platformW, y0); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fillRect(px + 22, y0 - back + 3, platformW - 44, 3);
+    // bord avant : trois bandes (magenta, or, bleu) comme la table d'un stand de fête
+    ctx.save(); ctx.beginPath(); ctx.roundRect(px, y0, platformW, PLATFORM_H, [2, 2, 14, 14]); ctx.clip();
+    ctx.fillStyle = '#ff4d8d'; ctx.fillRect(px, y0, platformW, 6);
+    ctx.fillStyle = '#ffd23f'; ctx.fillRect(px, y0 + 6, platformW, 6);
+    ctx.fillStyle = '#3a7bff'; ctx.fillRect(px, y0 + 12, platformW, 7);
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(px, y0, platformW, 2);
+    ctx.restore();
+    ctx.strokeStyle = '#2a0a52'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(px, y0, platformW, PLATFORM_H, [2, 2, 14, 14]); ctx.stroke();
+    ctx.fillStyle = '#fffbd0'; for (let x = px + 26; x < px + platformW - 14; x += 40) { ctx.beginPath(); ctx.arc(x, y0 + 9, 2.4, 0, 7); ctx.fill(); }
   }
 
-  // pièce de taille pw x ph (en cubes) : carrés, rectangles larges, hauts...
+  // pièce de taille pw x ph (en cubes) : cube de la couleur de la techno, logo blanc
   function drawPiece(t, pw, ph, x, y, angle, sc, dark) {
     if (!t) return;
-    const w = pw * CUBE - 2, h = ph * CUBE - 2;
+    const w = pw * CUBE - 2, h = ph * CUBE - 2, r = Math.min(15, CUBE * 0.2), base = t.base || t.color;
     ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.scale(sc, sc);
-    ctx.shadowColor = t.color; ctx.shadowBlur = lite ? 0 : 14;
-    ctx.fillStyle = '#3b0a6e'; ctx.beginPath(); ctx.roundRect(-w / 2 - 2, -h / 2 - 1, w + 4, h + 6, 12); ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = tintColor(t.color, -0.35); ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2 + 3, w, h, 10); ctx.fill();
+    ctx.fillStyle = 'rgba(28, 10, 66, .95)'; ctx.beginPath(); ctx.roundRect(-w / 2 - 1.5, -h / 2 - 1.5, w + 3, h + 7, r + 2); ctx.fill();       // contour
+    ctx.fillStyle = tintColor(base, -0.38); ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2 + 3, w, h, r); ctx.fill();                          // épaisseur
     const g = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
-    g.addColorStop(0, tintColor(t.color, 0.45)); g.addColorStop(1, tintColor(t.color, 0));
-    ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2, w, h - 3, 10); ctx.fill();
-    ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#fffbea'; ctx.beginPath(); ctx.roundRect(-w / 2 + 6, -h / 2 + 6, w - 12, h - 15, 7); ctx.fill();
-    // logo : un seul, centré (ou répété sur les très larges pièces)
-    const ls = Math.min(CUBE, w, h) - 20, n = pw >= 3 ? 2 : 1;
-    if (t.img && t.img.complete) for (let i = 0; i < n; i++) ctx.drawImage(t.img, (n === 2 ? (i ? 1 : -1) * w / 4 : 0) - ls / 2, -ls / 2 - 1, ls, ls);
-    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.roundRect(-w / 2 + 5, -h / 2 + 3, 16, 4, 2); ctx.fill();
-    if (dark) { ctx.fillStyle = `rgba(20,5,60,${dark})`; ctx.beginPath(); ctx.roundRect(-w / 2 - 2, -h / 2 - 1, w + 4, h + 6, 12); ctx.fill(); }
+    g.addColorStop(0, tintColor(base, 0.3)); g.addColorStop(.55, base); g.addColorStop(1, tintColor(base, -0.12));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2, w, h - 3, r); ctx.fill();                                              // face
+    ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.roundRect(-w / 2 + 4, -h / 2 + 3, w - 8, Math.max(10, (h - 3) * 0.3), Math.max(4, r - 4)); ctx.fill();   // reflet
+    ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(-w / 2 + 2, -h / 2 + 2, w - 4, h - 7, r - 2); ctx.stroke();
+    const ls = Math.min(w, h - 3) * 0.6, n = pw >= 3 ? 2 : 1, icon = t.white || t.img;
+    if (icon && (icon.complete !== false)) {
+      if (!lite) { ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowOffsetY = 2; ctx.shadowBlur = 3; }
+      for (let i = 0; i < n; i++) ctx.drawImage(icon, (n === 2 ? (i ? 1 : -1) * w / 4 : 0) - ls / 2, -ls / 2 - 1.5, ls, ls);
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    }
+    if (dark) { ctx.fillStyle = 'rgba(20,5,60,' + dark + ')'; ctx.beginPath(); ctx.roundRect(-w / 2 - 1.5, -h / 2 - 1.5, w + 3, h + 7, r + 2); ctx.fill(); }
     ctx.restore();
   }
 
@@ -586,7 +621,7 @@ const Game = (() => {
     s.trail.forEach((p, i) => { ctx.globalAlpha = i / s.trail.length * 0.5; ctx.fillStyle = i % 2 ? '#ff3fa4' : '#ffd23f'; ctx.beginPath(); ctx.arc(p.x, p.y, BALL_R * sc * (i / s.trail.length), 0, 7); ctx.fill(); });
     ctx.restore();
     ctx.save(); ctx.translate(s.x, s.y);
-    ctx.shadowColor = '#ff3fa4'; ctx.shadowBlur = 20;
+    ctx.shadowColor = '#ff3fa4'; ctx.shadowBlur = 7;
     const r = BALL_R * sc * (s.power > 1 ? 1.4 : 1), g = ctx.createRadialGradient(-r / 3, -r / 3, 1, 0, 0, r + 2);
     g.addColorStop(0, '#fff'); g.addColorStop(.3, '#ff9ad6'); g.addColorStop(.7, '#ff3fa4'); g.addColorStop(1, '#b0126b');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); ctx.shadowBlur = 0;
@@ -599,7 +634,7 @@ const Game = (() => {
     if (finished || ballsLeft === 0) return;
     const m = muzzle(), t = currentTarget();
     const d = Math.hypot(t.x - m.x, t.y - m.y), n = Math.floor(d / 22);
-    ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 8;
+    ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 3;
     for (let i = 1; i < n; i++) {
       const k = i / n, pulse = 1 + 0.3 * Math.sin(time * 0.012 - i * 0.6);
       ctx.globalAlpha = 0.95 - k * 0.45; ctx.fillStyle = i % 2 ? '#fff3a0' : '#ff9ad6';
@@ -607,7 +642,7 @@ const Game = (() => {
     }
     // réticule sur la cible
     const c = cubeAt(t.x, t.y), r = 16 + 3 * Math.sin(time * 0.01);
-    ctx.globalAlpha = 1; ctx.shadowBlur = 12; ctx.strokeStyle = c ? '#ff3fa4' : 'rgba(255,255,255,.7)'; ctx.lineWidth = 3;
+    ctx.globalAlpha = 1; ctx.shadowBlur = 5; ctx.strokeStyle = c ? '#ff3fa4' : 'rgba(255,255,255,.7)'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(t.x, t.y, r, 0, 7); ctx.stroke();
     for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + time * 0.002; ctx.beginPath(); ctx.moveTo(t.x + Math.cos(a) * (r - 4), t.y + Math.sin(a) * (r - 4)); ctx.lineTo(t.x + Math.cos(a) * (r + 7), t.y + Math.sin(a) * (r + 7)); ctx.stroke(); }
     ctx.shadowBlur = 0;
@@ -659,6 +694,8 @@ const Game = (() => {
     get W() { return W; }, get H() { return H; }, fit, loadTechs, start, stop, fire, rotate, setAimToward, canFire,
     get cannonX() { return cannonX; }, get cannonY() { return CANNON_Y - MUZZLE; },   // cannonY = hauteur de la bouche
     set aiming(v) { aiming = v; }, get aiming() { return aiming; },
+    whiteURL(key) { const t = techs[key]; if (!t) return ''; if (!t.whiteUrl) t.whiteUrl = t.white && t.white.toDataURL ? t.white.toDataURL() : (t.img && t.img.src) || ''; return t.whiteUrl; },
+    techColors(key) { const t = techs[key]; return t ? { c1: tintColor(t.base || t.color, 0.25), c2: t.base || t.color } : { c1: '#888', c2: '#444' }; },
     arm, get powers() { return { ...powers }; }, get armed() { return armed; },
     stackCenter() { if (!cubes || !cubes.length) return { x: W / 2, y: PLATFORM_Y - 100 }; const xs = cubes.map((c) => c.position.x), ys = cubes.map(visY); return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }; },
     get ballsLeft() { return ballsLeft; }, get cubesLeft() { return cubes ? cubes.length : 0; },

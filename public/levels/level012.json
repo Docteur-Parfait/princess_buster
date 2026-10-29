@@ -3,8 +3,8 @@
   "name": "Niveau 12",
   "theme": "neon",
   "newTech": "react",
-  "balls": 35,
-  "cubeWeight": 1.42,
+  "balls": 26,
+  "cubeWeight": 1.36,
   "techs": [
     "html5",
     "css3",

@@ -3,8 +3,8 @@
   "name": "Niveau 4",
   "theme": "snow",
   "newTech": "javascript",
-  "balls": 15,
-  "cubeWeight": 1.14,
+  "balls": 12,
+  "cubeWeight": 1.12,
   "techs": [
     "html5",
     "css3",

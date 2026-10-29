@@ -9,39 +9,41 @@ const Audio = (() => {
     ctx = new (window.AudioContext || window.webkitAudioContext)();
     master = ctx.createGain(); master.gain.value = 0.8; master.connect(ctx.destination);
     musicGain = ctx.createGain(); musicGain.gain.value = state.music ? 0.22 : 0; musicGain.connect(master);
-    sfxGain = ctx.createGain(); sfxGain.gain.value = state.sfx ? 0.7 : 0; sfxGain.connect(master);
+    sfxGain = ctx.createGain(); sfxGain.gain.value = state.sfx ? 0.6 : 0; sfxGain.connect(master);
     startMusic();
   }
 
   function save() { try { localStorage.setItem('pb_audio', JSON.stringify(state)); } catch (e) { /* ignore */ } }
 
-  function tone(freq, t, dur, { type = 'square', vol = 0.3, slide = 0, dest = sfxGain } = {}) {
+  // Sons doux : attaque progressive (pas de « clic »), ondes sinusoïdales/triangle, bruit filtré et très discret
+  function tone(freq, t, dur, { type = 'sine', vol = 0.12, slide = 0, dest = sfxGain } = {}) {
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, t);
     if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t + dur);
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + 0.02);
   }
 
-  function noise(t, dur, vol = 0.4, hp = 800) {
+  function noise(t, dur, vol = 0.05, freq = 900, type = 'lowpass') {
     const len = Math.floor(ctx.sampleRate * dur), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) ** 2;
     const s = ctx.createBufferSource(); s.buffer = buf;
-    const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq;
     const g = ctx.createGain(); g.gain.value = vol;
     s.connect(f); f.connect(g); g.connect(sfxGain); s.start(t);
   }
 
   const sfx = {
-    click: (t) => tone(660, t, 0.08, { vol: 0.2 }),
-    shoot: (t) => { tone(220, t, 0.25, { type: 'sawtooth', vol: 0.35, slide: -150 }); noise(t, 0.18, 0.35, 400); },
-    hit: (t) => { tone(160 + Math.random() * 60, t, 0.1, { type: 'triangle', vol: 0.35, slide: -80 }); },
-    break: (t) => { noise(t, 0.25, 0.35, 1200); tone(520 + Math.random() * 200, t, 0.12, { vol: 0.15, slide: 300 }); },
-    clear: (t) => [523, 659, 784, 1047].forEach((f, i) => tone(f, t + i * 0.08, 0.15, { vol: 0.18 })),
-    win: (t) => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, t + i * 0.11, 0.22, { vol: 0.22, type: 'triangle' })),
-    lose: (t) => [392, 330, 262, 196].forEach((f, i) => tone(f, t + i * 0.18, 0.3, { vol: 0.25, type: 'sawtooth' })),
-    coin: (t) => [988, 1319, 1760].forEach((f, i) => tone(f, t + i * 0.07, 0.12, { vol: 0.16, type: 'square' })),
-    star: (t) => tone(1200, t, 0.15, { vol: 0.15, slide: 500 }),
+    click: (t) => tone(720, t, 0.07, { vol: 0.07 }),
+    shoot: (t) => { tone(420, t, 0.15, { vol: 0.13, slide: -230 }); noise(t, 0.1, 0.04, 800); },                 // petit « pop » rond
+    hit: (t) => { tone(150, t, 0.12, { vol: 0.15, slide: -60 }); tone(300 + Math.random() * 60, t, 0.06, { type: 'triangle', vol: 0.04 }); },
+    break: (t) => { tone(640 + Math.random() * 160, t, 0.16, { type: 'triangle', vol: 0.07, slide: 160 }); noise(t, 0.08, 0.03, 1400); },
+    clear: (t) => [523, 659, 784, 1047].forEach((f, i) => tone(f, t + i * 0.08, 0.16, { type: 'triangle', vol: 0.07 })),
+    win: (t) => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, t + i * 0.11, 0.24, { type: 'triangle', vol: 0.1 })),
+    lose: (t) => [392, 330, 262, 220].forEach((f, i) => tone(f, t + i * 0.2, 0.34, { vol: 0.1 })),
+    coin: (t) => [988, 1319, 1760].forEach((f, i) => tone(f, t + i * 0.07, 0.14, { vol: 0.07 })),
+    star: (t) => tone(1000, t, 0.18, { vol: 0.07, slide: 400 }),
   };
 
   function play(name) {
@@ -79,6 +81,6 @@ const Audio = (() => {
     init, play,
     get music() { return state.music; }, get sfx() { return state.sfx; },
     setMusic(on) { state.music = on; save(); if (musicGain) musicGain.gain.setTargetAtTime(on ? 0.22 : 0, ctx.currentTime, 0.05); },
-    setSfx(on) { state.sfx = on; save(); if (sfxGain) sfxGain.gain.setTargetAtTime(on ? 0.7 : 0, ctx.currentTime, 0.05); },
+    setSfx(on) { state.sfx = on; save(); if (sfxGain) sfxGain.gain.setTargetAtTime(on ? 0.6 : 0, ctx.currentTime, 0.05); },
   };
 })();

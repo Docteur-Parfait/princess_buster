@@ -19,6 +19,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/home2.css">
 </head>
 <body>
   <div id="stage">
@@ -42,29 +43,66 @@
 
     <!-- 2. Accueil -->
     <section id="screen-home" class="screen">
-      <div class="home-bg"><i class="sun"></i><i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i><i class="hill h1"></i><i class="hill h2"></i><i class="ground"></i></div>
+      <svg class="home-svg" viewBox="0 0 540 960" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b74ff"/><stop offset=".55" stop-color="#6cc3ff"/><stop offset="1" stop-color="#e3f6ff"/></linearGradient>
+          <radialGradient id="sunG"><stop offset="0" stop-color="#fffbd0"/><stop offset=".55" stop-color="#ffe066"/><stop offset="1" stop-color="#ffe066" stop-opacity="0"/></radialGradient>
+          <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fd05f"/><stop offset=".5" stop-color="#37a847"/><stop offset="1" stop-color="#1d7a33"/></linearGradient>
+          <linearGradient id="cupG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#173fa8"/><stop offset=".3" stop-color="#3b84ff"/><stop offset=".7" stop-color="#2a63e0"/><stop offset="1" stop-color="#14349a"/></linearGradient>
+          <pattern id="stripes" width="40" height="10" patternUnits="userSpaceOnUse"><rect width="20" height="10" fill="#ffd23f" opacity=".95"/></pattern>
+        </defs>
+        <rect width="540" height="960" fill="url(#sky)"/>
+        <circle cx="96" cy="170" r="120" fill="url(#sunG)"/><circle cx="96" cy="170" r="44" fill="#fff6b0"/>
+        <g fill="#fff" opacity=".95"><g class="svg-cloud c1"><ellipse cx="0" cy="0" rx="60" ry="22"/><circle cx="-18" cy="-16" r="22"/><circle cx="14" cy="-22" r="28"/></g><g class="svg-cloud c2"><ellipse cx="0" cy="0" rx="46" ry="17"/><circle cx="-12" cy="-12" r="17"/><circle cx="12" cy="-16" r="21"/></g><g class="svg-cloud c3"><ellipse cx="0" cy="0" rx="52" ry="19"/><circle cx="-14" cy="-13" r="19"/><circle cx="14" cy="-18" r="24"/></g></g>
+        <!-- loin : grande roue, chapiteaux, arbres -->
+        <g transform="translate(410 470)" opacity=".92"><circle r="78" fill="none" stroke="#9a6fe0" stroke-width="5"/><circle r="52" fill="none" stroke="#b995f0" stroke-width="3"/>
+          <g stroke="#9a6fe0" stroke-width="3"><line x1="-78" y1="0" x2="78" y2="0"/><line x1="0" y1="-78" x2="0" y2="78"/><line x1="-55" y1="-55" x2="55" y2="55"/><line x1="-55" y1="55" x2="55" y2="-55"/></g>
+          <g><circle cx="78" cy="0" r="9" fill="#ff5a7a"/><circle cx="-78" cy="0" r="9" fill="#ffd23f"/><circle cx="0" cy="-78" r="9" fill="#5fd4ff"/><circle cx="0" cy="78" r="9" fill="#7be06a"/><circle cx="55" cy="55" r="9" fill="#ff9a3d"/><circle cx="-55" cy="-55" r="9" fill="#ff5fb0"/><circle cx="55" cy="-55" r="9" fill="#a77bff"/><circle cx="-55" cy="55" r="9" fill="#5fd4ff"/></g>
+          <circle r="9" fill="#ffd23f"/><path d="M-6 8 L-40 100 M6 8 L40 100" stroke="#8a5fd0" stroke-width="6" fill="none"/></g>
+        <g transform="translate(62 505)"><path d="M-62 0 V-34 L0 -86 L62 -34 V0Z" fill="#fff"/><path d="M-62 -34 L0 -86 L-20 -34Z M-20 -34 L0 -86 L20 -34Z" fill="#ff4d6d" opacity=".0"/><path d="M-62 -34 L-31 -60 L0 -34 L31 -60 L62 -34 L0 -86Z" fill="#ff4d6d"/><rect x="-14" y="-30" width="28" height="30" fill="#4a1a7a"/><path d="M0 -86 V-108" stroke="#ffd23f" stroke-width="4"/><path d="M0 -108 L22 -100 L0 -92Z" fill="#ff4d6d"/></g>
+        <g transform="translate(300 500)"><path d="M-44 0 V-24 L0 -60 L44 -24 V0Z" fill="#fff6d0"/><path d="M-44 -24 L-22 -42 L0 -24 L22 -42 L44 -24 L0 -60Z" fill="#ffc21a"/></g>
+        <g fill="#2e9a44"><rect x="170" y="470" width="8" height="30" fill="#7a4a1a"/><circle cx="174" cy="458" r="26"/><circle cx="160" cy="470" r="18"/><rect x="496" y="455" width="9" height="44" fill="#7a4a1a"/><circle cx="500" cy="440" r="32" fill="#238a3a"/><circle cx="516" cy="455" r="20" fill="#238a3a"/></g>
+        <!-- collines et pelouse -->
+        <ellipse cx="120" cy="560" rx="330" ry="82" fill="#6fd66d"/><ellipse cx="470" cy="580" rx="330" ry="82" fill="#52bf55"/>
+        <rect y="540" width="540" height="420" fill="url(#grass)"/>
+        <!-- place ronde en briques -->
+        <ellipse cx="270" cy="700" rx="360" ry="170" fill="#e9a456"/><ellipse cx="270" cy="700" rx="320" ry="148" fill="#f6c67a"/><ellipse cx="270" cy="700" rx="270" ry="124" fill="#e9a456"/><ellipse cx="270" cy="700" rx="232" ry="104" fill="#fbe3b0"/><ellipse cx="270" cy="700" rx="190" ry="84" fill="#f0b05f"/>
+        <path d="M170 820 L100 960 H440 L370 820Z" fill="#eebd78"/><path d="M150 880 H390 M130 920 H410 M270 820 V960" stroke="#d99a4a" stroke-width="3" fill="none" opacity=".6"/>
+        <g opacity=".9"><circle cx="40" cy="650" r="5" fill="#fff"/><circle cx="60" cy="670" r="4" fill="#ffd23f"/><circle cx="500" cy="640" r="5" fill="#ff9ad6"/><circle cx="478" cy="662" r="4" fill="#fff"/><circle cx="30" cy="820" r="5" fill="#ffd23f"/><circle cx="505" cy="850" r="5" fill="#fff"/><circle cx="44" cy="905" r="4" fill="#ff9ad6"/><circle cx="490" cy="920" r="5" fill="#ffd23f"/></g>
+        <!-- gobelet-carrousel -->
+        <ellipse cx="270" cy="716" rx="150" ry="34" fill="#a30f1c"/><ellipse cx="270" cy="708" rx="150" ry="34" fill="#e32636"/><ellipse cx="270" cy="708" rx="126" ry="26" fill="#fff"/><ellipse cx="270" cy="706" rx="112" ry="22" fill="#e32636"/>
+        <g fill="#ffd23f"><circle cx="160" cy="716" r="4"/><circle cx="190" cy="730" r="4"/><circle cx="225" cy="738" r="4"/><circle cx="270" cy="741" r="4"/><circle cx="315" cy="738" r="4"/><circle cx="350" cy="730" r="4"/><circle cx="380" cy="716" r="4"/></g>
+        <path d="M190 570 H350 L330 690 Q270 712 210 690Z" fill="url(#cupG)" stroke="#0e2a7a" stroke-width="3"/>
+        <path d="M205 570 L218 690 M240 570 L246 700 M300 570 L294 700 M335 570 L322 690" stroke="#ffd23f" stroke-width="6" opacity=".9" fill="none"/>
+        <ellipse cx="270" cy="570" rx="82" ry="14" fill="#ffc21a" stroke="#a86a00" stroke-width="3"/><ellipse cx="270" cy="570" rx="70" ry="10" fill="#1a2f8a"/>
+        <path d="M192 590 Q150 590 156 632 Q160 660 205 650" fill="none" stroke="#ffc21a" stroke-width="12" stroke-linecap="round"/>
+      </svg>
       <header class="topbar">
         <button class="avatar-btn" id="btn-avatar" title="Profil"><span id="home-avatar">👑</span></button>
         <div class="pill coin"><span class="coin-icon"></span><b id="home-score">0</b></div>
         <div class="pill lvl-pill"><span id="home-name">Joueur</span></div>
         <button class="btn round" id="btn-settings" title="Paramètres">⚙</button>
       </header>
+      <div class="chest-bar" title="Progression des 10 niveaux en cours">
+        <div class="bar"><i id="home-bar"></i><span id="home-bar-text">0/10</span></div><div class="chest">🎁</div>
+      </div>
+      <aside class="side left">
+        <button class="side-btn" id="btn-levels"><span class="ico">🗺️</span><em>Niveaux</em></button>
+        <button class="side-btn" id="btn-leaderboard"><span class="ico">🏆</span><em>Classement</em></button>
+      </aside>
+      <aside class="side right">
+        <button class="side-btn" id="btn-full-home"><span class="ico">⛶</span><em>Plein écran</em></button>
+        <button class="side-btn" id="btn-profile"><span class="ico">👤</span><em>Profil</em></button>
+      </aside>
       <div class="home-center">
         <div class="floaters" id="floaters"></div>
         <div class="podium">
           <div class="mini-stack" id="mini-stack"></div>
-          <div class="podium-top"></div>
-          <div class="podium-pole"></div>
-          <div class="podium-base"></div>
           <div class="plate"><small>NIVEAU</small><b id="home-level">1</b></div>
         </div>
       </div>
       <div class="home-actions">
-        <button class="btn green big" id="btn-play">Jouer</button>
-        <div class="row">
-          <button class="btn blue small" id="btn-levels">🗺️ Niveaux</button>
-          <button class="btn blue small" id="btn-leaderboard">🏆 Classement</button>
-        </div>
+        <button class="btn big play" id="btn-play"><i class="diff-ico" id="play-ico">🙂</i><small id="play-diff">FACILE</small><b>Jouer</b></button>
       </div>
     </section>
 
@@ -83,11 +121,9 @@
     <section id="screen-game" class="screen">
       <canvas id="canvas"></canvas>
       <div class="hud">
-        <div class="pill"><span class="ball-icon"></span><b id="hud-balls">0</b></div>
         <div class="pill lvl-pill"><span id="hud-level">Niveau 1</span></div>
-        <div class="hud-buttons">
-          <button class="btn round" id="btn-game-settings" title="Paramètres">⚙</button>
-        </div>
+        <div class="pill balls-pill"><span class="ball-icon"></span><b id="hud-balls">0</b></div>
+        <div class="hud-buttons"><button class="btn round" id="btn-game-settings" title="Paramètres">⚙</button></div>
       </div>
       <div id="tech-banner" class="hidden"></div>
       <div id="hud-cubes" class="pill small">Cubes : <b>0</b></div>
@@ -145,6 +181,11 @@
             <li><span>🏆 Meilleur score</span><b id="lv-best">–</b></li>
           </ul>
           <div class="lv-tech" id="lv-tech"></div>
+          <div class="boosters-title">Sélectionne un bonus :</div>
+          <div class="boosters" id="lv-boosters">
+            <button type="button" class="bst" data-b="triple"><span class="pw-ico triple"><i></i><i></i><i></i></span><em>Tir ×3</em></button>
+            <button type="button" class="bst" data-b="super"><span class="pw-ico super">★</span><em>Super</em></button>
+          </div>
         </div>
         <button class="btn green big" id="btn-level-play">Jouer</button>
       </div>

@@ -3,8 +3,8 @@
   "name": "Niveau 16",
   "theme": "snow",
   "newTech": "django",
-  "balls": 56,
-  "cubeWeight": 1.56,
+  "balls": 39,
+  "cubeWeight": 1.48,
   "techs": [
     "html5",
     "css3",

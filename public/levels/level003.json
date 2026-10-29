@@ -3,8 +3,8 @@
   "name": "Niveau 3",
   "theme": "sunset",
   "newTech": "bootstrap",
-  "balls": 19,
-  "cubeWeight": 1.1,
+  "balls": 15,
+  "cubeWeight": 1.09,
   "techs": [
     "html5",
     "css3",

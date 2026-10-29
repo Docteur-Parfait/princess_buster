@@ -71,7 +71,7 @@ Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 
 ## Fonctionnalités
 
-- 🎯 **200 niveaux** décrits dans des fichiers JSON, avec **40 technologies** introduites progressivement (HTML5 et CSS3 d'abord)
+- 🎯 **200 niveaux** décrits dans des fichiers JSON, avec **50 technologies** (dont les logos des IA : ChatGPT, Claude, Gemini, Grok, Mistral…) introduites progressivement, HTML5 et CSS3 d'abord
 - 🎨 **12 décors** qui changent à chaque niveau : prairie, nuit, coucher de soleil, neige, désert, océan, bonbons, forêt, espace, automne, volcan, néon
 - 🧱 **Pièces de formats variés** : carrés, rectangles larges ou hauts, 2×2, 3×1, 3×2 (les grandes piles rapetissent pour tenir à l'écran)
 - 🌌 **Profondeur simulée** : selon l'angle du tir et l'endroit touché, une pièce tombe **derrière la table, à gauche ou à droite** ; jusqu'à 3 rangées cachées les unes derrière les autres
@@ -124,7 +124,7 @@ npm run levels    # régénère les niveaux (attention : écrase les fichiers de
 ## Les 200 niveaux
 
 - **Niveaux 1 à 20** : une nouvelle technologie par niveau (HTML5 est présent dès le début) : CSS3, Sass, Bootstrap, JavaScript, TypeScript, jQuery, Tailwind CSS, PHP, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git.
-- **Niveaux 21 à 200** : 19 technologies de plus, une tous les 9 niveaux : Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash.
+- **Niveaux 21 à 200** : 29 technologies de plus, une tous les 6 niveaux : Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter, Dart, Next.js, Svelte, Redis, PostgreSQL, GraphQL, Kubernetes, Firebase, Nginx, Bash, puis les **IA** : ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama et Llama.
 - **Décors** : 12 thèmes qui tournent à chaque niveau (`meadow`, `night`, `sunset`, `snow`, `desert`, `ocean`, `candy`, `forest`, `space`, `autumn`, `volcano`, `neon`), définis dans `public/js/game.js`.
 - **Difficulté** : piles plus grandes (jusqu'à 9×8), pièces plus lourdes et plus grandes, rangées cachées derrière (2 rangées dès le niveau 5, 3 dès le niveau 100).
 
@@ -179,7 +179,7 @@ princess_buster/
 │   │   ├── audio.js         # musique + bruitages synthétisés (WebAudio)
 │   │   └── storage.js       # sauvegarde : API SQLite avec repli localStorage
 │   ├── levels/              # index.json + level001..200.json
-│   ├── assets/              # logo.png + tech/*.svg (40 logos de technologies)
+│   ├── assets/              # logo.png + tech/*.svg (50 logos de technologies et d'IA)
 │   └── vendor/matter.min.js
 ├── server/server.js         # serveur de test : fichiers statiques + API SQLite (node:sqlite)
 ├── tools/
@@ -230,6 +230,6 @@ Lis le [guide de contribution](CONTRIBUTING.md) et le [code de conduite](CODE_OF
 
 - Code : [licence MIT](LICENSE) © 2026 princesse-aku
 - Le **logo « Princess Buster »** (`public/assets/logo.png`) n'est **pas** couvert par la licence MIT : tous droits réservés à l'auteur du projet
-- Logos des technologies : [Devicon](https://devicon.dev) (MIT) ; les marques appartiennent à leurs propriétaires respectifs
+- Logos des technologies : [Devicon](https://devicon.dev) (MIT) et logos d'IA : [Simple Icons](https://simpleicons.org) (CC0) ; le logo de Grok est un dessin original évoquant la marque. Les marques appartiennent à leurs propriétaires respectifs
 - Physique : [Matter.js](https://brm.io/matter-js/) (MIT)
 - Inspiration de gameplay : les jeux de tir de cubes en piles pour mobile. Aucun asset de ces jeux n'est utilisé ici
