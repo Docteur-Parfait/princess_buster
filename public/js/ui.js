@@ -123,7 +123,6 @@
   }
   $('btn-play').onclick = () => { Audio.init(); Audio.play('click'); openLevelModal(nextLevelToPlay()); };
   $('btn-full-home').onclick = toggleFullscreen;
-  $('btn-profile').onclick = () => { Audio.play('click'); openProfile(); };
   $('btn-levels').onclick = () => { Audio.play('click'); openMenu(); };
   $('btn-menu-back').onclick = () => { Audio.play('click'); openHome(); };
 
