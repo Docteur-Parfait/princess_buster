@@ -98,3 +98,9 @@
 .chest .tcube { width: 44px; height: 44px; }
 .chest-bar .chest .tcube { width: 40px; height: 40px; }
 .chest-bar .chest { font-size: 30px; }
+
+/* écran de victoire : la techno (case du coffre) + son libellé placé SOUS la case, hors du cadre */
+.panel.win .progress { margin: 14px 0 38px; }
+.panel.win .chest { position: relative; width: 78px; height: 78px; overflow: visible; }
+.panel.win .chest .tcube { width: 54px; height: 54px; border-radius: 14px; }
+.chest .chest-label { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 5px; font-style: normal; font-size: 18px; font-weight: 800; line-height: 1; white-space: nowrap; color: #ffd23f; -webkit-text-stroke: 4px #a63a00; paint-order: stroke fill; text-shadow: 0 2px 0 #a63a00; }

@@ -313,7 +313,7 @@
       const chest = document.querySelector('#panel-win .chest');
       const endKey = meta.levels[Math.ceil(currentLevel / B) * B - 1] && meta.levels[Math.ceil(currentLevel / B) * B - 1].reward;
       const nextT = reward || (endKey && techByKey(endKey));
-      chest.innerHTML = nextT ? techCube(nextT) + `<small>${unlockedNow ? 'Débloquée !' : 'Prochaine'}</small>` : '🏆';
+      chest.innerHTML = nextT ? techCube(nextT) + `<em class="chest-label">${unlockedNow ? 'Techno débloquée !' : 'Prochaine techno'}</em>` : '🏆';
       chest.classList.toggle('open', !!unlockedNow);
       if (unlockedNow) setTimeout(() => Audio.play('win'), 900);
       $('result-stars').textContent = '';
@@ -399,8 +399,9 @@
       const d = Game._debug();
       if (d.finished || !d.cubes.length || !d.ballsLeft) break;
       const maxY = Math.max(...d.cubes.map((c) => c.position.y));
-      const c = d.cubes.filter((x) => x.position.y > maxY - 30)[0];
-      Game.setAimToward(c.position.x, c.position.y); Game._advance(350); Game.fire(); Game._advance(2200);
+      const minZ = Math.min(...d.cubes.map((x) => x.z)), low = d.cubes.filter((x) => x.z <= minZ + 1 && x.position.y > maxY - 30);
+      const c = low[Math.floor(Math.random() * low.length)] || d.cubes[0];
+      Game.setAimToward(c.position.x, c.position.y - (c.z - c.layer * 45) * 0.45); Game._advance(350); Game.fire(); Game._advance(2200);
     }
     Game._advance(3500);
   }
