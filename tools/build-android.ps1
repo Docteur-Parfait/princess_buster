@@ -32,6 +32,13 @@ if ($vcvars) {
   cmd /c "`"$vcvars`" >nul && set" | ForEach-Object { if ($_ -match '^([^=]+)=(.*)$') { Set-Item -Path "env:$($Matches[1])" -Value $Matches[2] } }
 } else { Write-Warning "vcvars64.bat introuvable : installe les Build Tools Visual Studio (charge de travail C++)." }
 
+# --- Gradle (plugin Rust de Tauri) lance « npm.bat » : sous Windows npm est un npm.cmd, on fournit un petit relais ---
+$npmCmd = (Get-Command npm.cmd -ErrorAction Stop).Source
+$shimDir = Join-Path $env:TEMP 'princess-buster-shim'
+New-Item -ItemType Directory -Force $shimDir | Out-Null
+"@echo off`r`ncall `"$npmCmd`" %*" | Set-Content -Encoding ascii (Join-Path $shimDir 'npm.bat')
+$env:Path = "$shimDir;$env:Path"
+
 # --- compilation ---
 $tauriArgs = @('tauri', 'android', 'build', '--apk')
 if ($Target -ne 'all') { $tauriArgs += @('--target', $Target) }

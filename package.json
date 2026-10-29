@@ -28,7 +28,9 @@
   "scripts": {
     "start": "node server/server.js",
     "levels": "node tools/generate-levels.js",
-    "test": "node tools/validate-levels.js"
+    "test": "node tools/validate-levels.js",
+    "tauri": "tauri",
+    "android:build": "powershell -ExecutionPolicy Bypass -File tools/build-android.ps1"
   },
   "engines": {
     "node": ">=22.5"

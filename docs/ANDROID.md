@@ -7,7 +7,7 @@ Princess Buster utilise [Tauri v2](https://tauri.app) pour produire l'applicatio
 | Outil | Version | Remarque |
 | --- | --- | --- |
 | [Rust](https://rustup.rs) | stable | `rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android` |
-| Visual Studio Build Tools | 2022 ou plus | charge de travail « Développement Desktop en C++ » (éditeur de liens MSVC) |
+| Visual Studio Build Tools | 2022 | charge de travail « Développement Desktop en C++ » (éditeur de liens MSVC + Windows SDK). Le script charge lui-même `vcvars64.bat` ; une installation Visual Studio « incomplète » (sans SDK) ferait échouer l'édition de liens |
 | JDK | 17 ou 21 | `JAVA_HOME` (le JDK 21 d'Android Studio convient). Évite les JDK trop récents pour Gradle |
 | Android SDK + NDK | SDK 34+, NDK r26+ | via Android Studio ; `ANDROID_HOME` et `NDK_HOME` |
 | Node.js | 22.5+ | `npm install` installe le CLI Tauri |
@@ -15,6 +15,8 @@ Princess Buster utilise [Tauri v2](https://tauri.app) pour produire l'applicatio
 > Les scripts détectent automatiquement `ANDROID_HOME`, `NDK_HOME` et `JAVA_HOME` dans les emplacements standards.
 
 ## Compiler
+
+> Sous Windows, Gradle appelle `npm.bat` : le script crée automatiquement un petit relais temporaire. `npm run android:build` lance le même script.
 
 ```powershell
 npm install
