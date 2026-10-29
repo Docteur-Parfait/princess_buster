@@ -17,6 +17,10 @@
 </div>
 
 <p align="center">
+  <img src="docs/promo/princess-buster-promo.png" alt="Princess Buster : fais tomber toutes les technos" width="100%">
+</p>
+
+<p align="center">
   <img src="docs/screenshots/01-accueil.png" alt="Écran d'accueil" width="23%">
   <img src="docs/screenshots/02-niveaux.png" alt="Choix du niveau" width="23%">
   <img src="docs/screenshots/03-partie-niveau-3.png" alt="Niveau 3" width="23%">
@@ -189,6 +193,7 @@ Base SQLite (`data/princess-buster.db`), deux tables : `players` (nom unique) et
 http://localhost:3000/?name=Ada                       → connexion directe, menu des niveaux
 http://localhost:3000/?name=Ada&level=12              → lance directement le niveau 12
 http://localhost:3000/?name=Ada&level=12&autoplay=1   → un petit robot joue (démo, captures)
+http://localhost:3000/?name=Ada&level=12&autoplay=1&clean=1   → idem sans bandeau ni texte d'aide
 ```
 
 ## Feuille de route

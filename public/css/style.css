@@ -143,3 +143,6 @@ html, body { margin: 0; height: 100%; overscroll-behavior: none; position: fixed
 .hud-buttons { flex-direction: column; }
 #stage.wide.short .hud-buttons { flex-direction: row; }
 @media (hover: none) { #btn-full, #btn-full-menu { display: inline-block; } }
+
+/* ?clean=1 : captures promotionnelles sans bandeau ni texte d'aide */
+#stage.clean #tech-banner, #stage.clean .hint { display: none !important; }

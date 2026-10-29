@@ -40,6 +40,7 @@
 
   // Raccourcis de développement : /?name=Ada&level=8&autoplay=1  (connexion directe, niveau direct, démo automatique)
   const qs = new URLSearchParams(location.search);
+  if (qs.get('clean')) document.getElementById('stage').classList.add('clean');   // masque bandeau et aide (captures promo)
   if (qs.get('name')) {
     ready.then(async () => {
       await Storage.login(qs.get('name'));

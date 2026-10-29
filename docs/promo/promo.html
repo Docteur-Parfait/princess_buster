@@ -1,0 +1,98 @@
+<!doctype html>
+<!-- Visuel publicitaire 16:9 (1920x1080). Rendu : chrome --headless --window-size=1920,1080 --screenshot=princess-buster-promo.png promo.html -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Princess Buster - visuel promo</title>
+<style>
+  :root { --gold: #ffd23f; --gold-l: #fff3a0; --magenta: #ff3fa4; --purple: #3b0a6e; --violet: #7a2cff; --sky: #5fd4ff; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0a0838; font-family: 'Baloo 2', 'Arial Rounded MT Bold', 'Segoe UI Black', 'Trebuchet MS', Arial, sans-serif; color: #fff; }
+  .scene { position: relative; width: 1920px; height: 1080px; overflow: hidden;
+    background:
+      radial-gradient(ellipse 900px 700px at 72% 45%, rgba(255, 63, 164, .55), transparent 70%),
+      radial-gradient(ellipse 1100px 800px at 20% 0%, rgba(122, 44, 255, .75), transparent 65%),
+      linear-gradient(#1b1470, #150f66 55%, #0a0838); }
+  .rays { position: absolute; left: 1330px; top: 520px; width: 0; height: 0; }
+  .rays i { position: absolute; left: -90px; top: -1500px; width: 180px; height: 1500px; transform-origin: 90px 1500px; background: linear-gradient(rgba(255,255,255,.10), transparent 85%); }
+  .stars { position: absolute; inset: 0;
+    background-image:
+      radial-gradient(3px 3px at 6% 12%, #fff, transparent), radial-gradient(2px 2px at 14% 40%, var(--gold-l), transparent),
+      radial-gradient(3px 3px at 24% 82%, #fff, transparent), radial-gradient(2px 2px at 33% 20%, var(--sky), transparent),
+      radial-gradient(3px 3px at 41% 64%, var(--gold-l), transparent), radial-gradient(2px 2px at 52% 9%, #fff, transparent),
+      radial-gradient(3px 3px at 58% 90%, var(--sky), transparent), radial-gradient(2px 2px at 66% 30%, #fff, transparent),
+      radial-gradient(3px 3px at 78% 7%, var(--gold-l), transparent), radial-gradient(2px 2px at 86% 70%, #fff, transparent),
+      radial-gradient(3px 3px at 93% 22%, var(--sky), transparent), radial-gradient(2px 2px at 97% 88%, var(--gold-l), transparent),
+      radial-gradient(2px 2px at 47% 38%, #fff, transparent), radial-gradient(3px 3px at 10% 62%, #fff, transparent); }
+  .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 190px; background: linear-gradient(#5a22c8, #1c0d66); border-top: 6px solid var(--gold); opacity: .55; }
+
+  /* texte à gauche */
+  .left { position: absolute; left: 90px; top: 50px; width: 880px; }
+  .logo { width: 190px; border-radius: 19%; filter: drop-shadow(0 14px 24px rgba(0,0,0,.55)) drop-shadow(0 0 40px rgba(255, 210, 63, .55)); transform: rotate(-4deg); }
+  h1 { margin-top: 24px; font-size: 104px; line-height: .92; font-weight: 900; letter-spacing: -1px; text-transform: uppercase;
+    background: linear-gradient(#fffbd0, var(--gold) 55%, #f59a00); -webkit-background-clip: text; background-clip: text; color: transparent;
+    -webkit-text-stroke: 0; filter: drop-shadow(0 8px 0 var(--purple)) drop-shadow(0 0 30px rgba(255, 63, 164, .75)); }
+  h1 span { display: block; background: linear-gradient(#ffc2ea, var(--magenta) 60%, #b0126b); -webkit-background-clip: text; background-clip: text; }
+  .sub { margin-top: 26px; font-size: 33px; line-height: 1.3; font-weight: 700; max-width: 880px; color: #efeaff; text-shadow: 0 3px 0 rgba(59,10,110,.9); }
+  .sub b { color: var(--gold-l); }
+  .pills { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 14px; }
+  .pill { padding: 6px 22px; font-size: 28px; font-weight: 800; border-radius: 40px; border: 4px solid var(--gold); background: linear-gradient(var(--violet), var(--purple)); box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 0 22px rgba(255, 210, 63, .45); text-shadow: 0 3px 0 rgba(59,10,110,.9); }
+  .cta { margin-top: 34px; display: inline-block; padding: 16px 46px; font-size: 42px; font-weight: 900; color: #5a2a00; border-radius: 30px; border: 5px solid var(--purple);
+    background: linear-gradient(#ffe46b, var(--gold) 45%, #f59a00); box-shadow: 0 9px 0 var(--purple), 0 0 0 4px var(--gold-l) inset, 0 12px 34px rgba(255, 210, 63, .6); text-shadow: 0 2px 0 rgba(255,255,255,.7); }
+  .url { margin-top: 20px; font-size: 28px; font-weight: 700; color: var(--gold-l); text-shadow: 0 2px 0 var(--purple); letter-spacing: .5px; }
+
+  .techs { position: absolute; left: 90px; bottom: 40px; width: 840px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .techs img { width: 56px; height: 56px; padding: 7px; background: #fffbea; border-radius: 16px; border: 3px solid var(--purple); box-shadow: 0 4px 0 var(--purple), 0 0 14px rgba(255, 210, 63, .45); }
+
+  /* captures du jeu à droite */
+  .card { position: absolute; border-radius: 40px; overflow: hidden; border: 9px solid var(--gold); background: var(--purple);
+    box-shadow: 0 0 0 6px var(--purple), 0 30px 60px rgba(0,0,0,.6), 0 0 70px rgba(255, 63, 164, .55); }
+  .card img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .c1 { left: 985px; top: 250px; width: 380px; height: 676px; transform: rotate(-7deg); }
+  .c3 { left: 1500px; top: 230px; width: 380px; height: 676px; transform: rotate(7deg); }
+  .c2 { left: 1190px; top: 90px; width: 470px; height: 835px; z-index: 2; }
+  .badge { position: absolute; z-index: 3; left: 1555px; top: 70px; width: 210px; height: 210px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    background: radial-gradient(circle at 35% 30%, #ffe0f3, var(--magenta) 55%, #b0126b); border: 8px solid var(--gold); box-shadow: 0 0 0 5px var(--purple), 0 12px 30px rgba(0,0,0,.5), 0 0 40px rgba(255, 63, 164, .8); transform: rotate(10deg); text-shadow: 0 3px 0 var(--purple); }
+  .badge b { font-size: 74px; line-height: 1; font-weight: 900; }
+  .badge small { font-size: 28px; font-weight: 800; line-height: 1.05; }
+  .spark { position: absolute; color: var(--gold-l); text-shadow: 0 0 18px var(--gold); font-size: 60px; }
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="rays">
+    <i style="transform: rotate(-60deg)"></i><i style="transform: rotate(-40deg)"></i><i style="transform: rotate(-20deg)"></i><i style="transform: rotate(0deg)"></i>
+    <i style="transform: rotate(20deg)"></i><i style="transform: rotate(40deg)"></i><i style="transform: rotate(60deg)"></i>
+  </div>
+  <div class="stars"></div>
+  <div class="ground"></div>
+
+  <div class="left">
+    <img class="logo" src="../../public/assets/logo.webp" alt="Princess Buster">
+    <h1>Fais tomber<span>toutes les technos !</span></h1>
+    <p class="sub">Le jeu de tir où <b>HTML, CSS, JavaScript, PHP, Laravel, Docker…</b> s'écroulent sous tes balles.</p>
+    <div class="pills">
+      <div class="pill">20 niveaux</div>
+      <div class="pill">Mobile · Tablette · PC</div>
+      <div class="pill">Gratuit &amp; open source</div>
+    </div>
+    <div class="url">github.com/princesse-aku/princess_buster</div>
+  </div>
+
+  <div class="techs" id="techs"></div>
+
+  <div class="card c1"><img src="shot-c.png" alt=""></div>
+  <div class="card c3"><img src="shot-a.png" alt=""></div>
+  <div class="card c2"><img src="shot-b.png" alt=""></div>
+  <div class="badge"><b>21</b><small>technos<br>à dégommer</small></div>
+  <div class="spark" style="left: 1130px; top: 60px">✦</div>
+  <div class="spark" style="left: 1840px; top: 70px; font-size: 44px">✦</div>
+  <div class="spark" style="left: 960px; top: 940px; font-size: 48px">✦</div>
+  <div class="spark" style="left: 1760px; top: 960px">✦</div>
+</div>
+<script>
+  const techs = ['html5','css3','sass','bootstrap','javascript','typescript','jquery','tailwindcss','php','laravel','nodejs','express','react','vuejs','angular','python','django','mysql','mongodb','docker','git'];
+  document.getElementById('techs').innerHTML = techs.map((t) => `<img src="../../public/assets/tech/${t}.svg" alt="${t}">`).join('');
+</script>
+</body>
+</html>
