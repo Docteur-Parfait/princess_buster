@@ -1,13 +1,23 @@
-// Interface : écrans, navigation, entrées joueur. Relie Game, Storage et Audio.
+// Interface : splash, accueil, niveaux, fenêtres, résultat, tutoriel, entrées joueur. Relie Game, Storage et Audio.
 (() => {
   const $ = (id) => document.getElementById(id);
-  let TOTAL_LEVELS = 200;   // mis à jour depuis levels/index.json
-  let meta = null;            // { techs, levels }
+  const stage = $('stage');
+  let TOTAL_LEVELS = 200;       // mis à jour depuis levels/index.json
+  let meta = null;              // { techs, themes, levels }
   let currentLevel = 1;
   let levelData = null;
+  const levelCache = new Map();
+
+  const AVATARS = ['👑', '🦊', '🐼', '🐯', '🐸', '🦄', '🐵', '🐱', '🐶', '🦁', '🐙', '🤖'];
+  const THEME_NAMES = { meadow: '🌳 Prairie', night: '🌙 Nuit étoilée', sunset: '🌅 Coucher de soleil', snow: '❄️ Neige', desert: '🏜️ Désert', ocean: '🌊 Océan', candy: '🍭 Bonbons', forest: '🌲 Forêt', space: '🪐 Espace', autumn: '🍂 Automne', volcano: '🌋 Volcan', neon: '🌆 Ville néon' };
+  const POWER_UNLOCK = { triple: 3, super: 10 };               // niveau d'apparition des bonus
+  const store = {
+    get(k, d = '') { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } },
+  };
+  const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   // --- plein écran : la scène épouse toute la fenêtre (téléphone, tablette, ordinateur ; portrait ou paysage) ---
-  const stage = document.getElementById('stage');
   function fit() {
     const r = Game.fit(innerWidth, innerHeight);
     stage.style.width = r.W + 'px'; stage.style.height = r.H + 'px';
@@ -22,15 +32,20 @@
     if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
     else if (el.requestFullscreen || el.webkitRequestFullscreen) (el.requestFullscreen || el.webkitRequestFullscreen).call(el).catch(() => {});
   }
-  ['btn-full', 'btn-full-menu'].forEach((id) => { const b = $(id); if (b) b.onclick = toggleFullscreen; });
 
-  function show(name) {
-    document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === 'screen-' + name));
-  }
+  function show(name) { document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === 'screen-' + name)); }
+  const openModal = (id) => $(id).classList.remove('hidden');
+  const closeModal = (id) => $(id).classList.add('hidden');
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => { Audio.play('click'); closeModal(b.dataset.close); }));
+  ['modal-level', 'modal-settings', 'modal-profile', 'leaderboard'].forEach((id) => $(id).addEventListener('pointerdown', (e) => { if (e.target === $(id)) closeModal(id); }));
 
   const techByKey = (k) => meta.techs.find((t) => t.key === k);
+  const getLevel = async (n) => {
+    if (!levelCache.has(n)) levelCache.set(n, fetch('levels/' + meta.levels[n - 1].file).then((r) => r.json()));
+    return levelCache.get(n);
+  };
 
-  // --- démarrage ---
+  // ============================== démarrage : splash -> conditions -> joueur -> accueil ==============================
   async function boot() {
     meta = await (await fetch('levels/index.json')).json();
     TOTAL_LEVELS = meta.levels.length;
@@ -38,32 +53,36 @@
     $('name-input').value = Storage.lastName();
   }
   const ready = boot();
+  const splashDelay = new Promise((r) => setTimeout(r, 1700));
 
-  // Raccourcis de développement : /?name=Ada&level=8&autoplay=1  (connexion directe, niveau direct, démo automatique)
-  const qs = new URLSearchParams(location.search);
-  if (qs.get('clean')) document.getElementById('stage').classList.add('clean');   // masque bandeau et aide (captures promo)
-  if (qs.get('name')) {
-    ready.then(async () => {
-      await Storage.login(qs.get('name'));
-      const lvl = parseInt(qs.get('level'), 10);
-      if (lvl >= 1 && lvl <= TOTAL_LEVELS) { await startLevel(lvl); if (qs.get('autoplay')) autoplay(); } else openMenu();
-    });
+  async function route() {
+    await ready; await splashDelay;
+    if (!store.get('pb_terms')) { openModal('modal-terms'); return; }       // première ouverture : conditions à accepter
+    afterTerms();
+  }
+  async function afterTerms() {
+    const last = Storage.lastName();
+    if (last) { await Storage.login(last); openHome(); } else show('name');
   }
 
-  // Démo : un petit robot vise la pièce la plus basse de l'avant toutes les 0,7 s
-  function autoplay() {
-    const timer = setInterval(() => {
-      const d = Game._debug();
-      if (d.finished || !d.cubes.length) return clearInterval(timer);
-      const minZ = Math.min(...d.cubes.map((c) => c.z));
-      const front = d.cubes.filter((c) => c.z <= minZ + 1);
-      const maxY = Math.max(...front.map((c) => c.position.y));
-      const low = front.filter((c) => c.position.y > maxY - 35);
-      const c = low[Math.floor(Math.random() * low.length)];
-      Game.setAimToward(c.position.x, c.position.y - c.z * 0.45);
-      Game.fire();
-    }, 700);
+  $('btn-accept').onclick = () => { Audio.init(); Audio.play('click'); store.set('pb_terms', '1'); closeModal('modal-terms'); afterTerms(); };
+  const TERMS = {
+    terms: '<h4>Conditions d\'utilisation</h4><p>Princess Buster est un jeu libre et gratuit, publié sous licence MIT. Tu peux y jouer, le copier et le modifier selon cette licence. Le logo « Princess Buster » reste la propriété de l\'auteur. Les logos des technologies appartiennent à leurs propriétaires respectifs.</p><p>Le jeu est fourni « tel quel », sans garantie.</p>',
+    privacy: '<h4>Politique de confidentialité</h4><p>Le jeu ne collecte aucune donnée personnelle et ne contient ni publicité ni traceur. Ton nom de joueur, ton avatar et tes scores sont enregistrés uniquement sur ton appareil (base SQLite locale ou stockage du navigateur) et ne sont envoyés nulle part.</p><p>Tu peux les effacer à tout moment en désinstallant l\'application ou en vidant les données du navigateur.</p>',
+  };
+  function showTerms(kind) {
+    $('terms-detail').innerHTML = TERMS[kind]; $('terms-detail').classList.remove('hidden'); $('terms-welcome').classList.add('hidden');
+    $('btn-accept').classList.add('hidden'); $('btn-terms-back').classList.remove('hidden');
+    openModal('modal-terms');
   }
+  $('link-terms').onclick = (e) => { e.preventDefault(); showTerms('terms'); };
+  $('link-privacy').onclick = (e) => { e.preventDefault(); showTerms('privacy'); };
+  $('btn-terms').onclick = (e) => { e.preventDefault(); closeModal('modal-settings'); showTerms('privacy'); };
+  $('btn-terms-back').onclick = () => {
+    $('terms-detail').classList.add('hidden'); $('terms-welcome').classList.remove('hidden');
+    $('btn-terms-back').classList.add('hidden'); $('btn-accept').classList.remove('hidden');
+    if (store.get('pb_terms')) closeModal('modal-terms');
+  };
 
   $('name-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -72,10 +91,35 @@
     if (!name) return;
     await ready;
     await Storage.login(name);
-    openMenu();
+    openHome();
   });
 
-  // --- menu des niveaux ---
+  // ============================== accueil ==============================
+  const avatarOf = () => store.get('pb_avatar_' + (Storage.player ? Storage.player.name.toLowerCase() : ''), '👑');
+  const nextLevelToPlay = () => { for (let n = 1; n <= TOTAL_LEVELS; n++) { const p = Storage.progressOf(n); if (!(p && p.completed)) return n; } return TOTAL_LEVELS; };
+
+  async function openHome() {
+    Game.stop();
+    const p = Storage.player, next = nextLevelToPlay();
+    $('home-avatar').textContent = avatarOf();
+    $('home-name').textContent = p.name;
+    $('home-score').textContent = Storage.totalScore();
+    $('home-level').textContent = next;
+    show('home');
+    // petite pyramide de cubes aux technos du niveau + tuiles qui flottent
+    const lvl = await getLevel(next), pool = lvl.techs.slice(-8);
+    const pick = (i) => techByKey(pool[i % pool.length]);
+    const rows = [1, 2, 3];
+    $('mini-stack').innerHTML = rows.map((n, r) => `<div class="mr">${Array.from({ length: n }, (_, c) => { const t = pick(r * 3 + c); return `<div class="mc" style="--c:${t.color};--d:${(r + c) * 0.25}s"><img src="assets/tech/${t.key}.svg" alt=""></div>`; }).join('')}</div>`).join('');
+    const spots = [[-50, 70], [296, 90], [-56, 250], [300, 270], [20, 0], [232, 6]];
+    $('floaters').innerHTML = spots.map(([x, y], i) => { const t = pick(i + 2); return `<div class="fl" style="left:${x}px;top:${y}px;--d:${i * 0.7}s"><img src="assets/tech/${t.key}.svg" alt=""></div>`; }).join('');
+    refreshToggles();
+  }
+  $('btn-play').onclick = () => { Audio.init(); Audio.play('click'); openLevelModal(nextLevelToPlay()); };
+  $('btn-levels').onclick = () => { Audio.play('click'); openMenu(); };
+  $('btn-menu-back').onclick = () => { Audio.play('click'); openHome(); };
+
+  // ============================== liste des niveaux ==============================
   function openMenu() {
     Game.stop();
     const p = Storage.player;
@@ -97,54 +141,95 @@
       b.style.setProperty('--i', Math.min(n, 12));
       b.innerHTML = `<span class="num">${n}</span><img src="assets/tech/${tech.key}.svg" alt="${tech.name}" loading="lazy">` +
         (unlocked ? `<span class="best">${prog && prog.completed ? '⭐ ' + prog.bestScore : (info.newTech ? tech.name : 'À jouer')}</span>` : '<span class="lock">🔒</span>');
-      b.addEventListener('click', () => { if (!unlocked) return; Audio.play('click'); startLevel(n); });
+      b.addEventListener('click', () => { if (!unlocked) return; Audio.play('click'); openLevelModal(n); });
       grid.appendChild(b);
       if (isCurrent && !current) current = b;
     }
-    refreshAudioButtons();
     show('menu');
     if (current) current.scrollIntoView({ block: 'center' });      // on arrive sur le prochain niveau à jouer
   }
 
-  $('btn-change-player').onclick = () => { Audio.play('click'); show('name'); };
+  // fiche de niveau (« NIVEAU 4 »)
+  async function openLevelModal(n) {
+    const lvl = await getLevel(n), prog = Storage.progressOf(n);
+    $('lv-ribbon').textContent = `NIVEAU ${n}`;
+    $('lv-theme').textContent = THEME_NAMES[lvl.theme] || lvl.theme;
+    $('lv-balls').textContent = lvl.balls;
+    $('lv-pieces').textContent = lvl.pieces.length;
+    $('lv-best').textContent = prog && prog.completed ? `⭐ ${prog.bestScore}` : '–';
+    const tech = lvl.newTech && techByKey(lvl.newTech);
+    $('lv-tech').innerHTML = tech ? `<img src="assets/tech/${tech.key}.svg" alt=""> Nouvelle techno : <b>${tech.name}</b>` : '';
+    $('btn-level-play').textContent = prog && prog.attempts && !prog.completed ? 'Réessaie' : 'Jouer';
+    $('btn-level-play').onclick = () => { Audio.play('click'); closeModal('modal-level'); startLevel(n); };
+    openModal('modal-level');
+  }
+
+  // ============================== classement ==============================
   $('btn-leaderboard').onclick = async () => {
     Audio.play('click');
     const list = await Storage.leaderboard();
     $('leaderboard-list').innerHTML = list.length
       ? list.map((r) => `<li>${escapeHtml(r.name)}<span>${r.total} pts · ${r.levels} niv.</span></li>`).join('')
-      : '<li>Pas encore de scores (serveur hors ligne ?)</li>';
-    $('leaderboard').classList.remove('hidden');
+      : '<li>Pas encore de scores</li>';
+    openModal('leaderboard');
   };
-  $('btn-close-lb').onclick = () => $('leaderboard').classList.add('hidden');
-  const escapeHtml = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  // --- audio ---
-  function refreshAudioButtons() {
-    ['btn-music', 'btn-music-menu'].forEach((id) => $(id).classList.toggle('off', !Audio.music));
-    ['btn-sfx', 'btn-sfx-menu'].forEach((id) => $(id).classList.toggle('off', !Audio.sfx));
+  // ============================== paramètres ==============================
+  let settingsInGame = false;
+  function refreshToggles() {
+    $('tg-sfx').classList.toggle('off', !Audio.sfx);
+    $('tg-music').classList.toggle('off', !Audio.music);
+    $('tg-vibe').classList.toggle('off', store.get('pb_vibe', '1') !== '1');
   }
-  const toggleMusic = () => { Audio.setMusic(!Audio.music); refreshAudioButtons(); };
-  const toggleSfx = () => { Audio.setSfx(!Audio.sfx); refreshAudioButtons(); Audio.play('click'); };
-  $('btn-music').onclick = $('btn-music-menu').onclick = toggleMusic;
-  $('btn-sfx').onclick = $('btn-sfx-menu').onclick = toggleSfx;
+  $('tg-sfx').onclick = () => { Audio.setSfx(!Audio.sfx); refreshToggles(); Audio.play('click'); };
+  $('tg-music').onclick = () => { Audio.init(); Audio.setMusic(!Audio.music); refreshToggles(); };
+  $('tg-vibe').onclick = () => { store.set('pb_vibe', store.get('pb_vibe', '1') === '1' ? '0' : '1'); refreshToggles(); if (navigator.vibrate) navigator.vibrate(30); };
+  $('tg-full').onclick = toggleFullscreen;
+  $('btn-full-menu').onclick = toggleFullscreen;
+  const openSettings = (inGame) => { settingsInGame = inGame; $('in-game-actions').classList.toggle('hidden', !inGame); refreshToggles(); openModal('modal-settings'); };
+  $('btn-settings').onclick = () => { Audio.init(); Audio.play('click'); openSettings(false); };
+  $('btn-game-settings').onclick = () => { Audio.play('click'); openSettings(true); };
+  $('btn-restart').onclick = () => { Audio.play('click'); closeModal('modal-settings'); startLevel(currentLevel); };
+  $('btn-exit').onclick = () => { Audio.play('click'); closeModal('modal-settings'); openHome(); };
 
-  // --- niveau ---
+  // ============================== profil ==============================
+  function openProfile() {
+    const p = Storage.player;
+    $('prof-avatar').textContent = avatarOf();
+    $('rename-input').value = p.name;
+    $('prof-score').textContent = Storage.totalScore();
+    $('prof-done').textContent = p.progress.filter((r) => r.completed).length;
+    $('avatars').innerHTML = AVATARS.map((a) => `<button type="button" data-a="${a}" class="${a === avatarOf() ? 'sel' : ''}">${a}</button>`).join('');
+    openModal('modal-profile');
+  }
+  $('btn-avatar').onclick = () => { Audio.play('click'); openProfile(); };
+  $('avatars').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    Audio.play('click'); store.set('pb_avatar_' + Storage.player.name.toLowerCase(), b.dataset.a);
+    $('home-avatar').textContent = b.dataset.a; $('prof-avatar').textContent = b.dataset.a;
+    $('avatars').querySelectorAll('button').forEach((x) => x.classList.toggle('sel', x === b));
+  });
+  $('rename-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = $('rename-input').value.trim();
+    if (!name || name === Storage.player.name) return;
+    Audio.play('click'); await Storage.login(name);                // un autre nom = un autre profil (créé s'il n'existe pas)
+    closeModal('modal-profile'); openHome();
+  });
+
+  // ============================== niveau ==============================
+  let tutoOn = false;
   async function startLevel(n) {
     currentLevel = n;
-    levelData = await (await fetch('levels/' + meta.levels[n - 1].file)).json();
-    $('result').classList.add('hidden');
+    levelData = await getLevel(n);
+    $('result').classList.add('hidden'); $('panel-win').classList.add('hidden'); $('panel-lose').classList.add('hidden');
     $('hud-level').textContent = `Niveau ${n}`;
     show('game');
     Game.start(levelData, {
       sfx: (s) => Audio.play(s),
       popup: showPopup,
-      vibrate: (ms) => { if (Audio.sfx && navigator.vibrate) navigator.vibrate(ms); },
-      status: ({ balls, cubes }) => {
-        const ballsEl = $('hud-balls');
-        if (ballsEl.textContent !== String(balls)) { const pill = ballsEl.parentElement; pill.classList.remove('bump'); void pill.offsetWidth; pill.classList.add('bump'); }
-        ballsEl.textContent = balls;
-        $('hud-cubes').innerHTML = `Cubes : <b>${cubes}</b>`;
-      },
+      vibrate: (ms) => { if (store.get('pb_vibe', '1') === '1' && navigator.vibrate) navigator.vibrate(ms); },
+      status: onStatus,
       end: onEnd,
     });
     const tech = levelData.newTech && techByKey(levelData.newTech);
@@ -154,7 +239,39 @@
       banner.innerHTML = `<img src="assets/tech/${tech.key}.svg" alt=""> Nouvelle techno : ${tech.name}`;
       void banner.offsetWidth; banner.classList.remove('hidden');
     }
+    startTuto(n);
   }
+
+  function onStatus({ balls, cubes, powers, armed }) {
+    const ballsEl = $('hud-balls');
+    if (ballsEl.textContent !== String(balls)) { const pill = ballsEl.parentElement; pill.classList.remove('bump'); void pill.offsetWidth; pill.classList.add('bump'); }
+    ballsEl.textContent = balls;
+    $('hud-cubes').innerHTML = `Cubes : <b>${cubes}</b>`;
+    if (tutoOn && levelData && balls < levelData.balls) endTuto();       // premier tir : le tutoriel s'efface
+    for (const [name, id] of [['triple', 'pw-triple'], ['super', 'pw-super']]) {
+      const b = $(id), locked = currentLevel < POWER_UNLOCK[name], used = !locked && !powers[name];
+      b.classList.toggle('locked', locked); b.classList.toggle('used', used); b.classList.toggle('armed', armed === name);
+      b.querySelector('em').textContent = locked ? `🔒 Niv. ${POWER_UNLOCK[name]}` : used ? 'Utilisé' : name === 'triple' ? 'Gratuit ×3' : 'Gratuit';
+    }
+  }
+  $('pw-triple').addEventListener('pointerdown', (e) => { e.preventDefault(); if (currentLevel >= POWER_UNLOCK.triple) { Audio.init(); Audio.play('click'); Game.arm('triple'); } });
+  $('pw-super').addEventListener('pointerdown', (e) => { e.preventDefault(); if (currentLevel >= POWER_UNLOCK.super) { Audio.init(); Audio.play('click'); Game.arm('super'); } });
+
+  // tutoriel du tout premier niveau
+  let tutoTimer = null;
+  function startTuto(n) {
+    endTuto();
+    if (n !== 1 || store.get('pb_tuto') || qs.get('clean')) return;
+    tutoOn = true; $('tuto').classList.remove('hidden');
+    $('tuto-hand').classList.add('hidden');
+    $('tuto-text').textContent = 'Faites tout tomber avant de ne plus avoir de balles !';
+    tutoTimer = setTimeout(() => {
+      $('tuto-text').textContent = 'Touchez pour lancer une balle !';
+      const c = Game.stackCenter(), h = $('tuto-hand');
+      h.style.left = c.x + 'px'; h.style.top = (c.y - 10) + 'px'; h.classList.remove('hidden');
+    }, 2800);
+  }
+  function endTuto() { clearTimeout(tutoTimer); if (tutoOn) store.set('pb_tuto', '1'); tutoOn = false; $('tuto').classList.add('hidden'); }
 
   function showPopup(text, x, y) {
     const el = document.createElement('div');
@@ -164,27 +281,36 @@
     setTimeout(() => el.remove(), 1200);
   }
 
+  // ============================== résultat ==============================
   async function onEnd({ won, score, ballsLeft }) {
-    const total = levelData.balls;
-    const ratio = ballsLeft / total;
-    const stars = won ? (ratio >= 0.5 ? 3 : ratio >= 0.25 ? 2 : 1) : 0;
-    $('result-title').textContent = won ? '🎉 Niveau réussi !' : '💥 Plus de balles !';
-    $('result-text').textContent = won ? `${ballsLeft} balle(s) restante(s) = ${ballsLeft} point(s)` : 'Il reste des cubes sur la table…';
-    $('result-stars').textContent = '';
-    $('result-score').textContent = score;
-    $('btn-result-next').classList.toggle('hidden', !won || currentLevel >= TOTAL_LEVELS);
+    endTuto();
     $('result').classList.remove('hidden');
-    for (let i = 0; i < stars; i++) setTimeout(() => { $('result-stars').insertAdjacentHTML('beforeend', '<span>⭐</span>'); Audio.play('star'); }, 350 + i * 300);
+    if (won) {
+      const ratio = ballsLeft / levelData.balls, stars = ratio >= 0.5 ? 3 : ratio >= 0.25 ? 2 : 1;
+      const done = ((currentLevel - 1) % 10) + 1;
+      $('panel-win').classList.remove('hidden');
+      $('result-score').textContent = score;
+      $('result-text').textContent = `${ballsLeft} balle(s) restante(s) = ${ballsLeft} point(s)`;
+      $('result-stars').textContent = '';
+      $('result-bar').style.width = '0'; $('result-bar-text').textContent = `${done}/10`;
+      setTimeout(() => { $('result-bar').style.width = (done * 10) + '%'; }, 60);
+      setTimeout(() => Audio.play('coin'), 300);
+      for (let i = 0; i < stars; i++) setTimeout(() => { $('result-stars').insertAdjacentHTML('beforeend', '<span>⭐</span>'); Audio.play('star'); }, 500 + i * 300);
+    } else {
+      $('lose-ribbon').textContent = `NIVEAU ${currentLevel}`;
+      $('panel-lose').classList.remove('hidden');
+    }
     await Storage.saveResult(currentLevel, score, won);
   }
-
-  $('btn-result-menu').onclick = () => { Audio.play('click'); openMenu(); };
+  const goNext = () => { Audio.play('click'); if (currentLevel >= TOTAL_LEVELS) openHome(); else openLevelModalAndStart(currentLevel + 1); };
+  async function openLevelModalAndStart(n) { $('result').classList.add('hidden'); startLevel(n); }
+  $('btn-result-next').onclick = goNext;
+  $('btn-result-menu').onclick = () => { Audio.play('click'); openHome(); };
   $('btn-result-retry').onclick = () => { Audio.play('click'); startLevel(currentLevel); };
-  $('btn-result-next').onclick = () => { Audio.play('click'); startLevel(currentLevel + 1); };
-  $('btn-restart').onclick = () => { Audio.play('click'); startLevel(currentLevel); };
-  $('btn-exit').onclick = () => { Audio.play('click'); openMenu(); };
+  $('btn-lose-retry').onclick = () => { Audio.play('click'); startLevel(currentLevel); };
+  $('btn-lose-menu').onclick = () => { Audio.play('click'); openHome(); };
 
-  // --- contrôles : glisser pour viser, relâcher pour tirer ---
+  // ============================== contrôles : glisser pour viser, relâcher pour tirer ==============================
   const canvas = $('canvas');
   const toLogical = (e) => {
     const r = canvas.getBoundingClientRect();
@@ -208,18 +334,65 @@
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', () => { Game.aiming = false; });
 
-  // clavier : ←/→ orienter le canon, Espace tirer
+  // clavier : ←/→ orienter le canon, Espace tirer, 1 = tir triple, 2 = super balle
   const keys = new Set();
   addEventListener('keydown', (e) => {
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
     keys.add(e.key.toLowerCase());
+    if (!$('screen-game').classList.contains('active')) return;
     if (e.key === ' ' || e.key === 'Enter') { Audio.init(); Game.fire(); e.preventDefault(); }
+    if (e.key === '1' && currentLevel >= POWER_UNLOCK.triple) Game.arm('triple');
+    if (e.key === '2' && currentLevel >= POWER_UNLOCK.super) Game.arm('super');
   });
   addEventListener('keyup', (e) => keys.delete(e.key.toLowerCase()));
   setInterval(() => {
-    if (!$('screen-game').classList.contains('active') || document.activeElement === $('name-input')) return;
+    if (!$('screen-game').classList.contains('active')) return;
     if (keys.has('arrowleft') || keys.has('a') || keys.has('q')) Game.rotate(-0.02);
     if (keys.has('arrowright') || keys.has('d')) Game.rotate(0.02);
   }, 16);
 
-  window.PB = { startLevel, openMenu }; // pratique pour les tests
+  // ============================== raccourcis de développement ==============================
+  // /?name=Ada  -> connexion directe · &level=8 -> niveau direct · &autoplay=1 -> robot · &clean=1 -> sans aide · &screen=menu|home
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('clean')) stage.classList.add('clean');
+  if (qs.get('name')) {
+    store.set('pb_terms', '1');
+    ready.then(async () => {
+      await Storage.login(qs.get('name'));
+      const lvl = parseInt(qs.get('level'), 10);
+      if (lvl >= 1 && lvl <= TOTAL_LEVELS) { await startLevel(lvl); if (qs.get('autoplay') === 'instant') fastForward(); else if (qs.get('autoplay')) autoplay(); }
+      else if (qs.get('screen') === 'menu') openMenu();
+      else openHome();
+    });
+  } else route();
+
+  // Démo « instantanée » : joue tout le niveau d'un coup (pour obtenir l'écran de résultat dans une capture)
+  function fastForward() {
+    Game._advance(500);
+    for (let k = 0; k < 60; k++) {
+      const d = Game._debug();
+      if (d.finished || !d.cubes.length || !d.ballsLeft) break;
+      const maxY = Math.max(...d.cubes.map((c) => c.position.y));
+      const c = d.cubes.filter((x) => x.position.y > maxY - 30)[0];
+      Game.setAimToward(c.position.x, c.position.y); Game._advance(350); Game.fire(); Game._advance(2200);
+    }
+    Game._advance(3500);
+  }
+
+  // Démo : un petit robot vise la pièce la plus basse de l'avant toutes les 0,7 s
+  function autoplay() {
+    const timer = setInterval(() => {
+      const d = Game._debug();
+      if (d.finished || !d.cubes.length) return clearInterval(timer);
+      const minZ = Math.min(...d.cubes.map((c) => c.z));
+      const front = d.cubes.filter((c) => c.z <= minZ + 1);
+      const maxY = Math.max(...front.map((c) => c.position.y));
+      const low = front.filter((c) => c.position.y > maxY - 35);
+      const c = low[Math.floor(Math.random() * low.length)];
+      Game.setAimToward(c.position.x, c.position.y - c.z * 0.45);
+      Game.fire();
+    }, qs.get('autoplay') === 'fast' ? 250 : 700);
+  }
+
+  window.PB = { startLevel, openMenu, openHome }; // pratique pour les tests
 })();

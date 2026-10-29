@@ -112,8 +112,13 @@ const Storage = (() => {
     return player;
   }
 
+  // Sans serveur (hébergement statique) : classement des joueurs de CET appareil
+  function localLeaderboard() {
+    return Object.values(readLocal()).map((r) => ({ name: r.name, total: r.progress.reduce((s, p) => s + p.bestScore, 0), levels: r.progress.filter((p) => p.completed).length }))
+      .sort((a, b) => b.total - a.total || b.levels - a.levels).slice(0, 10);
+  }
   async function leaderboard() {
-    try { return tauri ? await sqlLeaderboard() : await api('/api/leaderboard'); } catch (e) { return []; }
+    try { return tauri ? await sqlLeaderboard() : await api('/api/leaderboard'); } catch (e) { return localLeaderboard(); }
   }
 
   return {

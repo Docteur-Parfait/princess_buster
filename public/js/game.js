@@ -26,6 +26,7 @@ const Game = (() => {
   const ctx = canvas.getContext('2d');
   let DPR = 2;
   let levelRows = 5, levelId = 1, lite = false;
+  let powers = { triple: 1, super: 1 }, armed = null;   // bonus : 1 utilisation par niveau
 
   // Plein écran : la scène logique (>= 540 x 700) épouse exactement la fenêtre, en portrait comme en paysage.
   // Retourne le facteur d'échelle CSS à appliquer à la scène.
@@ -104,7 +105,7 @@ const Game = (() => {
     engine.gravity.y = 1.1;
     cubes = []; shots = []; ghosts = []; particles = [];
     ballsLeft = lvl.balls; lastShot = -1000; finished = false; settleTimer = 0; aiming = false; shake = 0; flash = 0; comboCount = 0;
-    aim = 0; target = null;
+    aim = 0; target = null; powers = { triple: 1, super: 1 }; armed = null;
 
     const { pieces, rows, cols } = piecesOf(lvl);
     levelRows = rows; levelId = lvl.id || 1; layout();
@@ -140,7 +141,13 @@ const Game = (() => {
   }
 
   function stop() { running = false; }
-  function emitStatus() { callbacks.status && callbacks.status({ balls: ballsLeft, cubes: cubes.length }); }
+  function emitStatus() { callbacks.status && callbacks.status({ balls: ballsLeft, cubes: cubes.length, powers: { ...powers }, armed }); }
+
+  // bonus : « triple » = 3 balles d'un coup, « super » = balle plus puissante qui touche aussi les voisines
+  function arm(name) {
+    if (!running || finished || !powers[name]) return armed;
+    armed = armed === name ? null : name; emitStatus(); return armed;
+  }
 
   // --- visée ---
   const muzzle = () => ({ x: cannonX + Math.sin(aim) * MUZZLE, y: CANNON_Y - Math.cos(aim) * MUZZLE });
@@ -183,10 +190,16 @@ const Game = (() => {
     if (!canFire()) return;
     lastShot = time; ballsLeft--;
     const m = muzzle(), t = currentTarget();
-    const d = Math.hypot(t.x - m.x, t.y - m.y) || 1;
-    shots.push({ x: m.x, y: m.y, sx: m.x, sy: m.y, tx: t.x, ty: t.y, vx: (t.x - m.x) / d * BALL_SPEED, vy: (t.y - m.y) / d * BALL_SPEED, total: d, trail: [] });
-    recoil = 1; shake = Math.max(shake, 4);
-    burst(m.x, m.y, '#ffd23f', 10);
+    const mode = armed && powers[armed] > 0 ? armed : null;
+    if (mode) powers[mode]--;
+    armed = null;
+    const targets = mode === 'triple' ? [t, { x: t.x - CUBE, y: t.y }, { x: t.x + CUBE, y: t.y }] : [t];
+    for (const tg of targets) {
+      const d = Math.hypot(tg.x - m.x, tg.y - m.y) || 1;
+      shots.push({ x: m.x, y: m.y, sx: m.x, sy: m.y, tx: tg.x, ty: tg.y, vx: (tg.x - m.x) / d * BALL_SPEED, vy: (tg.y - m.y) / d * BALL_SPEED, total: d, trail: [], power: mode === 'super' ? 2.4 : 1 });
+    }
+    recoil = 1; shake = Math.max(shake, mode ? 7 : 4);
+    burst(m.x, m.y, mode ? '#ff3fa4' : '#ffd23f', mode ? 18 : 10);
     callbacks.sfx && callbacks.sfx('shoot');
     emitStatus();
   }
@@ -199,13 +212,16 @@ const Game = (() => {
     if (!c) { burst(s.tx, s.ty, '#ffffff', 6); callbacks.sfx && callbacks.sfx('hit'); return; }
     burst(s.tx, s.ty, c.tech.color, 14);
     callbacks.sfx && callbacks.sfx('hit');
-    push(c, s);
+    push(c, s, 1);
+    if (s.power > 1) for (const o of cubes) {                       // super balle : les voisines sont aussi poussées
+      if (o !== c && o.layer === c.layer && Math.hypot(o.position.x - c.position.x, visY(o) - visY(c)) < CUBE * 1.5) push(o, s, 0.6);
+    }
   }
 
   // La direction dépend du tir : vers le fond (z), mais aussi vers la gauche/droite selon l'angle d'arrivée
   // de la balle et l'endroit touché. Les pièces posées dessus NE suivent PAS : elles se déséquilibrent (voir step).
-  function push(c, s) {
-    const m = c.pmass, len = Math.hypot(s.vx, s.vy) || 1;
+  function push(c, s, f) {
+    const m = c.pmass / (f * (s.power || 1)), len = Math.hypot(s.vx, s.vy) || 1;
     const ux = s.vx / len, uy = -s.vy / len;                                   // uy > 0 : la balle s'éloigne vers le fond
     const off = Math.max(-1, Math.min(1, (s.tx - c.position.x) / (c.pw * CUBE / 2)));   // -1 bord gauche … +1 bord droit
     Sleeping.set(c, false);
@@ -571,7 +587,7 @@ const Game = (() => {
     ctx.restore();
     ctx.save(); ctx.translate(s.x, s.y);
     ctx.shadowColor = '#ff3fa4'; ctx.shadowBlur = 20;
-    const r = BALL_R * sc, g = ctx.createRadialGradient(-r / 3, -r / 3, 1, 0, 0, r + 2);
+    const r = BALL_R * sc * (s.power > 1 ? 1.4 : 1), g = ctx.createRadialGradient(-r / 3, -r / 3, 1, 0, 0, r + 2);
     g.addColorStop(0, '#fff'); g.addColorStop(.3, '#ff9ad6'); g.addColorStop(.7, '#ff3fa4'); g.addColorStop(1, '#b0126b');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fill(); ctx.shadowBlur = 0;
     ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 3 * sc; ctx.beginPath(); ctx.arc(0, 0, r - 1.5, 0, 7); ctx.stroke();
@@ -643,6 +659,8 @@ const Game = (() => {
     get W() { return W; }, get H() { return H; }, fit, loadTechs, start, stop, fire, rotate, setAimToward, canFire,
     get cannonX() { return cannonX; }, get cannonY() { return CANNON_Y - MUZZLE; },   // cannonY = hauteur de la bouche
     set aiming(v) { aiming = v; }, get aiming() { return aiming; },
+    arm, get powers() { return { ...powers }; }, get armed() { return armed; },
+    stackCenter() { if (!cubes || !cubes.length) return { x: W / 2, y: PLATFORM_Y - 100 }; const xs = cubes.map((c) => c.position.x), ys = cubes.map(visY); return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }; },
     get ballsLeft() { return ballsLeft; }, get cubesLeft() { return cubes ? cubes.length : 0; },
     // aide au debug / tests automatiques
     _debug: () => ({ cubes, shots, ballsLeft, finished, aim, time }),

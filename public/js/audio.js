@@ -40,6 +40,7 @@ const Audio = (() => {
     clear: (t) => [523, 659, 784, 1047].forEach((f, i) => tone(f, t + i * 0.08, 0.15, { vol: 0.18 })),
     win: (t) => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, t + i * 0.11, 0.22, { vol: 0.22, type: 'triangle' })),
     lose: (t) => [392, 330, 262, 196].forEach((f, i) => tone(f, t + i * 0.18, 0.3, { vol: 0.25, type: 'sawtooth' })),
+    coin: (t) => [988, 1319, 1760].forEach((f, i) => tone(f, t + i * 0.07, 0.12, { vol: 0.16, type: 'square' })),
     star: (t) => tone(1200, t, 0.15, { vol: 0.15, slide: 500 }),
   };
 

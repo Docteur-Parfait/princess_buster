@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/assets/logo.webp" alt="Princess Buster" width="220">
+<img src="public/assets/logo.png" alt="Princess Buster" width="220">
 
 # Princess Buster
 
@@ -21,10 +21,10 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/01-accueil.png" alt="Écran d'accueil" width="23%">
+  <img src="docs/screenshots/01-accueil.png" alt="Accueil" width="23%">
   <img src="docs/screenshots/02-niveaux.png" alt="Choix du niveau" width="23%">
   <img src="docs/screenshots/03-partie-niveau-3.png" alt="Niveau 3" width="23%">
-  <img src="docs/screenshots/04-partie-niveau-12.png" alt="Niveau 12 avec pièces cachées" width="23%">
+  <img src="docs/screenshots/06-bien-joue.png" alt="Bien Joué" width="23%">
 </p>
 
 ## Sommaire
@@ -55,11 +55,15 @@ Une pile de cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) est 
 
 | Accueil | Choix du niveau |
 | :---: | :---: |
-| <img src="docs/screenshots/01-accueil.png" width="300"> | <img src="docs/screenshots/02-niveaux.png" width="300"> |
+| <img src="docs/screenshots/01-accueil.png" width="300" alt="Accueil"> | <img src="docs/screenshots/02-niveaux.png" width="300" alt="Choix du niveau"> |
 
 | Niveau 3 : formats variés | Niveau 12 : pièces cachées derrière |
 | :---: | :---: |
-| <img src="docs/screenshots/03-partie-niveau-3.png" width="300"> | <img src="docs/screenshots/04-partie-niveau-12.png" width="300"> |
+| <img src="docs/screenshots/03-partie-niveau-3.png" width="300" alt="Niveau 3"> | <img src="docs/screenshots/04-partie-niveau-12.png" width="300" alt="Niveau 12"> |
+
+| Écran « Bien Joué » |
+| :---: |
+| <img src="docs/screenshots/06-bien-joue.png" width="300" alt="Bien Joué"> |
 
 Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 
@@ -75,9 +79,19 @@ Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 - 🔒 **Aucun cube suspendu dans le vide** : chaque pièce repose sur une autre ou sur la table (vérifié par `npm test`)
 - 📱 **Plein écran adaptatif** : téléphone, tablette, ordinateur, en portrait comme en paysage (pas de cadre de téléphone dessiné)
 - 💾 **Profils et scores en SQLite** : nom du joueur demandé au lancement, meilleurs scores, déblocage progressif, classement
+- 🏠 **Parcours complet** : splash, conditions, **accueil** avec le niveau à jouer, fiche de niveau, paramètres (son, musique, vibration), profil avec avatars, écran « Bien Joué » et tutoriel du premier niveau
+- 🎁 **Bonus** : **tir triple** (niveau 3) et **super balle** (niveau 10), un de chaque par niveau
 - 🔊 **Musique de fond et bruitages** synthétisés en WebAudio (aucun fichier audio), avec boutons pour les couper
 - ✨ Particules, combos (« Super ! », « INCROYABLE ! »), traînée de balle, vibration sur mobile
 - 🧩 **0 dépendance npm** : Node.js et un navigateur suffisent (Matter.js est fourni dans `public/vendor/`)
+
+## Télécharger et jouer
+
+- 🤖 **Android** : télécharge le fichier `.apk` depuis la page [**Releases**](https://github.com/princesse-aku/princess_buster/releases) puis installe-le (autorise l'installation depuis cette source). Pour le compiler toi-même : [docs/ANDROID.md](docs/ANDROID.md).
+- 🌐 **Navigateur** : [déploiement Vercel](docs/DEPLOY-VERCEL.md) (jouable sur téléphone, tablette et PC, installable comme une application).
+- 💻 **En local** : voir ci-dessous.
+
+[![Déployer avec Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fprincesse-aku%2Fprincess_buster)
 
 ## Démarrage rapide
 
@@ -165,7 +179,7 @@ princess_buster/
 │   │   ├── audio.js         # musique + bruitages synthétisés (WebAudio)
 │   │   └── storage.js       # sauvegarde : API SQLite avec repli localStorage
 │   ├── levels/              # index.json + level001..200.json
-│   ├── assets/              # logo.webp + tech/*.svg (40 logos de technologies)
+│   ├── assets/              # logo.png + tech/*.svg (40 logos de technologies)
 │   └── vendor/matter.min.js
 ├── server/server.js         # serveur de test : fichiers statiques + API SQLite (node:sqlite)
 ├── tools/
@@ -215,7 +229,7 @@ Lis le [guide de contribution](CONTRIBUTING.md) et le [code de conduite](CODE_OF
 ## Licence et crédits
 
 - Code : [licence MIT](LICENSE) © 2026 princesse-aku
-- Le **logo « Princess Buster »** (`public/assets/logo.webp`) n'est **pas** couvert par la licence MIT : tous droits réservés à l'auteur du projet
+- Le **logo « Princess Buster »** (`public/assets/logo.png`) n'est **pas** couvert par la licence MIT : tous droits réservés à l'auteur du projet
 - Logos des technologies : [Devicon](https://devicon.dev) (MIT) ; les marques appartiennent à leurs propriétaires respectifs
 - Physique : [Matter.js](https://brm.io/matter-js/) (MIT)
 - Inspiration de gameplay : les jeux de tir de cubes en piles pour mobile. Aucun asset de ces jeux n'est utilisé ici

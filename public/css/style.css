@@ -109,7 +109,7 @@ html, body { margin: 0; height: 100%; overscroll-behavior: none; position: fixed
 @keyframes popup { 0% { opacity: 0; transform: translate(-50%, 20px) scale(.3); } 25% { opacity: 1; transform: translate(-50%, -10px) scale(1.25) rotate(-4deg); } 100% { opacity: 0; transform: translate(-50%, -80px) scale(1); } }
 
 /* Fenêtres */
-.modal { position: absolute; inset: 0; background: radial-gradient(circle, rgba(122, 44, 255, .55), rgba(5, 4, 31, .85)); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.modal { position: absolute; inset: 0; background: radial-gradient(circle, rgba(10, 8, 56, .45), rgba(5, 4, 31, .82)); display: flex; align-items: center; justify-content: center; z-index: 10; }
 .panel { width: 440px; background: linear-gradient(#4b44f0, var(--indigo) 60%, #170f6a); border: 6px solid var(--gold); border-radius: 30px; padding: 26px 22px; text-align: center; box-shadow: 0 0 0 5px var(--purple), 0 10px 0 5px var(--purple), 0 0 60px rgba(255, 63, 164, .6); animation: pop .45s cubic-bezier(.3, 1.6, .5, 1); position: relative; }
 @keyframes pop { from { transform: scale(.4) rotate(-6deg); opacity: 0; } }
 .panel h2 { margin: 0 0 8px; font-size: 42px; color: var(--gold-light); text-shadow: 0 4px 0 var(--purple), 0 0 22px var(--magenta); }

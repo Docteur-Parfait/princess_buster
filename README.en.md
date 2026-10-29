@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/assets/logo.webp" alt="Princess Buster" width="220">
+<img src="public/assets/logo.png" alt="Princess Buster" width="220">
 
 # Princess Buster
 
@@ -109,6 +109,6 @@ Contributions are welcome! Read the [contributing guide](CONTRIBUTING.md) (Frenc
 ## License and credits
 
 - Code: [MIT](LICENSE) © 2026 princesse-aku
-- The **"Princess Buster" logo** (`public/assets/logo.webp`) is **not** covered by the MIT license: all rights reserved by the project author
+- The **"Princess Buster" logo** (`public/assets/logo.png`) is **not** covered by the MIT license: all rights reserved by the project author
 - Technology logos: [Devicon](https://devicon.dev) (MIT); trademarks belong to their respective owners
 - Physics: [Matter.js](https://brm.io/matter-js/) (MIT)

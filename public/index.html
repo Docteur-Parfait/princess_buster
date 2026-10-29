@@ -6,14 +6,32 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0a0838">
   <title>Princess Buster</title>
-  <link rel="icon" href="assets/logo.webp" type="image/webp">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Princess Buster">
+  <meta name="description" content="Fais tomber toutes les technos ! Jeu de tir sur des piles de cubes de langages et frameworks : 200 niveaux, 40 technologies, gratuit et open source.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Princess Buster - Fais tomber toutes les technos !">
+  <meta property="og:description" content="200 niveaux, 40 technologies, 12 decors. Gratuit, open source, sur mobile, tablette et PC.">
+  <meta property="og:image" content="assets/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/home.css">
 </head>
 <body>
   <div id="stage">
-    <!-- 1. Nom du joueur -->
-    <section id="screen-name" class="screen active">
-      <img class="logo big" src="assets/logo.webp" alt="Princess Buster">
+
+    <!-- 0. Splash -->
+    <section id="screen-splash" class="screen active">
+      <img class="logo big" src="assets/logo.png" alt="Princess Buster">
+      <div class="loader"><i></i></div>
+    </section>
+
+    <!-- 1. Nom du joueur (première fois ou changement de joueur) -->
+    <section id="screen-name" class="screen">
+      <img class="logo big" src="assets/logo.png" alt="Princess Buster">
       <p class="tagline">Fais tomber toutes les technos !</p>
       <form id="name-form">
         <label for="name-input">Ton nom</label>
@@ -22,55 +40,173 @@
       </form>
     </section>
 
-    <!-- 2. Choix du niveau -->
-    <section id="screen-menu" class="screen">
-      <img class="logo small" src="assets/logo.webp" alt="Princess Buster">
-      <div class="profile"><span id="player-name"></span><span class="total">⭐ <b id="total-score">0</b></span></div>
-      <div id="level-grid"></div>
-      <div class="menu-actions">
-        <button class="btn blue" id="btn-leaderboard">🏆 Classement</button>
-        <button class="btn round" id="btn-full-menu" title="Plein écran">⛶</button>
-        <button class="btn round" id="btn-music-menu" title="Musique">🎵</button>
-        <button class="btn round" id="btn-sfx-menu" title="Bruitages">🔊</button>
-        <button class="btn red small" id="btn-change-player">Changer de joueur</button>
+    <!-- 2. Accueil -->
+    <section id="screen-home" class="screen">
+      <div class="home-bg"><i class="sun"></i><i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i><i class="hill h1"></i><i class="hill h2"></i><i class="ground"></i></div>
+      <header class="topbar">
+        <button class="avatar-btn" id="btn-avatar" title="Profil"><span id="home-avatar">👑</span></button>
+        <div class="pill coin"><span class="coin-icon"></span><b id="home-score">0</b></div>
+        <div class="pill lvl-pill"><span id="home-name">Joueur</span></div>
+        <button class="btn round" id="btn-settings" title="Paramètres">⚙</button>
+      </header>
+      <div class="home-center">
+        <div class="floaters" id="floaters"></div>
+        <div class="podium">
+          <div class="mini-stack" id="mini-stack"></div>
+          <div class="podium-top"></div>
+          <div class="podium-pole"></div>
+          <div class="podium-base"></div>
+          <div class="plate"><small>NIVEAU</small><b id="home-level">1</b></div>
+        </div>
       </div>
-      <div id="leaderboard" class="modal hidden">
-        <div class="panel"><h2>🏆 Classement</h2><ol id="leaderboard-list"></ol><button class="btn green" id="btn-close-lb">Fermer</button></div>
+      <div class="home-actions">
+        <button class="btn green big" id="btn-play">Jouer</button>
+        <div class="row">
+          <button class="btn blue small" id="btn-levels">🗺️ Niveaux</button>
+          <button class="btn blue small" id="btn-leaderboard">🏆 Classement</button>
+        </div>
       </div>
     </section>
 
-    <!-- 3. Jeu -->
+    <!-- 3. Choix du niveau -->
+    <section id="screen-menu" class="screen">
+      <div class="menu-head">
+        <button class="btn round small-round" id="btn-menu-back" title="Accueil">◀</button>
+        <img class="logo small" src="assets/logo.png" alt="Princess Buster">
+        <button class="btn round small-round" id="btn-full-menu" title="Plein écran">⛶</button>
+      </div>
+      <div class="profile"><span id="player-name"></span><span class="total">⭐ <b id="total-score">0</b></span></div>
+      <div id="level-grid"></div>
+    </section>
+
+    <!-- 4. Jeu -->
     <section id="screen-game" class="screen">
       <canvas id="canvas"></canvas>
       <div class="hud">
         <div class="pill"><span class="ball-icon"></span><b id="hud-balls">0</b></div>
         <div class="pill lvl-pill"><span id="hud-level">Niveau 1</span></div>
         <div class="hud-buttons">
-          <button class="btn round" id="btn-full" title="Plein écran">⛶</button>
-          <button class="btn round" id="btn-restart" title="Recommencer">⟳</button>
-          <button class="btn round" id="btn-music" title="Musique">🎵</button>
-          <button class="btn round" id="btn-sfx" title="Bruitages">🔊</button>
-          <button class="btn round red" id="btn-exit" title="Quitter">✕</button>
+          <button class="btn round" id="btn-game-settings" title="Paramètres">⚙</button>
         </div>
       </div>
       <div id="tech-banner" class="hidden"></div>
       <div id="hud-cubes" class="pill small">Cubes : <b>0</b></div>
+      <button class="pw pw-left" id="pw-triple" title="Tir triple : trois balles d'un coup"><span class="pw-ico triple"><i></i><i></i><i></i></span><em>Tir ×3</em></button>
+      <button class="pw pw-right" id="pw-super" title="Super balle : pousse plus fort et touche les voisins"><span class="pw-ico super">★</span><em>Super</em></button>
       <div class="hint">Glisse pour viser, relâche pour tirer</div>
 
+      <!-- tutoriel du premier niveau -->
+      <div id="tuto" class="hidden">
+        <div class="bubble" id="tuto-text"></div>
+        <div class="hand" id="tuto-hand">👆</div>
+      </div>
+
+      <!-- résultat -->
       <div id="result" class="modal hidden">
-        <div class="panel">
-          <h2 id="result-title"></h2>
+        <div class="panel win hidden" id="panel-win">
+          <h2 class="win-title">Bien Joué</h2>
           <div id="result-stars" class="stars"></div>
-          <p id="result-text"></p>
-          <div class="score-big"><span id="result-score">0</span> <small>pts</small></div>
-          <div class="row">
-            <button class="btn blue" id="btn-result-menu">Menu</button>
-            <button class="btn orange" id="btn-result-retry">Rejouer</button>
-            <button class="btn green" id="btn-result-next">Suivant ▶</button>
+          <div class="coins">
+            <svg viewBox="0 0 160 130" width="190" height="154" aria-hidden="true">
+              <defs><radialGradient id="cg" cx="35%" cy="30%"><stop offset="0" stop-color="#fff6b0"/><stop offset=".55" stop-color="#ffc21a"/><stop offset="1" stop-color="#d98a00"/></radialGradient></defs>
+              <g stroke="#a86a00" stroke-width="3">
+                <ellipse cx="50" cy="100" rx="42" ry="14" fill="url(#cg)"/><ellipse cx="50" cy="92" rx="42" ry="14" fill="url(#cg)"/><ellipse cx="50" cy="84" rx="42" ry="14" fill="url(#cg)"/>
+                <ellipse cx="112" cy="104" rx="38" ry="13" fill="url(#cg)"/><ellipse cx="112" cy="96" rx="38" ry="13" fill="url(#cg)"/>
+                <ellipse cx="80" cy="74" rx="40" ry="14" fill="url(#cg)"/><ellipse cx="80" cy="66" rx="40" ry="14" fill="url(#cg)"/><ellipse cx="80" cy="58" rx="40" ry="14" fill="url(#cg)"/>
+                <circle cx="80" cy="40" r="26" fill="url(#cg)"/><path d="M80 24l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#fff3a0" stroke="#a86a00" stroke-width="2"/>
+              </g>
+            </svg>
+            <div class="coin-gain">+<span id="result-score">0</span></div>
           </div>
+          <p id="result-text"></p>
+          <div class="progress"><div class="bar"><i id="result-bar"></i><span id="result-bar-text">1/10</span></div><div class="chest">⭐<small>Récompense</small></div></div>
+          <p class="tap-continue" id="btn-result-next">Appuyez pour Continuer</p>
+          <div class="row"><button class="btn blue small" id="btn-result-menu">Accueil</button><button class="btn orange small" id="btn-result-retry">Rejouer</button></div>
+        </div>
+        <div class="panel lose hidden" id="panel-lose">
+          <div class="ribbon" id="lose-ribbon">NIVEAU 1</div>
+          <div class="panel-inner"><h3>Plus de balles !</h3><p>Il reste des cubes sur la table… Retente ta chance, tu peux le faire !</p></div>
+          <button class="btn green big" id="btn-lose-retry">Réessaie</button>
+          <button class="btn blue small" id="btn-lose-menu">Accueil</button>
         </div>
       </div>
     </section>
+
+    <!-- Fenêtres -->
+    <div id="modal-level" class="modal hidden">
+      <div class="panel">
+        <div class="ribbon" id="lv-ribbon">NIVEAU 1</div>
+        <button class="close" data-close="modal-level">✕</button>
+        <div class="panel-inner">
+          <div class="lv-theme" id="lv-theme"></div>
+          <ul class="lv-info">
+            <li><span>🎯 Balles</span><b id="lv-balls">0</b></li>
+            <li><span>🧱 Pièces</span><b id="lv-pieces">0</b></li>
+            <li><span>🏆 Meilleur score</span><b id="lv-best">–</b></li>
+          </ul>
+          <div class="lv-tech" id="lv-tech"></div>
+        </div>
+        <button class="btn green big" id="btn-level-play">Jouer</button>
+      </div>
+    </div>
+
+    <div id="modal-settings" class="modal hidden">
+      <div class="panel">
+        <div class="ribbon">Paramètres</div>
+        <button class="close" data-close="modal-settings">✕</button>
+        <div class="panel-inner">
+          <div class="toggles">
+            <label><button class="btn round" id="tg-sfx">🔊</button><span>Son</span></label>
+            <label><button class="btn round" id="tg-music">🎵</button><span>Musique</span></label>
+            <label><button class="btn round" id="tg-vibe">📳</button><span>Vibration</span></label>
+            <label><button class="btn round" id="tg-full">⛶</button><span>Plein écran</span></label>
+          </div>
+          <hr>
+          <a class="btn green wide" id="btn-contact" href="https://github.com/princesse-aku/princess_buster/issues/new/choose" target="_blank" rel="noopener">🎧 Contactez-nous</a>
+          <button class="btn green wide" id="btn-lang" disabled>🌐 Langue : Français</button>
+          <div class="in-game-actions hidden" id="in-game-actions">
+            <button class="btn orange small" id="btn-restart">⟳ Recommencer</button>
+            <button class="btn red small" id="btn-exit">✕ Quitter le niveau</button>
+          </div>
+          <a class="legal" id="btn-terms" href="#">Conditions et confidentialité</a>
+          <small class="version">v0.1.0 · open source (MIT)</small>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-profile" class="modal hidden">
+      <div class="panel">
+        <div class="ribbon">Profil</div>
+        <button class="close" data-close="modal-profile">✕</button>
+        <div class="panel-inner">
+          <div class="prof-top">
+            <div class="avatar big"><span id="prof-avatar">👑</span></div>
+            <form id="rename-form"><input id="rename-input" maxlength="20" autocomplete="off" aria-label="Nom du joueur"><button class="btn small" type="submit">✓</button></form>
+          </div>
+          <div class="prof-stats"><span>⭐ <b id="prof-score">0</b> pts</span><span>✅ <b id="prof-done">0</b>/200 niveaux</span></div>
+          <div class="avatars" id="avatars"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-terms" class="modal hidden">
+      <div class="panel">
+        <img class="terms-logo" src="assets/logo.png" alt="">
+        <div class="panel-inner terms-box">
+          <p id="terms-welcome">Bienvenue dans Princess Buster ! Veuillez lire et accepter nos <a href="#" id="link-terms">Conditions d'utilisation</a> et notre <a href="#" id="link-privacy">Politique de confidentialité</a>.</p>
+          <div id="terms-detail" class="hidden"></div>
+        </div>
+        <button class="btn green big" id="btn-accept">Accepter</button>
+        <button class="btn blue small hidden" id="btn-terms-back">◀ Retour</button>
+      </div>
+    </div>
+
+    <div id="leaderboard" class="modal hidden">
+      <div class="panel"><div class="ribbon">Classement</div><button class="close" data-close="leaderboard">✕</button>
+        <div class="panel-inner"><ol id="leaderboard-list"></ol></div>
+      </div>
+    </div>
+
   </div>
 
   <script src="vendor/matter.min.js"></script>

@@ -1,0 +1,12 @@
+# Fichiers inutiles pour le déploiement statique (seul public/ est publié)
+node_modules
+src-tauri
+server
+tools
+docs
+data
+dist
+screenshots
+.github
+*.md
+package-lock.json
