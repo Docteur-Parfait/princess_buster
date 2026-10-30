@@ -25,12 +25,7 @@
   };
   const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  // décor de l'accueil : « cyber » (ville néon, par défaut) ou « dev » (bureau du développeur) ; ?home=dev pour comparer
-  (() => {
-    let v = new URLSearchParams(location.search).get('home');
-    if (v === 'dev' || v === 'cyber') store.set('pb_home', v); else v = store.get('pb_home', 'cyber');
-    document.documentElement.dataset.home = v === 'dev' ? 'dev' : 'cyber';
-  })();
+  document.documentElement.dataset.home = 'cyber';               // décor d'accueil : ville néon (le thème sert aux styles de l'accueil)
 
   // --- plein écran : la scène épouse toute la fenêtre (téléphone, tablette, ordinateur ; portrait ou paysage) ---
   function fit() {
