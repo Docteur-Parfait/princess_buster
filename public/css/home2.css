@@ -111,7 +111,7 @@
 .podium .mini-stack { bottom: 128px; }
 .podium .mc { width: 36px; height: 36px; padding: 6px; border-radius: 10px; border-width: 2px; box-shadow: 0 3px 0 rgba(28, 10, 66, .95), inset 0 2px 0 rgba(255, 255, 255, .3); }
 .podium .plate { top: auto; bottom: 18px; min-width: 150px; padding: 4px 18px 6px; }
-.floaters { left: 80px; top: 112px; bottom: auto; width: 380px; height: 300px; margin: 0; transform: none; }
+.floaters { left: 80px; top: 140px; bottom: auto; width: 380px; height: 300px; margin: 0; transform: none; }
 
 /* pastilles crème et bouton Jouer vert à cadre doré (comme la référence) */
 .topbar .pill { background: linear-gradient(#fffaf0, #f3dfb4); border: 3px solid #d9b46a; color: #5a3a12; text-shadow: none; box-shadow: 0 3px 0 rgba(90, 58, 18, .25); }
@@ -135,3 +135,19 @@
 .home-svg .rain.r1 { animation-duration: 12s; animation-delay: -4s; } .home-svg .rain.r2 { animation-duration: 15s; animation-delay: -8s; }
 @keyframes rain-fall { from { transform: translateY(-120px); } to { transform: translateY(470px); } }
 @media (prefers-reduced-motion: reduce) { .home-svg .gear, .home-svg .led, .home-svg .cursor, .home-svg .rain { animation: none; } }
+
+/* choix du décor d'accueil + variante « ville cyber » */
+html[data-home='dev'] #home-cyber, html:not([data-home='dev']) #home-dev { display: none; }
+html[data-home='cyber'] .topbar .pill { background: linear-gradient(rgba(34, 14, 104, .92), rgba(20, 8, 70, .92)); border: 3px solid #5df0ff; color: #fff; box-shadow: 0 0 12px rgba(93, 240, 255, .55); }
+html[data-home='cyber'] .topbar .pill b, html[data-home='cyber'] .topbar .pill span { color: #fff; text-shadow: 0 0 8px rgba(93, 240, 255, .7); }
+.home-svg .tw { animation: tw 3s ease-in-out infinite; } .home-svg .tw.t1 { animation-delay: -1s; } .home-svg .tw.t2 { animation-delay: -2s; }
+@keyframes tw { 50% { opacity: .25; } }
+.home-svg .win { animation: win-blink 5s ease-in-out infinite; } .home-svg .win.w1 { animation-delay: -1.7s; } .home-svg .win.w2 { animation-delay: -3.4s; }
+@keyframes win-blink { 0%, 80%, 100% { opacity: .9; } 88% { opacity: .15; } }
+.home-svg .flick { animation: flick 4s steps(1) infinite; } .home-svg .flick.f1 { animation-delay: -1.3s; } .home-svg .flick.f2 { animation-delay: -2.6s; }
+@keyframes flick { 0%, 92%, 96%, 100% { opacity: 1; } 94%, 98% { opacity: .35; } }
+.home-svg .chev { animation: chev-pulse 1.6s ease-in-out infinite; } .home-svg .chev.c1 { animation-delay: .2s; } .home-svg .chev.c0 { animation-delay: .4s; }
+@keyframes chev-pulse { 50% { opacity: .35; } }
+.home-svg .hl { animation: hl-grow 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: left center; } .home-svg .hl.h1 { animation-delay: -1s; } .home-svg .hl.h2 { animation-delay: -2s; }
+@keyframes hl-grow { 50% { transform: scaleX(.6); } }
+@media (prefers-reduced-motion: reduce) { .home-svg .tw, .home-svg .win, .home-svg .flick, .home-svg .chev, .home-svg .hl { animation: none; } }

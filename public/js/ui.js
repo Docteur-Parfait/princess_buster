@@ -25,13 +25,20 @@
   };
   const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+  // décor de l'accueil : « cyber » (ville néon, par défaut) ou « dev » (bureau du développeur) ; ?home=dev pour comparer
+  (() => {
+    let v = new URLSearchParams(location.search).get('home');
+    if (v === 'dev' || v === 'cyber') store.set('pb_home', v); else v = store.get('pb_home', 'cyber');
+    document.documentElement.dataset.home = v === 'dev' ? 'dev' : 'cyber';
+  })();
+
   // --- plein écran : la scène épouse toute la fenêtre (téléphone, tablette, ordinateur ; portrait ou paysage) ---
   function fit() {
     const r = Game.fit(innerWidth, innerHeight);
     stage.style.width = r.W + 'px'; stage.style.height = r.H + 'px';
     stage.style.setProperty('--s', r.scale);
     const wide = r.W / r.H > 0.75;                                   // paysage : le décor tient en hauteur et se prolonge sur les côtés
-    document.querySelector('.home-svg').setAttribute('preserveAspectRatio', wide ? 'xMidYMax meet' : 'xMidYMax slice');
+    document.querySelectorAll('.home-svg').forEach((v) => v.setAttribute('preserveAspectRatio', wide ? 'xMidYMax meet' : 'xMidYMax slice'));
     stage.style.setProperty('--hk', wide ? r.H / 960 : Math.max(r.W / 540, r.H / 960));
     stage.classList.toggle('wide', r.W >= 760);
     stage.classList.toggle('short', r.H < 820);
