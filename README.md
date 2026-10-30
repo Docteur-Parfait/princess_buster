@@ -47,7 +47,7 @@
 
 Une pile de cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) est posée sur une table. Ton canon, fixe au bas de l'écran, tire des balles : chaque balle **pousse la pièce visée vers le fond**. Elle glisse sur le plateau puis **tombe derrière la table**.
 
-- Tu **gagnes** quand il n'y a plus aucun cube sur la table. Chaque niveau gagné rapporte **20 points**, même s'il ne te reste aucune balle (les étoiles, elles, récompensent les balles économisées).
+- Tu **gagnes** quand il n'y a plus aucun cube sur la table. Chaque niveau gagné rapporte **20 points + 1 point par balle restante** (ex. 5 balles restantes = 20 + 5 = 25 points) (les étoiles, elles, récompensent les balles économisées).
 - Tu **perds** quand tu n'as plus de balles alors qu'il reste des cubes.
 - Les niveaux deviennent plus durs : pièces plus lourdes et plus grandes, et à partir du niveau 5 des **pièces cachées derrière d'autres pièces** (celle de devant, poussée, fait tomber celle de derrière en premier).
 
@@ -196,7 +196,7 @@ princess_buster/
 
 ## API et sauvegarde
 
-Base SQLite (`data/princess-buster.db`), deux tables : `players` (nom unique) et `progress` (meilleur score, tentatives, niveau réussi ; 20 points par niveau gagné).
+Base SQLite (`data/princess-buster.db`), deux tables : `players` (nom unique) et `progress` (meilleur score, tentatives, niveau réussi ; 20 points + balles restantes par niveau gagné).
 
 | Méthode | Route | Rôle |
 | --- | --- | --- |

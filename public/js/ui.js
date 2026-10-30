@@ -13,7 +13,8 @@
   const avatarSrc = (i) => `assets/avatars/av${String((i % AVATAR_COUNT) + 1).padStart(2, '0')}.jpg`;
   function applyAvatar(el, i) { el.innerHTML = `<img src="${avatarSrc(i)}" alt="" draggable="false">`; el.parentElement.style.background = '#f3e3c3'; }
   const THEME_NAMES = { meadow: '🌳 Prairie', night: '🌙 Nuit étoilée', sunset: '🌅 Coucher de soleil', snow: '❄️ Neige', desert: '🏜️ Désert', ocean: '🌊 Océan', candy: '🍭 Bonbons', forest: '🌲 Forêt', space: '🪐 Espace', autumn: '🍂 Automne', volcano: '🌋 Volcan', neon: '🌆 Ville néon' };
-  const POINTS_PER_WIN = 20;                                   // 20 points par niveau gagné, quel que soit le nombre de balles restantes
+  const POINTS_PER_WIN = 20;                                   // score d'un niveau gagné = 20 points + 1 point par balle restante
+  const levelScore = (ballsLeft) => POINTS_PER_WIN + Math.max(0, ballsLeft | 0);
   const blockSize = () => (meta && meta.blockSize) || 5;      // une nouvelle techno est débloquée tous les 5 niveaux
   const techCube = (t) => { const col = Game.techColors(t.key); return `<span class="tcube" style="--c1:${col.c1};--c2:${col.c2}"><img src="${Game.whiteURL(t.key)}" alt="${t.name}"></span>`; };
   const POWER_UNLOCK = { triple: 3, super: 10 };               // niveau d'apparition des bonus
@@ -304,12 +305,13 @@
     if (won) {
       const B = blockSize(), done = ((currentLevel - 1) % B) + 1;
       const ratio = ballsLeft / levelData.balls, stars = ratio >= 0.5 ? 3 : ratio >= 0.25 ? 2 : 1;
+      const pts = levelScore(ballsLeft);
       const reward = levelData.reward && techByKey(levelData.reward);          // techno débloquée à la fin du palier
       const unlockedNow = done === B && reward;
       $('panel-win').classList.remove('hidden');
       $('btn-result-next').classList.toggle('hidden', currentLevel >= TOTAL_LEVELS);          // dernier niveau : pas de suivant
-      $('result-score').textContent = POINTS_PER_WIN;
-      $('result-text').textContent = unlockedNow ? `🎉 Nouvelle techno débloquée : ${reward.name} !` : `Niveau réussi ! +${POINTS_PER_WIN} points`;
+      $('result-score').textContent = pts;
+      $('result-text').textContent = unlockedNow ? `🎉 Nouvelle techno débloquée : ${reward.name} !` : (ballsLeft > 0 ? `Niveau réussi ! ${POINTS_PER_WIN} + ${ballsLeft} balle${ballsLeft > 1 ? 's' : ''} = ${pts} points` : `Niveau réussi ! +${pts} points`);
       const chest = document.querySelector('#panel-win .chest');
       const endKey = meta.levels[Math.ceil(currentLevel / B) * B - 1] && meta.levels[Math.ceil(currentLevel / B) * B - 1].reward;
       const nextT = reward || (endKey && techByKey(endKey));
@@ -325,7 +327,7 @@
       $('lose-ribbon').textContent = `NIVEAU ${currentLevel}`;
       $('panel-lose').classList.remove('hidden');
     }
-    await Storage.saveResult(currentLevel, won ? POINTS_PER_WIN : 0, won);
+    await Storage.saveResult(currentLevel, won ? levelScore(ballsLeft) : 0, won);
   }
   const goNext = () => { Audio.play('click'); if (currentLevel >= TOTAL_LEVELS) openHome(); else openLevelModalAndStart(currentLevel + 1); };
   async function openLevelModalAndStart(n) { $('result').classList.add('hidden'); startLevel(n); }

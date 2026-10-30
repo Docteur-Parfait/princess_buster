@@ -33,7 +33,7 @@
 
 A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits on a table. Your cannon, fixed at the bottom of the screen, fires balls: each ball **pushes the targeted piece toward the back**. It slides along the table and **falls off behind it**.
 
-- You **win** when no cube is left on the table. Every won level earns **20 points**, even with zero balls left (stars reward saved balls).
+- You **win** when no cube is left on the table. Every won level earns **20 points + 1 point per remaining ball** (e.g. 5 balls left = 20 + 5 = 25 points) (stars reward saved balls).
 - You **lose** when you run out of balls while cubes remain.
 - Difficulty ramps up: heavier and bigger pieces, and from level 5 on, **pieces hidden behind other pieces** (pushing the front piece knocks the one behind off first).
 
