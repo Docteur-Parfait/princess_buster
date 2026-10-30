@@ -30,7 +30,9 @@
     const r = Game.fit(innerWidth, innerHeight);
     stage.style.width = r.W + 'px'; stage.style.height = r.H + 'px';
     stage.style.setProperty('--s', r.scale);
-    stage.style.setProperty('--hk', Math.max(r.W / 540, r.H / 960));
+    const wide = r.W / r.H > 0.75;                                   // paysage : le décor tient en hauteur et se prolonge sur les côtés
+    document.querySelector('.home-svg').setAttribute('preserveAspectRatio', wide ? 'xMidYMax meet' : 'xMidYMax slice');
+    stage.style.setProperty('--hk', wide ? r.H / 960 : Math.max(r.W / 540, r.H / 960));
     stage.classList.toggle('wide', r.W >= 760);
     stage.classList.toggle('short', r.H < 820);
   }
