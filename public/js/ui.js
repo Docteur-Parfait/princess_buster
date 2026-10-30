@@ -17,7 +17,7 @@
   const levelScore = (ballsLeft) => POINTS_PER_WIN + Math.max(0, ballsLeft | 0);
   const blockSize = () => (meta && meta.blockSize) || 5;      // une nouvelle techno est débloquée tous les 5 niveaux
   const techCube = (t) => { const col = Game.techColors(t.key); return `<span class="tcube" style="--c1:${col.c1};--c2:${col.c2}"><img src="${Game.whiteURL(t.key)}" alt="${t.name}"></span>`; };
-  const LEADERBOARD_LEVEL = 10;                                // le classement se débloque en atteignant ce niveau
+  const LEADERBOARD_LEVEL = 5;                                 // le classement se débloque en atteignant ce niveau
   const POWER_UNLOCK = { triple: 3, super: 10 };               // niveau d'apparition des bonus
   const store = {
     get(k, d = '') { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } },

@@ -45,7 +45,7 @@ A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits 
 - 🌌 **Simulated depth**: depending on shot angle and impact point a piece falls **behind the table, left or right**; one hidden row behind the front pieces on some levels
 - 🔒 **No floating cubes**: every piece rests on another piece or on the table (checked by `npm test`)
 - 📱 **Adaptive full screen**: phone, tablet, desktop, portrait or landscape
-- ☁️ **Google sign-in, cloud progress and a global leaderboard** (unlocked at level 10) with Firebase / Firestore (optional, see [docs/FIREBASE.md](docs/FIREBASE.md), in French)
+- ☁️ **Google sign-in, cloud progress and a global leaderboard** (unlocked at level 5) with Firebase / Firestore (optional, see [docs/FIREBASE.md](docs/FIREBASE.md), in French)
 - 💾 **SQLite profiles and scores**: player name asked at start, best scores, progressive unlocking, leaderboard
 - 🔊 Background music and SFX synthesized with WebAudio (no audio files)
 - 🧩 **Zero npm dependencies**: Node.js and a browser are enough (Matter.js is bundled)

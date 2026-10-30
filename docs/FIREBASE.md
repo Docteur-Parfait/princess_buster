@@ -48,7 +48,7 @@ Le score d'un niveau gagné vaut **20 points + 1 point par balle restante** ; le
 
 ## Classement
 
-Le classement général (top 50) n'est consultable qu'à partir du **niveau 10** (le bouton 🏆 reste grisé avec un cadenas avant).
+Le classement général (top 50) n'est consultable qu'à partir du **niveau 5** (le bouton 🏆 reste grisé avec un cadenas avant).
 
 ## Index et quotas
 
