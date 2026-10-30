@@ -111,7 +111,7 @@
 .podium .mini-stack { bottom: 128px; }
 .podium .mc { width: 36px; height: 36px; padding: 6px; border-radius: 10px; border-width: 2px; box-shadow: 0 3px 0 rgba(28, 10, 66, .95), inset 0 2px 0 rgba(255, 255, 255, .3); }
 .podium .plate { top: auto; bottom: 18px; min-width: 150px; padding: 4px 18px 6px; }
-.floaters { left: 80px; top: 150px; bottom: auto; width: 380px; height: 300px; margin: 0; transform: none; }
+.floaters { left: 80px; top: 112px; bottom: auto; width: 380px; height: 300px; margin: 0; transform: none; }
 
 /* pastilles crème et bouton Jouer vert à cadre doré (comme la référence) */
 .topbar .pill { background: linear-gradient(#fffaf0, #f3dfb4); border: 3px solid #d9b46a; color: #5a3a12; text-shadow: none; box-shadow: 0 3px 0 rgba(90, 58, 18, .25); }
@@ -121,3 +121,17 @@
 .btn.big.play b { color: #1f5a08; letter-spacing: 1px; text-shadow: 0 2px 0 rgba(255, 255, 255, .55), 0 -1px 0 rgba(0, 0, 0, .15); }
 
 .home-svg { overflow: visible; }
+
+/* accueil « monde du développeur » : petites animations du décor */
+.home-svg .gear { transform-box: fill-box; transform-origin: center; animation: gear-spin 30s linear infinite; }
+.home-svg .gear.g2 { animation-direction: reverse; }
+@keyframes gear-spin { to { transform: rotate(360deg); } }
+.home-svg .led { animation: led-blink 1.8s ease-in-out infinite; }
+.home-svg .led.l1 { animation-delay: -.6s; } .home-svg .led.l2 { animation-delay: -1.2s; }
+@keyframes led-blink { 50% { opacity: .2; } }
+.home-svg .cursor { animation: cursor-blink 1s steps(2) infinite; }
+@keyframes cursor-blink { 50% { opacity: 0; } }
+.home-svg .rain { animation: rain-fall 9s linear infinite; }
+.home-svg .rain.r1 { animation-duration: 12s; animation-delay: -4s; } .home-svg .rain.r2 { animation-duration: 15s; animation-delay: -8s; }
+@keyframes rain-fall { from { transform: translateY(-120px); } to { transform: translateY(470px); } }
+@media (prefers-reduced-motion: reduce) { .home-svg .gear, .home-svg .led, .home-svg .cursor, .home-svg .rain { animation: none; } }
