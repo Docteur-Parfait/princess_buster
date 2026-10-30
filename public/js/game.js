@@ -96,7 +96,8 @@ const Game = (() => {
       const img = new Image();
       const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
       await new Promise((ok) => { img.onload = ok; img.onerror = ok; img.src = url; });
-      techs[t.key] = { ...t, img, white: whiteIcon(img, t.key === 'javascript'), base: baseColor(t.color) };
+      const colorLogo = t.key === 'php';                                   // PHP : on garde son vrai logo (ovale violet + lettres) sur un cube lavande clair
+      techs[t.key] = { ...t, img, white: colorLogo ? img : whiteIcon(img, t.key === 'javascript'), base: colorLogo ? '#b4b8ee' : baseColor(t.color) };
     }));
   }
 
