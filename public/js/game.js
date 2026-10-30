@@ -175,7 +175,7 @@ const Game = (() => {
 
   // --- visée ---
   const muzzle = () => ({ x: cannonX + Math.sin(aim) * MUZZLE, y: CANNON_Y - Math.cos(aim) * MUZZLE });
-  const slide = (c) => c.z - c.layer * LAYER_Z;                       // glissement réel (sans la profondeur de rangée)
+  const slide = (c) => c.ds || 0;                                    // glissement affiché : toujours sur 2 plans (devant / derrière), voir step()
   const visY = (c) => c.position.y - slide(c) * DEPTH_Y;       // position écran d'une pièce (tient compte de la profondeur)
 
   // pièce visée en (x,y), avec une petite tolérance pour le doigt
@@ -344,6 +344,10 @@ const Game = (() => {
     // pièces : glissement en profondeur, chute derrière la table, chute sur les côtés
     for (let i = cubes.length - 1; i >= 0; i--) {
       const c = cubes[i];
+      { // recul affiché limité à 2 plans : plan avant (léger décalage = progression du choc) ou plan arrière, avec transition douce
+        const sl = c.z - c.layer * LAYER_Z, tgt = sl < LAYER_Z * 0.5 ? 0.4 * Math.max(0, sl) : LAYER_Z;
+        c.ds = (c.ds || 0) + (tgt - (c.ds || 0)) * 0.2;
+      }
       if (c.vz > 0 || c.z > 0) {
         c.z += c.vz; c.vz *= SLIDE_FRICTION; if (c.vz < 0.12) c.vz = 0;
         if (c.z > DEPTH) {
