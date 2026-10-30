@@ -78,6 +78,7 @@ Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 - ⚖️ **Déséquilibre** : une pièce dont le support a glissé peut basculer toute seule un peu plus tard
 - 🔒 **Aucun cube suspendu dans le vide** : chaque pièce repose sur une autre ou sur la table (vérifié par `npm test`)
 - 📱 **Plein écran adaptatif** : téléphone, tablette, ordinateur, en portrait comme en paysage (pas de cadre de téléphone dessiné)
+- ☁️ **Connexion Google, progression dans le cloud et classement général** avec Firebase / Firestore (optionnel, voir [docs/FIREBASE.md](docs/FIREBASE.md))
 - 💾 **Profils et scores en SQLite** : nom du joueur demandé au lancement, meilleurs scores, déblocage progressif, classement
 - 🏠 **Parcours complet** : splash, conditions, **accueil** avec le niveau à jouer, fiche de niveau, paramètres (son, musique, vibration), profil avec avatars, écran « Bien Joué » et tutoriel du premier niveau
 - 🎁 **Bonus** : **tir triple** (niveau 3) et **super balle** (niveau 10), un de chaque par niveau

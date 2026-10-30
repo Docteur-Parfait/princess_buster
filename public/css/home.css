@@ -1,11 +1,11 @@
 /* ===================== Splash, accueil, fenêtres (parcours inspiré de la référence) ===================== */
-#screen-splash, #screen-name { justify-content: center; }
+#screen-splash, #screen-name, #screen-signin { justify-content: center; }
 #screen-splash { background: radial-gradient(circle at 50% 42%, #5a4bff 0%, #2a1f9f 45%, #0a0838 100%); }
 #screen-splash .logo.big { margin-top: 0; width: 360px; }
 .loader { margin-top: 46px; width: 260px; height: 20px; border: 4px solid var(--gold); border-radius: 12px; background: rgba(59, 10, 110, .8); overflow: hidden; }
 .loader i { display: block; height: 100%; width: 0; background: linear-gradient(#ffe46b, #f59a00); animation: load 1.6s ease-out forwards; }
 @keyframes load { to { width: 100%; } }
-#screen-name .logo.big { margin-top: 0; width: 300px; }
+#screen-name .logo.big, #screen-signin .logo.big { margin-top: 0; width: 300px; }
 
 .btn.big { font-size: 44px; padding: 12px 84px; border-radius: 30px; }
 .btn.wide { display: block; width: 100%; text-align: center; text-decoration: none; margin: 10px 0; font-size: 26px; }

@@ -1,0 +1,46 @@
+rules_version = '2';
+// Règles Firestore de Princess Buster : chaque joueur (connecté avec Google) n'écrit que ses propres données ;
+// le classement (collection players) est lisible par tous.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function validName(n) { return n is string && n.size() >= 1 && n.size() <= 20; }
+
+    match /players/{uid} {
+      allow read: if true;
+
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'totalScore', 'levelsDone', 'createdAt', 'updatedAt'])
+        && validName(request.resource.data.name)
+        && request.resource.data.totalScore == 0
+        && request.resource.data.levelsDone == 0;
+
+      // le score ne peut que monter, d'au plus 220 points par écriture (20 + balles restantes), et reste borné
+      allow update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'totalScore', 'levelsDone', 'createdAt', 'updatedAt'])
+        && validName(request.resource.data.name)
+        && request.resource.data.totalScore >= resource.data.totalScore
+        && request.resource.data.totalScore - resource.data.totalScore <= 220
+        && request.resource.data.totalScore <= 250 * 220
+        && request.resource.data.levelsDone >= resource.data.levelsDone
+        && request.resource.data.levelsDone - resource.data.levelsDone <= 1
+        && request.resource.data.levelsDone <= 250;
+
+      allow delete: if false;
+
+      match /progress/{level} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid
+          && level.matches('^[0-9]+$') && int(level) >= 1 && int(level) <= 250
+          && request.resource.data.keys().hasOnly(['level', 'bestScore', 'attempts', 'completed', 'updatedAt'])
+          && request.resource.data.level == int(level)
+          && request.resource.data.bestScore is int && request.resource.data.bestScore >= 0 && request.resource.data.bestScore <= 220
+          && request.resource.data.attempts is int && request.resource.data.attempts >= 0
+          && (request.resource.data.completed == 0 || request.resource.data.completed == 1)
+          && (resource == null || request.resource.data.bestScore >= resource.data.bestScore);
+        allow delete: if false;
+      }
+    }
+  }
+}

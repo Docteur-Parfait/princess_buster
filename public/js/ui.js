@@ -69,9 +69,29 @@
     afterTerms();
   }
   async function afterTerms() {
+    if (Storage.cloudEnabled) {                                  // Firebase : connexion Google (session conservée) ou mode invité
+      const u = await Storage.cloudUser();
+      if (u) { try { await Storage.login(); openHome(); return; } catch (e) { console.warn(e); } }
+      if (!Storage.lastName() || !store.get('pb_guest')) { show('signin'); return; }
+    }
     const last = Storage.lastName();
     if (last) { await Storage.login(last); openHome(); } else show('name');
   }
+  $('btn-google').onclick = async () => {
+    Audio.init(); Audio.play('click');
+    const msg = $('signin-msg'); msg.textContent = '';
+    try {
+      await ready;
+      const u = await Storage.googleSignIn();
+      if (!u) return;                                          // redirection en cours
+      await Storage.login(); store.set('pb_guest', ''); openHome();
+    } catch (e) {
+      msg.textContent = e && e.code === 'auth/popup-closed-by-user' ? 'Connexion annulée.' : 'Connexion impossible, réessaie ou joue sans compte.';
+      console.warn(e);
+    }
+  };
+  $('btn-guest').onclick = () => { Audio.init(); Audio.play('click'); store.set('pb_guest', '1'); const last = Storage.lastName(); if (last) Storage.login(last).then(openHome); else show('name'); };
+  $('btn-signout').onclick = async () => { Audio.play('click'); closeModal('modal-settings'); await Storage.cloudSignOut(); store.set('pb_guest', ''); show('signin'); };
 
   $('btn-accept').onclick = () => { Audio.init(); Audio.play('click'); store.set('pb_terms', '1'); closeModal('modal-terms'); afterTerms(); };
   const TERMS = {
@@ -192,7 +212,7 @@
     Audio.play('click');
     const list = await Storage.leaderboard();
     $('leaderboard-list').innerHTML = list.length
-      ? list.map((r) => `<li>${escapeHtml(r.name)}<span>${r.total} pts · ${r.levels} niv.</span></li>`).join('')
+      ? list.map((r) => `<li${r.me ? ' class="me"' : ''}>${escapeHtml(r.name)}<span>${r.total} pts · ${r.levels} niv.</span></li>`).join('')
       : '<li>Pas encore de scores</li>';
     openModal('leaderboard');
   };
@@ -209,7 +229,7 @@
   $('tg-vibe').onclick = () => { store.set('pb_vibe', store.get('pb_vibe', '1') === '1' ? '0' : '1'); refreshToggles(); if (navigator.vibrate) navigator.vibrate(30); };
   $('tg-full').onclick = toggleFullscreen;
   $('btn-full-menu').onclick = toggleFullscreen;
-  const openSettings = (inGame) => { settingsInGame = inGame; $('in-game-actions').classList.toggle('hidden', !inGame); refreshToggles(); openModal('modal-settings'); };
+  const openSettings = (inGame) => { settingsInGame = inGame; $('btn-signout').classList.toggle('hidden', !(Storage.player && Storage.player.cloud)); $('in-game-actions').classList.toggle('hidden', !inGame); refreshToggles(); openModal('modal-settings'); };
   $('btn-settings').onclick = () => { Audio.init(); Audio.play('click'); openSettings(false); };
   $('btn-game-settings').onclick = () => { Audio.play('click'); openSettings(true); };
   $('btn-restart').onclick = () => { Audio.play('click'); closeModal('modal-settings'); startLevel(currentLevel); };

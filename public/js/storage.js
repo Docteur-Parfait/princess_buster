@@ -1,4 +1,5 @@
-// Couche de sauvegarde. Trois moteurs, mêmes données (players / progress) :
+// Couche de sauvegarde. Quatre moteurs, mêmes données (players / progress) :
+//  0. Firebase (connexion Google + Firestore) : progression dans le cloud et classement général (si js/firebase-config.js est renseigné)
 //  1. Tauri (APK, desktop) : vraie base SQLite locale via tauri-plugin-sql
 //  2. Web : API SQLite du serveur de test (server/server.js)
 //  3. Repli : localStorage si rien d'autre n'est disponible
@@ -6,6 +7,89 @@ const Storage = (() => {
   const KEY = 'pb_local_players';
   const tauri = window.__TAURI__ && window.__TAURI__.core ? window.__TAURI__.core : null;
   let player = null; // { id, name, progress: [{level,bestScore,attempts,completed}], offline }
+
+  // ---------- 0. Firebase (Firestore) ----------
+  //  players/{uid}            : { name, totalScore, levelsDone, createdAt, updatedAt }
+  //  players/{uid}/progress/{niveau} : { level, bestScore, attempts, completed, updatedAt }
+  const FB_CONFIG = tauri ? null : (window.PB_FIREBASE || null);      // l'appli Tauri garde sa base SQLite locale
+  const FB_VERSION = '10.14.1';
+  let fbReady = null;
+  function openFb() {
+    if (!fbReady) {
+      fbReady = (async () => {
+        const base = `https://www.gstatic.com/firebasejs/${FB_VERSION}/`;
+        const [app, auth, fs] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+        const a = app.initializeApp(FB_CONFIG), au = auth.getAuth(a), db = fs.getFirestore(a);
+        await au.authStateReady();
+        return { fs, db, auth, au, get uid() { return au.currentUser && au.currentUser.uid; } };
+      })().catch((e) => { fbReady = null; throw e; });
+    }
+    return fbReady;
+  }
+  async function fbProgress(f) {
+    const snap = await f.fs.getDocs(f.fs.collection(f.db, 'players', f.uid, 'progress'));
+    return snap.docs.map((d) => { const r = d.data(); return { level: r.level, bestScore: r.bestScore || 0, attempts: r.attempts || 0, completed: r.completed ? 1 : 0 }; }).sort((x, y) => x.level - y.level);
+  }
+  // écrit un résultat (transaction : la ligne du niveau + les totaux du joueur restent cohérents)
+  async function fbWrite(f, level, score, won, attempts) {
+    const { fs, db, uid } = f, pRef = fs.doc(db, 'players', uid), gRef = fs.doc(db, 'players', uid, 'progress', String(level));
+    await fs.runTransaction(db, async (tx) => {
+      const [p, g] = await Promise.all([tx.get(pRef), tx.get(gRef)]);
+      const old = g.exists() ? g.data() : { bestScore: 0, attempts: 0, completed: 0 };
+      const best = Math.max(old.bestScore || 0, won ? Math.max(0, score | 0) : 0), done = old.completed || won ? 1 : 0;
+      tx.set(gRef, { level, bestScore: best, attempts: (old.attempts || 0) + attempts, completed: done, updatedAt: fs.serverTimestamp() });
+      const pd = p.data() || {};
+      tx.update(pRef, { totalScore: (pd.totalScore || 0) + (best - (old.bestScore || 0)), levelsDone: (pd.levelsDone || 0) + (done && !old.completed ? 1 : 0), updatedAt: fs.serverTimestamp() });
+    });
+  }
+  // utilisateur Google connecté (session conservée par Firebase) ou null
+  async function cloudUser() {
+    if (!FB_CONFIG) return null;
+    try { const f = await openFb(), u = f.au.currentUser; return u ? { uid: u.uid, name: u.displayName || '', photo: u.photoURL || '' } : null; } catch (e) { return null; }
+  }
+  async function googleSignIn() {
+    const f = await openFb(), provider = new f.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try { await f.auth.signInWithPopup(f.au, provider); }
+    catch (e) {
+      if (e && (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment')) { await f.auth.signInWithRedirect(f.au, provider); return null; }
+      throw e;
+    }
+    return cloudUser();
+  }
+  async function cloudSignOut() { try { const f = await openFb(); await f.au.signOut(); } catch (e) { /* ignore */ } player = null; }
+
+  async function fbPlayer(wanted) {
+    const f = await openFb();
+    if (!f.uid) throw new Error('non connecté');
+    const g = f.au.currentUser, ref = f.fs.doc(f.db, 'players', f.uid), snap = await f.fs.getDoc(ref);
+    const first = ((g.displayName || '').trim().split(/\s+/)[0] || 'Joueur').slice(0, 20);
+    const name = (wanted || (snap.exists() && snap.data().name) || first).slice(0, 20);
+    if (!snap.exists()) await f.fs.setDoc(ref, { name, totalScore: 0, levelsDone: 0, createdAt: f.fs.serverTimestamp(), updatedAt: f.fs.serverTimestamp() });
+    else if (snap.data().name !== name) await f.fs.updateDoc(ref, { name, updatedAt: f.fs.serverTimestamp() });
+    let progress = await fbProgress(f);
+    // reprise de la progression déjà jouée sur cet appareil (hors ligne / ancienne version) : on garde le meilleur
+    const local = readLocal()[name.toLowerCase()];
+    if (local && local.progress && local.progress.length) {
+      let changed = false;
+      for (const r of local.progress) {
+        const c = progress.find((x) => x.level === r.level);
+        if (!c || r.bestScore > c.bestScore || (r.completed && !c.completed)) { await fbWrite(f, r.level, r.bestScore, !!r.completed, c ? 0 : r.attempts || 0); changed = true; }
+      }
+      if (changed) progress = await fbProgress(f);
+    }
+    return { id: f.uid, name, progress, offline: false, cloud: true };
+  }
+  async function fbSave(level, score, won) {
+    const f = await openFb();
+    await fbWrite(f, level, score, won, 1);
+    return { id: f.uid, name: player.name, progress: await fbProgress(f), offline: false, cloud: true };
+  }
+  async function fbLeaderboard() {
+    const f = await openFb(), { fs } = f;
+    const snap = await fs.getDocs(fs.query(fs.collection(f.db, 'players'), fs.orderBy('totalScore', 'desc'), fs.limit(50)));
+    return snap.docs.map((d) => { const r = d.data(); return { name: r.name, total: r.totalScore || 0, levels: r.levelsDone || 0, me: d.id === f.uid }; }).filter((r) => r.total > 0);
+  }
 
   // ---------- 1. SQLite natif (Tauri) ----------
   const DB = 'sqlite:princess-buster.db';
@@ -75,7 +159,11 @@ const Storage = (() => {
   const writeLocal = (db) => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* ignore */ } };
 
   async function login(name) {
-    if (tauri) {
+    if (FB_CONFIG) {
+      try { player = await fbPlayer(name); } catch (e) { if (!name) throw e; console.warn('Firebase indisponible, repli', e); }
+    }
+    if (player && player.cloud) { /* connecté au cloud */ }
+    else if (tauri) {
       try { player = await sqlPlayer(name); } catch (e) { console.warn('SQLite indisponible, repli localStorage', e); }
     } else {
       try { player = await api('/api/player', { name }); player.offline = false; } catch (e) { /* repli ci-dessous */ }
@@ -95,7 +183,7 @@ const Storage = (() => {
     if (!player) return;
     if (!player.offline) {
       try {
-        const p = tauri ? await sqlSave(level, score, won) : await api('/api/progress', { playerId: player.id, level, score, won });
+        const p = player.cloud ? await fbSave(level, score, won) : tauri ? await sqlSave(level, score, won) : await api('/api/progress', { playerId: player.id, level, score, won });
         player = { ...p, offline: false };
         return player;
       } catch (e) { player.offline = true; }
@@ -118,11 +206,13 @@ const Storage = (() => {
       .sort((a, b) => b.total - a.total || b.levels - a.levels).slice(0, 10);
   }
   async function leaderboard() {
+    if (FB_CONFIG) { try { return await fbLeaderboard(); } catch (e) { console.warn('Classement Firebase indisponible', e); } }
     try { return tauri ? await sqlLeaderboard() : await api('/api/leaderboard'); } catch (e) { return localLeaderboard(); }
   }
 
   return {
-    login, saveResult, leaderboard,
+    login, saveResult, leaderboard, cloudUser, googleSignIn, cloudSignOut,
+    get cloudEnabled() { return !!FB_CONFIG; },
     get player() { return player; },
     lastName() { try { return localStorage.getItem('pb_last_name') || ''; } catch (e) { return ''; } },
     progressOf(level) { return (player && player.progress.find((r) => r.level === level)) || null; },
