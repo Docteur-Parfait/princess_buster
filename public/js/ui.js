@@ -315,10 +315,17 @@
   });
   $('rename-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = $('rename-input').value.trim();
-    if (!name || name === Storage.player.name) return;
-    Audio.play('click'); await Storage.login(name);                // un autre nom = un autre profil (créé s'il n'existe pas)
-    closeModal('modal-profile'); openHome();
+    const name = $('rename-input').value.trim(), btn = e.target.querySelector('button');
+    if (btn.disabled) return;
+    if (!name || name === Storage.player.name) { closeModal('modal-profile'); return; }
+    Audio.play('click'); btn.disabled = true; btn.textContent = '…';
+    try {
+      if (Storage.player.cloud) { store.set('pb_avatar_' + name.toLowerCase(), avatarOf()); await Storage.rename(name); }   // compte : même profil, nouveau nom
+      else await Storage.login(name);                               // sans compte : un autre nom = un autre profil (créé s'il n'existe pas)
+      closeModal('modal-profile'); openHome();
+    } catch (err) {
+      console.warn(err); toast("Le nom n'a pas pu être enregistré, réessaie.");
+    } finally { btn.disabled = false; btn.textContent = '✓'; }
   });
 
   // ============================== niveau ==============================

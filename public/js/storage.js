@@ -218,6 +218,19 @@ const Storage = (() => {
     return player;
   }
 
+  // Changer de nom : avec un compte, c'est le même profil renommé (une seule écriture), l'écran est mis à jour tout de suite
+  async function rename(name) {
+    if (!player || !player.cloud) return login(name);
+    const old = player.name;
+    player = { ...player, name };
+    try { localStorage.setItem('pb_last_name', name); } catch (e) { /* ignore */ }
+    try {
+      const f = await openFb();
+      await Promise.race([f.fs.updateDoc(f.fs.doc(f.db, 'players', f.uid), { name, updatedAt: f.fs.serverTimestamp() }), new Promise((_, no) => setTimeout(() => no(new Error('délai dépassé')), 8000))]);
+    } catch (e) { player = { ...player, name: old }; try { localStorage.setItem('pb_last_name', old); } catch (e2) { /* ignore */ } throw e; }
+    return player;
+  }
+
   async function saveResult(level, score, won, extra) {
     if (!player) return;
     if (!player.offline) {
@@ -250,7 +263,7 @@ const Storage = (() => {
   }
 
   return {
-    login, saveResult, leaderboard, cloudUser, googleSignIn, cloudSignOut, syncProfile,
+    login, rename, saveResult, leaderboard, cloudUser, googleSignIn, cloudSignOut, syncProfile,
     get cloudEnabled() { return !!FB_CONFIG; },
     get player() { return player; },
     lastName() { try { return localStorage.getItem('pb_last_name') || ''; } catch (e) { return ''; } },
