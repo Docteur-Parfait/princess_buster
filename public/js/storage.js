@@ -12,7 +12,7 @@ const Storage = (() => {
   //  players/{uid}            : { name, totalScore, levelsDone, createdAt, updatedAt }
   //  players/{uid}/progress/{niveau} : { level, bestScore, attempts, completed, updatedAt }
   const FB_CONFIG = tauri ? null : (window.PB_FIREBASE || null);      // l'appli Tauri garde sa base SQLite locale
-  const FB_VERSION = '10.14.1', APP_VERSION = 'v0.1.0';
+  const FB_VERSION = '10.14.1', APP_VERSION = 'v0.1.0', AVATAR_COUNT = 15;      // AVATAR_COUNT : nombre de portraits (assets/avatars)
   let fbReady = null;
   function openFb() {
     if (!fbReady) {
@@ -76,9 +76,15 @@ const Storage = (() => {
     const g = f.au.currentUser, ref = f.fs.doc(f.db, 'players', f.uid), snap = await f.fs.getDoc(ref);
     const first = ((g.displayName || '').trim().split(/\s+/)[0] || 'Joueur').slice(0, 20);
     const name = (wanted || (snap.exists() && snap.data().name) || first).slice(0, 20);
-    const avatar = snap.exists() && Number.isInteger(snap.data().avatar) ? snap.data().avatar : undefined;
-    if (!snap.exists()) await f.fs.setDoc(ref, { name, totalScore: 0, levelsDone: 0, maxLevel: 0, totalStars: 0, createdAt: f.fs.serverTimestamp(), updatedAt: f.fs.serverTimestamp() });
-    else if (snap.data().name !== name) await f.fs.updateDoc(ref, { name, updatedAt: f.fs.serverTimestamp() });
+    // avatar : celui déjà enregistré, sinon celui choisi sur l'appareil, sinon un avatar par défaut (stable, tiré de l'identifiant du compte)
+    let avatar = snap.exists() && Number.isInteger(snap.data().avatar) ? snap.data().avatar : undefined;
+    const hadAvatar = avatar !== undefined;
+    if (!hadAvatar) {
+      let local = NaN; try { local = parseInt(localStorage.getItem('pb_avatar_' + name.toLowerCase()), 10); } catch (e) { /* ignore */ }
+      avatar = Number.isInteger(local) && local >= 0 ? local : [...f.uid].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7) % AVATAR_COUNT;
+    }
+    if (!snap.exists()) await f.fs.setDoc(ref, { name, avatar, totalScore: 0, levelsDone: 0, maxLevel: 0, totalStars: 0, createdAt: f.fs.serverTimestamp(), updatedAt: f.fs.serverTimestamp() });
+    else if (snap.data().name !== name || !hadAvatar) await f.fs.updateDoc(ref, { name, avatar, updatedAt: f.fs.serverTimestamp() });
     // profil privé : informations du compte et de l'appareil (lisibles par le joueur seul)
     const vRef = f.fs.doc(f.db, 'players', f.uid, 'private', 'profile'), vSnap = await f.fs.getDoc(vRef), vd = vSnap.exists() ? vSnap.data() : {};
     const info = {
