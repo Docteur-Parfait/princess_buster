@@ -311,7 +311,7 @@
       $('panel-win').classList.remove('hidden');
       $('btn-result-next').classList.toggle('hidden', currentLevel >= TOTAL_LEVELS);          // dernier niveau : pas de suivant
       $('result-score').textContent = pts;
-      $('result-text').textContent = unlockedNow ? `🎉 Nouvelle techno débloquée : ${reward.name} !` : (ballsLeft > 0 ? `Niveau réussi ! ${POINTS_PER_WIN} + ${ballsLeft} balle${ballsLeft > 1 ? 's' : ''} = ${pts} points` : `Niveau réussi ! +${pts} points`);
+      $('result-text').textContent = unlockedNow ? `🎉 Nouvelle techno débloquée : ${reward.name} !` : `Niveau réussi ! +${pts} points`;
       const chest = document.querySelector('#panel-win .chest');
       const endKey = meta.levels[Math.ceil(currentLevel / B) * B - 1] && meta.levels[Math.ceil(currentLevel / B) * B - 1].reward;
       const nextT = reward || (endKey && techByKey(endKey));
