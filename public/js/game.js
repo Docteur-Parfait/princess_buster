@@ -270,6 +270,12 @@ const Game = (() => {
   // La pièce est projetée sur le côté (vers le bord de table le plus proche) : elle emporte ses voisines, ce qui est posé dessus
   // perd son appui et s'effondre par gravité, puis tout se brise au sol (comme dans les jeux de référence).
   function knockOut(c, ux, uy) {
+    const side = Math.min(1, Math.abs(ux) * 1.4);                                 // 0 = tir de face, 1 = très de côté
+    if (Math.random() < 0.25 + 0.6 * (1 - side)) {                                // tir plutôt de face : la pièce part vers le fond, derrière la table
+      Body.setStatic(c, true); c.collisionFilter = { category: 0, mask: 0, group: 0 };   // elle ne retient plus rien : ce qui est dessus tombe, elle glisse puis disparaît derrière
+      c.back = true; Sleeping.set(c, false);
+      return;
+    }
     const dir = Math.abs(ux) > 0.2 ? Math.sign(ux) : (Math.sign(c.position.x - W / 2) || (Math.random() < 0.5 ? -1 : 1));
     const k = 1 / Math.sqrt(Math.max(1, c.pmass));
     Sleeping.set(c, false);
@@ -375,6 +381,7 @@ const Game = (() => {
         c.ds = (c.ds || 0) + (tgt - (c.ds || 0)) * 0.2;
       }
       if (c.out && time - c.outAt > 900) { destroyed(c, c.position.x, Math.min(c.position.y, PLATFORM_Y + 60)); continue; }
+      if (c.back && c.vz < 0.6) c.vz = 0.6;                    // une pièce envoyée au fond finit toujours par tomber derrière la table
       if (c.vz > 0 || c.z > 0) {
         c.z += c.vz; c.vz *= SLIDE_FRICTION; if (c.vz < 0.12) c.vz = 0;
         if (c.z > DEPTH) {
