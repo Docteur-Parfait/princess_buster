@@ -256,6 +256,7 @@ const Game = (() => {
     const lateral = (ux * 10 - off * 4) / m;                                  // latéral : angle d'arrivée + endroit touché
     Body.setVelocity(c, { x: c.velocity.x + lateral, y: c.velocity.y - (3.5 + 5 * uy) / m });   // la pièce saute puis retombe : cascade
     Body.setAngularVelocity(c, c.angularVelocity + (off * 0.09 + ux * 0.05) / m);
+    if (c.z + c.vz / (1 - SLIDE_FRICTION) > DEPTH) knockOut(c, ux, uy);        // assez de coups cumulés : la pièce est éjectée
     for (const o of cubes) {           // pièces posées dessus : simple secousse
       if (o === c || o.layer !== c.layer) continue;
       if (Math.abs(o.position.y + o.ph * CUBE / 2 - (c.position.y - c.ph * CUBE / 2)) < 6 && Math.abs(o.position.x - c.position.x) < (o.pw + c.pw) * CUBE / 2 - 4) {
@@ -263,6 +264,17 @@ const Game = (() => {
         Body.setAngularVelocity(o, (Math.random() - 0.5) * 0.03);
       }
     }
+  }
+
+  // La pièce est projetée sur le côté (vers le bord de table le plus proche) : elle emporte ses voisines, ce qui est posé dessus
+  // perd son appui et s'effondre par gravité, puis tout se brise au sol (comme dans les jeux de référence).
+  function knockOut(c, ux, uy) {
+    const dir = Math.abs(ux) > 0.2 ? Math.sign(ux) : (Math.sign(c.position.x - W / 2) || (Math.random() < 0.5 ? -1 : 1));
+    const k = 1 / Math.sqrt(Math.max(1, c.pmass));
+    Sleeping.set(c, false);
+    Body.setVelocity(c, { x: dir * (8 + Math.random() * 4) * k + c.velocity.x * 0.3, y: -(5.5 + 3 * Math.max(0, uy)) * k });
+    Body.setAngularVelocity(c, dir * (0.1 + Math.random() * 0.08) * k);
+    c.vz = 0; c.z = c.layer * LAYER_Z; c.out = true; c.outAt = time;
   }
 
   function isSupported(c) {
@@ -361,6 +373,7 @@ const Game = (() => {
         const sl = c.z - c.layer * LAYER_Z, tgt = sl < LAYER_Z * 0.5 ? 0.4 * Math.max(0, sl) : LAYER_Z;
         c.ds = (c.ds || 0) + (tgt - (c.ds || 0)) * 0.2;
       }
+      if (c.out && time - c.outAt > 900) { destroyed(c, c.position.x, Math.min(c.position.y, PLATFORM_Y + 60)); continue; }
       if (c.vz > 0 || c.z > 0) {
         c.z += c.vz; c.vz *= SLIDE_FRICTION; if (c.vz < 0.12) c.vz = 0;
         if (c.z > DEPTH) {
