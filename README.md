@@ -74,7 +74,7 @@ Le jeu occupe tout l'écran : ici sur une tablette en mode paysage.
 - 🎯 **250 niveaux** décrits dans des fichiers JSON, avec **50 technologies** (dont les logos des IA : ChatGPT, Claude, Gemini, Grok, Mistral…) introduites progressivement, HTML5 et CSS3 d'abord
 - 🎨 **12 décors** qui changent à chaque niveau : prairie, nuit, coucher de soleil, neige, désert, océan, bonbons, forêt, espace, automne, volcan, néon
 - 🧱 **Pièces de formats variés** : carrés, rectangles larges ou hauts, 2×2, 3×1, 3×2 (les grandes piles rapetissent pour tenir à l'écran)
-- 🌌 **Profondeur simulée** : selon l'angle du tir et l'endroit touché, une pièce tombe **derrière la table, à gauche ou à droite** ; jusqu'à 3 rangées cachées les unes derrière les autres
+- 🌌 **Profondeur simulée** : selon l'angle du tir et l'endroit touché, une pièce tombe **derrière la table, à gauche ou à droite** ; une rangée cachée derrière les autres
 - ⚖️ **Déséquilibre** : une pièce dont le support a glissé peut basculer toute seule un peu plus tard
 - 🔒 **Aucun cube suspendu dans le vide** : chaque pièce repose sur une autre ou sur la table (vérifié par `npm test`)
 - 📱 **Plein écran adaptatif** : téléphone, tablette, ordinateur, en portrait comme en paysage (pas de cadre de téléphone dessiné)
@@ -127,7 +127,7 @@ npm run levels    # régénère les niveaux (attention : écrase les fichiers de
 - **Une nouvelle technologie tous les 5 niveaux** : les 5 niveaux d'un palier n'utilisent que les technologies déjà débloquées. Le **coffre de récompense** affiché pendant le palier montre la **prochaine technologie** ; en gagnant le 5ᵉ niveau tu la débloques (barre de progression 5/5), puis elle apparaît dans les 5 niveaux suivants.
 - **Progression pas à pas** : les niveaux 1 à 5 n'utilisent que **HTML5 et CSS3**. Après chaque palier de 5 niveaux, une technologie s'ajoute : JavaScript (niveau 6), PHP (niveau 11), puis Sass, Bootstrap, TypeScript, jQuery, Tailwind CSS, Laravel, Node.js, Express, React, Vue.js, Angular, Python, Django, MySQL, MongoDB, Docker, Git, les **IA** (ChatGPT, Claude, Gemini, Grok, Mistral AI, Perplexity, Hugging Face, GitHub Copilot, Ollama, Llama), puis Go, Rust, Kotlin, Swift, Java, C#, C++, Ruby, Flutter et Dart. Les **50 technologies** sont toutes débloquées au niveau 240 (Bash en dernier).
 - **Décors** : 12 thèmes qui tournent à chaque niveau (`meadow`, `night`, `sunset`, `snow`, `desert`, `ocean`, `candy`, `forest`, `space`, `autumn`, `volcano`, `neon`), définis dans `public/js/game.js`.
-- **Difficulté** : piles plus grandes (jusqu'à 9×8), pièces plus lourdes et plus grandes, rangées cachées derrière (2 rangées dès le niveau 5, 3 dès le niveau 100).
+- **Difficulté** : piles plus grandes (jusqu'à 9×8), pièces plus lourdes et plus grandes, une rangée cachée derrière la rangée de devant sur certains niveaux (à partir du niveau 9).
 
 ## Créer ou modifier un niveau
 

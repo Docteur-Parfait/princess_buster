@@ -42,7 +42,7 @@ A stack of cubes (HTML, CSS, JavaScript, PHP, Laravel, Node.js, Docker…) sits 
 - 🎯 **250 levels** described in JSON files, with **50 technologies** (including AI logos: ChatGPT, Claude, Gemini, Grok, Mistral…) introduced progressively
 - 🎨 **12 backgrounds** that change from level to level: meadow, night, sunset, snow, desert, ocean, candy, forest, space, autumn, volcano, neon
 - 🧱 **Mixed piece shapes**: squares, wide or tall rectangles, 2×2, 3×1, 3×2
-- 🌌 **Simulated depth**: depending on shot angle and impact point a piece falls **behind the table, left or right**; up to 3 hidden rows behind the front pieces
+- 🌌 **Simulated depth**: depending on shot angle and impact point a piece falls **behind the table, left or right**; one hidden row behind the front pieces on some levels
 - 🔒 **No floating cubes**: every piece rests on another piece or on the table (checked by `npm test`)
 - 📱 **Adaptive full screen**: phone, tablet, desktop, portrait or landscape
 - 💾 **SQLite profiles and scores**: player name asked at start, best scores, progressive unlocking, leaderboard

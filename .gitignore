@@ -13,3 +13,6 @@ src-tauri/gen/schemas/
 *.keystore
 keystore.properties
 dist/
+
+# vidéos de promotion (fichiers lourds)
+/docs/video/
