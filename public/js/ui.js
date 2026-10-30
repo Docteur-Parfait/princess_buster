@@ -243,8 +243,23 @@
     $('prof-score').textContent = Storage.totalScore();
     $('prof-done').textContent = p.progress.filter((r) => r.completed).length;
     $('avatars').innerHTML = Array.from({ length: AVATAR_COUNT }, (_, i) => `<button type="button" data-a="${i}" class="${i === avatarOf() ? 'sel' : ''}"><img src="${avatarSrc(i)}" alt="" loading="lazy" draggable="false"></button>`).join('');
+    $('prof-cloud').classList.toggle('hidden', !(Storage.cloudEnabled && !p.cloud));      // invité : on propose de créer / lier un compte
+    $('profile-signin-msg').textContent = '';
     openModal('modal-profile');
   }
+  $('btn-profile-google').onclick = async () => {
+    Audio.play('click');
+    const msg = $('profile-signin-msg'), guestName = Storage.player && Storage.player.name; msg.textContent = '';
+    try {
+      const u = await Storage.googleSignIn();
+      if (!u) return;
+      await Storage.login(undefined, guestName); store.set('pb_guest', '');       // la progression jouée sans compte est reprise dans le compte
+      closeModal('modal-profile'); openHome();
+    } catch (e) {
+      msg.textContent = e && e.code === 'auth/popup-closed-by-user' ? 'Connexion annulée.' : 'Connexion impossible, réessaie.';
+      console.warn(e);
+    }
+  };
   $('btn-avatar').onclick = () => { Audio.play('click'); openProfile(); };
   $('avatars').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;

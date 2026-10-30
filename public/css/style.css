@@ -163,3 +163,9 @@ html, body { margin: 0; height: 100%; overscroll-behavior: none; position: fixed
 .signin-note { color: #e6dcff; text-align: center; font-size: 15px; text-shadow: var(--ink); }
 #leaderboard-list { max-height: 52vh; overflow-y: auto; }
 #leaderboard-list li.me { background: rgba(255, 210, 63, .45); border-radius: 10px; }
+
+/* profil : proposer la création d'un compte aux joueurs invités */
+.prof-cloud { margin-top: 12px; padding-top: 10px; border-top: 3px dashed rgba(122, 74, 170, .35); text-align: center; color: var(--purple); }
+.prof-cloud p { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
+.prof-cloud .btn.google { margin: 0 auto; font-size: 19px; animation: none; }
+.prof-cloud .signin-msg { color: #b02a2a; text-shadow: none; }

@@ -59,7 +59,7 @@ const Storage = (() => {
   }
   async function cloudSignOut() { try { const f = await openFb(); await f.au.signOut(); } catch (e) { /* ignore */ } player = null; }
 
-  async function fbPlayer(wanted) {
+  async function fbPlayer(wanted, mergeFrom) {
     const f = await openFb();
     if (!f.uid) throw new Error('non connecté');
     const g = f.au.currentUser, ref = f.fs.doc(f.db, 'players', f.uid), snap = await f.fs.getDoc(ref);
@@ -69,7 +69,7 @@ const Storage = (() => {
     else if (snap.data().name !== name) await f.fs.updateDoc(ref, { name, updatedAt: f.fs.serverTimestamp() });
     let progress = await fbProgress(f);
     // reprise de la progression déjà jouée sur cet appareil (hors ligne / ancienne version) : on garde le meilleur
-    const local = readLocal()[name.toLowerCase()];
+    const local = readLocal()[(mergeFrom || name).toLowerCase()];
     if (local && local.progress && local.progress.length) {
       let changed = false;
       for (const r of local.progress) {
@@ -158,9 +158,9 @@ const Storage = (() => {
   const readLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } };
   const writeLocal = (db) => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* ignore */ } };
 
-  async function login(name) {
+  async function login(name, mergeFrom) {
     if (FB_CONFIG) {
-      try { player = await fbPlayer(name); } catch (e) { if (!name) throw e; console.warn('Firebase indisponible, repli', e); }
+      try { player = await fbPlayer(name, mergeFrom); } catch (e) { if (!name) throw e; console.warn('Firebase indisponible, repli', e); }
     }
     if (player && player.cloud) { /* connecté au cloud */ }
     else if (tauri) {
