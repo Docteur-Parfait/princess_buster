@@ -25,7 +25,7 @@
   };
   const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  document.documentElement.dataset.home = 'cyber';               // décor d'accueil : ville néon (le thème sert aux styles de l'accueil)
+  document.documentElement.dataset.home = 'bright';               // décor d'accueil : ville néon (le thème sert aux styles de l'accueil)
 
   // --- plein écran : la scène épouse toute la fenêtre (téléphone, tablette, ordinateur ; portrait ou paysage) ---
   function fit() {
