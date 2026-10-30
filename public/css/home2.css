@@ -151,3 +151,12 @@ html[data-home='cyber'] .topbar .pill b, html[data-home='cyber'] .topbar .pill s
 .home-svg .hl { animation: hl-grow 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: left center; } .home-svg .hl.h1 { animation-delay: -1s; } .home-svg .hl.h2 { animation-delay: -2s; }
 @keyframes hl-grow { 50% { transform: scaleX(.6); } }
 @media (prefers-reduced-motion: reduce) { .home-svg .tw, .home-svg .win, .home-svg .flick, .home-svg .chev, .home-svg .hl { animation: none; } }
+
+/* les cubes sont posés DANS la tasse (cachés par le bord avant du verre), rien ne flotte dans l'air */
+.podium .mini-stack { left: 50px; right: auto; width: 200px; top: 20px; bottom: auto; height: 175px; justify-content: flex-end; clip-path: path('M0 0 H200 V161 H188 A88 13 0 0 1 12 161 H0 Z'); }
+.podium .mc { width: 46px; height: 46px; padding: 7px; margin: 0 -3px; border-radius: 12px; animation: none; transform: rotate(var(--rot, 0deg)); box-shadow: 0 3px 0 rgba(28, 10, 66, .95), inset 0 2px 0 rgba(255, 255, 255, .3); }
+.podium .mini-stack .mr { margin-top: -9px; }
+.podium .mini-stack .mr:nth-child(1) .mc { --rot: 9deg; }
+.podium .mini-stack .mr:nth-child(2) .mc:nth-child(1) { --rot: -11deg; } .podium .mini-stack .mr:nth-child(2) .mc:nth-child(2) { --rot: 6deg; }
+.podium .mini-stack .mr:nth-child(3) .mc:nth-child(1) { --rot: 8deg; } .podium .mini-stack .mr:nth-child(3) .mc:nth-child(2) { --rot: -5deg; } .podium .mini-stack .mr:nth-child(3) .mc:nth-child(3) { --rot: 12deg; }
+.floaters { display: none; }

@@ -160,8 +160,6 @@
     const pick = (i) => techByKey(pool[i % pool.length]);
     const cube = (cls, t, style) => { const col = Game.techColors(t.key); return `<div class="${cls}" style="--c1:${col.c1};--c2:${col.c2};${style}"><img src="${Game.whiteURL(t.key)}" alt=""></div>`; };
     $('mini-stack').innerHTML = [1, 2, 3].map((n, r) => `<div class="mr">${Array.from({ length: n }, (_, c) => cube('mc', pick(r * 3 + c), `--d:${(r + c) * 0.25}s`)).join('')}</div>`).join('');
-    const spots = [[52, 120], [284, 128], [84, 12], [250, 6]];
-    $('floaters').innerHTML = spots.map(([x, y], i) => cube('fl', pick(i + 2), `left:${x}px;top:${y}px;--d:${i * 0.7}s`)).join('');
     // progression des 10 niveaux en cours + niveau de difficulté du bouton Jouer
     const B = blockSize(), done = (next - 1) % B, end = Math.ceil(next / B) * B;
     const rewardKey = meta.levels[end - 1] && meta.levels[end - 1].reward, rt = rewardKey && techByKey(rewardKey);
