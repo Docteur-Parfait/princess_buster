@@ -55,8 +55,8 @@ const Game = (() => {
   }
 
   let techs = {};            // key -> { name, color, img }
-  let engine, platform, cubes, shots, ghosts, particles;
-  let platformW = 300, loopId = 0;
+  let engine, platform, cubes, shots, ghosts, particles, debris;
+  let platformW = 300, loopId = 0, puffs = [];
   let level = null, ballsLeft = 0, running = false, finished = false;
   let cannonX = W / 2;                     // canon fixe au centre
   let aim = 0, target = null;              // aim = angle (rad) par rapport à la verticale ; target = point visé (écran)
@@ -127,20 +127,21 @@ const Game = (() => {
     level = lvl;
     engine = Engine.create({ enableSleeping: true, positionIterations: 12, velocityIterations: 8 });
     engine.gravity.y = 1.1;
-    cubes = []; shots = []; ghosts = []; particles = [];
+    cubes = []; shots = []; ghosts = []; particles = []; debris = []; puffs = [];
     ballsLeft = lvl.balls; lastShot = -1000; finished = false; settleTimer = 0; aiming = false; shake = 0; flash = 0; comboCount = 0;
     aim = 0; target = null; powers = { triple: 1, super: 1 }; armed = null;
 
     const { pieces, rows, cols } = piecesOf(lvl);
     levelRows = rows; levelId = lvl.id || 1; layout();
     themeName = THEMES[lvl.theme] ? lvl.theme : 'night'; theme = THEMES[themeName];
-    CUBE = Math.max(30, Math.min(72, Math.floor((PLATFORM_Y - 112) / rows), Math.floor((W - 64) / cols)));   // les grandes piles rapetissent pour rester à l'écran
+    const minC = Math.min(...pieces.map((p) => p.col)), maxC = Math.max(...pieces.map((p) => p.col + p.w)), span = maxC - minC;   // emprise réelle de la pile
+    CUBE = Math.max(30, Math.min(72, Math.floor((PLATFORM_Y - 112) / rows), Math.floor((W - 64) / span)));   // les grandes piles rapetissent pour rester à l'écran
     lite = pieces.length > 55;                                              // beaucoup de pièces : on allège les halos
-    platformW = Math.max(250, cols * CUBE + 36);
+    platformW = span * CUBE + 20;                                           // table à peine plus large que la pile
     platform = Bodies.rectangle(W / 2, PLATFORM_Y + PLATFORM_H / 2, platformW, PLATFORM_H, { isStatic: true, friction: 1, restitution: 0, collisionFilter: { category: 0x0002, mask: 0x001C } });
     Composite.add(engine.world, platform);
 
-    const x0 = W / 2 - cols * CUBE / 2;
+    const x0 = W / 2 - (minC + maxC) / 2 * CUBE;                           // pile centrée sur la table
     pieces.forEach((p) => {
       const bottom = PLATFORM_Y - (rows - (p.row + p.h)) * CUBE;       // bord bas de la pièce
       const body = Bodies.rectangle(x0 + (p.col + p.w / 2) * CUBE, bottom - p.h * CUBE / 2 - 0.5, p.w * CUBE - 1.5, p.h * CUBE - 1.5, {
@@ -285,8 +286,20 @@ const Game = (() => {
     render();
   }
 
+  // une pièce qui s'écrase au sol se brise en éclats colorés qui rebondissent puis s'effacent
+  function shatter(x, y, color, size) {
+    const ground = y;
+    for (let i = 0; i < 12; i++) {
+      const a = -Math.PI * (0.15 + Math.random() * 0.7), sp = 2 + Math.random() * 5, sz = size * (0.2 + Math.random() * 0.28);
+      debris.push({ x: x + (Math.random() - .5) * size * 0.6, y: ground - 4, vx: Math.cos(a) * sp * (Math.random() < .5 ? -1 : 1), vy: Math.sin(a) * sp, rot: Math.random() * 6, vr: (Math.random() - .5) * 0.5,
+        w: sz * (1 + Math.random()), h: sz, color: i % 3 === 0 ? tintColor(color, 0.35) : i % 3 === 1 ? tintColor(color, -0.25) : color, ground: ground + Math.random() * 14, life: 1 });
+    }
+    puffs.push({ x, y: ground, r: size * 0.25, life: 1 });
+  }
+
   function destroyed(c, x, y) {
-    burst(Math.max(20, Math.min(W - 20, x)), Math.min(y, H - 40), c.tech.color, 14);
+    burst(Math.max(20, Math.min(W - 20, x)), Math.min(y, H - 40), c.tech.color, 7);
+    shatter(Math.max(20, Math.min(W - 20, x)), Math.min(y, PLATFORM_Y + 110), c.tech.color, CUBE * Math.sqrt(c.pw * c.ph));
     Composite.remove(engine.world, c); cubes.splice(cubes.indexOf(c), 1);
     callbacks.sfx && callbacks.sfx('break');
     comboCount++; comboTime = time; comboX = Math.max(80, Math.min(W - 80, x)); comboY = Math.min(y, PLATFORM_Y + 100);
@@ -357,14 +370,20 @@ const Game = (() => {
           continue;
         }
       }
-      if (c.position.y > PLATFORM_Y + 170 || c.position.x < -80 || c.position.x > W + 80) destroyed(c, c.position.x, c.position.y);
+      if (c.position.y > PLATFORM_Y + 120 || c.position.x < -80 || c.position.x > W + 80) destroyed(c, c.position.x, c.position.y);
     }
     for (let i = ghosts.length - 1; i >= 0; i--) {
       const g = ghosts[i];
       g.x += g.vx; g.y += g.vy; g.vy += 0.55; g.rot += g.vr; g.sc *= 0.992;
-      if (g.y > PLATFORM_Y + 30) g.life -= 0.07;
+      if (g.y > PLATFORM_Y + 60) { shatter(g.x, PLATFORM_Y + 70, g.tech.color, CUBE * Math.sqrt(g.pw * g.ph) * g.sc); g.life = 0; }
       if (g.life <= 0) ghosts.splice(i, 1);
     }
+    for (let i = debris.length - 1; i >= 0; i--) {
+      const d = debris[i]; d.x += d.vx; d.y += d.vy; d.vy += 0.5; d.rot += d.vr; d.life -= 0.016;
+      if (d.y > d.ground && d.vy > 0) { d.y = d.ground; d.vy *= -0.38; d.vx *= 0.7; d.vr *= 0.6; }
+      if (d.life <= 0) debris.splice(i, 1);
+    }
+    for (let i = puffs.length - 1; i >= 0; i--) { puffs[i].r += 1.3; puffs[i].life -= 0.05; if (puffs[i].life <= 0) puffs.splice(i, 1); }
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.life -= 0.03;
       if (p.life <= 0) particles.splice(i, 1);
@@ -413,6 +432,13 @@ const Game = (() => {
     ctx.globalAlpha = 1;
     drawPedestal();
     [...cubes].sort((a, b) => b.z - a.z).forEach((c) => drawPiece(c.tech, c.pw, c.ph, c.position.x, visY(c), c.angle, 1 - slide(c) * 0.0015, Math.min(0.3, slide(c) / 300)));
+    puffs.forEach((q) => { ctx.globalAlpha = Math.max(0, q.life) * 0.35; ctx.fillStyle = '#f4f1e6'; ctx.beginPath(); ctx.ellipse(q.x, q.y, q.r * 1.6, q.r * 0.6, 0, 0, 7); ctx.fill(); });
+    debris.forEach((d) => {
+      ctx.save(); ctx.globalAlpha = Math.min(1, d.life * 1.6); ctx.translate(d.x, d.y); ctx.rotate(d.rot);
+      ctx.fillStyle = d.color; ctx.strokeStyle = 'rgba(28,10,66,.7)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(-d.w / 2, -d.h / 2); ctx.lineTo(d.w / 2, -d.h * 0.3); ctx.lineTo(d.w * 0.35, d.h / 2); ctx.lineTo(-d.w * 0.45, d.h * 0.4); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+    });
+    ctx.globalAlpha = 1;
     drawAimGuide();
     shots.forEach(drawShot);
     drawCannon();
