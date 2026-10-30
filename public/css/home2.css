@@ -165,3 +165,7 @@ html[data-home='cyber'] .topbar .pill b, html[data-home='cyber'] .topbar .pill s
 #screen-home { background: #4fb4ff url('../assets/home-bg.webp') center bottom / cover no-repeat !important; }
 #screen-home::before, #screen-home::after { display: none !important; }
 .podium { top: 426px; }
+
+/* barre de progression et boutons latéraux un peu plus bas : ils ne touchent plus le profil ni les réglages */
+.chest-bar { top: calc(116px + env(safe-area-inset-top, 0px)); }
+.side { top: calc(190px + env(safe-area-inset-top, 0px)); }

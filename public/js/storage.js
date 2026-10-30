@@ -118,9 +118,9 @@ const Storage = (() => {
       if (part.settings) { player.settings = part.settings; await fs.setDoc(fs.doc(f.db, 'players', f.uid, 'private', 'profile'), { settings: part.settings }, { merge: true }); }
     } catch (e) { console.warn('Synchronisation du profil impossible', e); }
   }
-  async function fbLeaderboard() {
+  async function fbLeaderboard(max = 50) {
     const f = await openFb(), { fs } = f;
-    const snap = await fs.getDocs(fs.query(fs.collection(f.db, 'players'), fs.orderBy('totalScore', 'desc'), fs.limit(50)));
+    const snap = await fs.getDocs(fs.query(fs.collection(f.db, 'players'), fs.orderBy('totalScore', 'desc'), fs.limit(max)));
     return snap.docs.map((d) => { const r = d.data(); return { name: r.name, avatar: Number.isInteger(r.avatar) ? r.avatar : null, total: r.totalScore || 0, levels: r.levelsDone || 0, me: d.id === f.uid }; }).filter((r) => r.total > 0);
   }
 
@@ -238,8 +238,8 @@ const Storage = (() => {
     return Object.values(readLocal()).map((r) => ({ name: r.name, total: r.progress.reduce((s, p) => s + p.bestScore, 0), levels: r.progress.filter((p) => p.completed).length }))
       .sort((a, b) => b.total - a.total || b.levels - a.levels).slice(0, 10);
   }
-  async function leaderboard() {
-    if (FB_CONFIG) { try { return await fbLeaderboard(); } catch (e) { console.warn('Classement Firebase indisponible', e); } }
+  async function leaderboard(max = 50) {
+    if (FB_CONFIG) { try { return await fbLeaderboard(max); } catch (e) { console.warn('Classement Firebase indisponible', e); } }
     try { return tauri ? await sqlLeaderboard() : await api('/api/leaderboard'); } catch (e) { return localLeaderboard(); }
   }
 

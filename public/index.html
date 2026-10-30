@@ -290,6 +290,13 @@
       </div>
     </div>
 
+    <!-- Classement complet -->
+    <section id="screen-ranking" class="screen">
+      <header class="ranking-head"><button class="btn round small-round" id="btn-ranking-back" title="Retour">◀</button><h2>Classement général</h2></header>
+      <p class="ranking-me" id="ranking-me"></p>
+      <ol id="ranking-list"></ol>
+    </section>
+
     <div id="modal-terms" class="modal hidden">
       <div class="panel">
         <img class="terms-logo" src="assets/logo.png" alt="">
@@ -304,7 +311,14 @@
 
     <div id="leaderboard" class="modal hidden">
       <div class="panel"><div class="ribbon">Classement</div><button class="close" data-close="leaderboard">✕</button>
-        <div class="panel-inner"><ol id="leaderboard-list"></ol></div>
+        <div class="panel-inner">
+          <div class="rank-podium hidden" id="rank-podium">
+            <img src="assets/podium.png" alt="" draggable="false">
+            <div class="pd p2" id="pd-2"></div><div class="pd p1" id="pd-1"></div><div class="pd p3" id="pd-3"></div>
+          </div>
+          <ol id="leaderboard-list" start="4"></ol>
+          <button class="btn green small hidden" id="btn-lb-more" type="button">Voir plus</button>
+        </div>
       </div>
     </div>
 

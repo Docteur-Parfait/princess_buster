@@ -236,12 +236,31 @@
   $('btn-leaderboard').onclick = async () => {
     Audio.play('click');
     if (!leaderboardOpen()) { toast(`🔒 Le classement se débloque au niveau ${LEADERBOARD_LEVEL}`); return; }
-    const list = await Storage.leaderboard();
-    $('leaderboard-list').innerHTML = list.length
-      ? list.map((r) => `<li${r.me ? ' class="me"' : ''}>${r.avatar != null ? `<img class="lb-av" src="${avatarSrc(r.avatar)}" alt="">` : ''}${escapeHtml(r.name)}<span>${r.total} pts · ${r.levels} niv.</span></li>`).join('')
-      : '<li>Pas encore de scores</li>';
+    const all = await Storage.leaderboard(11), list = all.slice(0, 10);
+    // podium : les 3 premiers
+    $('rank-podium').classList.toggle('hidden', list.length === 0);
+    [1, 2, 3].forEach((n) => { const r = list[n - 1], el = $('pd-' + n); el.classList.toggle('hidden', !r); el.innerHTML = r ? playerBadge(r, 'lg') + `<small>${r.total} pts</small>` : ''; });
+    // rangs 4 à 10
+    $('leaderboard-list').innerHTML = list.length > 3
+      ? list.slice(3).map((r, k) => rankRow(r, k + 4)).join('')
+      : (list.length ? '' : '<li class="empty">Pas encore de scores</li>');
+    $('btn-lb-more').classList.toggle('hidden', all.length <= 10);
     openModal('leaderboard');
   };
+  const playerBadge = (r, size) => `${r.avatar != null ? `<img class="lb-av ${size || ''}" src="${avatarSrc(r.avatar)}" alt="">` : `<span class="lb-av ${size || ''} ini">${escapeHtml((r.name || '?').charAt(0).toUpperCase())}</span>`}<em>${escapeHtml(r.name)}</em>`;
+  const rankRow = (r, n) => `<li${r.me ? ' class="me"' : ''}><b class="rk">${n}</b>${r.avatar != null ? `<img class="lb-av" src="${avatarSrc(r.avatar)}" alt="">` : `<span class="lb-av ini">${escapeHtml((r.name || '?').charAt(0).toUpperCase())}</span>`}<span class="nm">${escapeHtml(r.name)}</span><span>${r.total} pts · ${r.levels} niv.</span></li>`;
+  // page « classement complet »
+  $('btn-lb-more').onclick = async () => {
+    Audio.play('click'); closeModal('leaderboard');
+    show('ranking');
+    $('ranking-list').innerHTML = '<li class="empty">Chargement…</li>'; $('ranking-me').textContent = '';
+    const all = await Storage.leaderboard(200);
+    $('ranking-list').innerHTML = all.length ? all.map((r, k) => rankRow(r, k + 1)).join('') : '<li class="empty">Pas encore de scores</li>';
+    const me = all.findIndex((r) => r.me);
+    $('ranking-me').textContent = me >= 0 ? `Ton rang : ${me + 1} sur ${all.length} joueurs` : `${all.length} joueurs classés`;
+    const mine = $('ranking-list').querySelector('li.me'); if (mine) mine.scrollIntoView({ block: 'center' });
+  };
+  $('btn-ranking-back').onclick = () => { Audio.play('click'); openHome(); };
 
   // ============================== paramètres ==============================
   let settingsInGame = false;
