@@ -12,7 +12,7 @@ const Storage = (() => {
   //  players/{uid}            : { name, totalScore, levelsDone, createdAt, updatedAt }
   //  players/{uid}/progress/{niveau} : { level, bestScore, attempts, completed, updatedAt }
   const FB_CONFIG = tauri ? null : (window.PB_FIREBASE || null);      // l'appli Tauri garde sa base SQLite locale
-  const FB_VERSION = '10.14.1';
+  const FB_VERSION = '10.14.1', APP_VERSION = 'v0.1.0';
   let fbReady = null;
   function openFb() {
     if (!fbReady) {
@@ -28,18 +28,29 @@ const Storage = (() => {
   }
   async function fbProgress(f) {
     const snap = await f.fs.getDocs(f.fs.collection(f.db, 'players', f.uid, 'progress'));
-    return snap.docs.map((d) => { const r = d.data(); return { level: r.level, bestScore: r.bestScore || 0, attempts: r.attempts || 0, completed: r.completed ? 1 : 0 }; }).sort((x, y) => x.level - y.level);
+    return snap.docs.map((d) => { const r = d.data(); return { level: r.level, bestScore: r.bestScore || 0, stars: r.stars || 0, attempts: r.attempts || 0, completed: r.completed ? 1 : 0 }; }).sort((x, y) => x.level - y.level);
   }
-  // écrit un résultat (transaction : la ligne du niveau + les totaux du joueur restent cohérents)
-  async function fbWrite(f, level, score, won, attempts) {
-    const { fs, db, uid } = f, pRef = fs.doc(db, 'players', uid), gRef = fs.doc(db, 'players', uid, 'progress', String(level));
+  // écrit un résultat (transaction : la ligne du niveau, les totaux publics et le profil privé restent cohérents)
+  async function fbWrite(f, level, score, won, attempts, extra = {}) {
+    const { fs, db, uid } = f, pRef = fs.doc(db, 'players', uid), gRef = fs.doc(db, 'players', uid, 'progress', String(level)), vRef = fs.doc(db, 'players', uid, 'private', 'profile');
     await fs.runTransaction(db, async (tx) => {
-      const [p, g] = await Promise.all([tx.get(pRef), tx.get(gRef)]);
-      const old = g.exists() ? g.data() : { bestScore: 0, attempts: 0, completed: 0 };
+      const [p, g, v] = await Promise.all([tx.get(pRef), tx.get(gRef), tx.get(vRef)]);
+      const old = g.exists() ? g.data() : { bestScore: 0, stars: 0, ballsLeft: 0, attempts: 0, wins: 0, completed: 0 };
       const best = Math.max(old.bestScore || 0, won ? Math.max(0, score | 0) : 0), done = old.completed || won ? 1 : 0;
-      tx.set(gRef, { level, bestScore: best, attempts: (old.attempts || 0) + attempts, completed: done, updatedAt: fs.serverTimestamp() });
+      const stars = Math.max(old.stars || 0, won ? Math.min(3, extra.stars | 0) : 0), ballsLeft = Math.max(old.ballsLeft || 0, won ? Math.max(0, extra.ballsLeft | 0) : 0);
+      tx.set(gRef, { level, bestScore: best, stars, ballsLeft, attempts: (old.attempts || 0) + attempts, wins: (old.wins || 0) + (won && attempts ? 1 : 0), completed: done, updatedAt: fs.serverTimestamp() });
       const pd = p.data() || {};
-      tx.update(pRef, { totalScore: (pd.totalScore || 0) + (best - (old.bestScore || 0)), levelsDone: (pd.levelsDone || 0) + (done && !old.completed ? 1 : 0), updatedAt: fs.serverTimestamp() });
+      tx.update(pRef, {
+        totalScore: (pd.totalScore || 0) + (best - (old.bestScore || 0)),
+        levelsDone: (pd.levelsDone || 0) + (done && !old.completed ? 1 : 0),
+        maxLevel: Math.max(pd.maxLevel || 0, done ? level : 0),
+        totalStars: (pd.totalStars || 0) + (stars - (old.stars || 0)),
+        updatedAt: fs.serverTimestamp(),
+      });
+      if (attempts) {                       // statistiques privées (visibles par le joueur seul)
+        const vd = v.exists() ? v.data() : {};
+        tx.set(vRef, { plays: (vd.plays || 0) + attempts, wins: (vd.wins || 0) + (won ? 1 : 0), losses: (vd.losses || 0) + (won ? 0 : 1), lastLevel: level, lastPlayedAt: fs.serverTimestamp() }, { merge: true });
+      }
     });
   }
   // utilisateur Google connecté (session conservée par Firebase) ou null
@@ -65,8 +76,21 @@ const Storage = (() => {
     const g = f.au.currentUser, ref = f.fs.doc(f.db, 'players', f.uid), snap = await f.fs.getDoc(ref);
     const first = ((g.displayName || '').trim().split(/\s+/)[0] || 'Joueur').slice(0, 20);
     const name = (wanted || (snap.exists() && snap.data().name) || first).slice(0, 20);
-    if (!snap.exists()) await f.fs.setDoc(ref, { name, totalScore: 0, levelsDone: 0, createdAt: f.fs.serverTimestamp(), updatedAt: f.fs.serverTimestamp() });
+    const avatar = snap.exists() && Number.isInteger(snap.data().avatar) ? snap.data().avatar : undefined;
+    if (!snap.exists()) await f.fs.setDoc(ref, { name, totalScore: 0, levelsDone: 0, maxLevel: 0, totalStars: 0, createdAt: f.fs.serverTimestamp(), updatedAt: f.fs.serverTimestamp() });
     else if (snap.data().name !== name) await f.fs.updateDoc(ref, { name, updatedAt: f.fs.serverTimestamp() });
+    // profil privé : informations du compte et de l'appareil (lisibles par le joueur seul)
+    const vRef = f.fs.doc(f.db, 'players', f.uid, 'private', 'profile'), vSnap = await f.fs.getDoc(vRef), vd = vSnap.exists() ? vSnap.data() : {};
+    const info = {
+      email: g.email || '', displayName: g.displayName || '', photoURL: g.photoURL || '',
+      locale: (navigator.language || '').slice(0, 12), timezone: (Intl.DateTimeFormat().resolvedOptions().timeZone || '').slice(0, 40),
+      platform: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop', userAgent: (navigator.userAgent || '').slice(0, 200),
+      screen: `${screen.width}x${screen.height}`, appVersion: APP_VERSION, installed: !!(window.matchMedia && matchMedia('(display-mode: standalone)').matches),
+      logins: (vd.logins || 0) + 1, lastLoginAt: f.fs.serverTimestamp(),
+    };
+    if (!vSnap.exists()) info.firstLoginAt = f.fs.serverTimestamp();
+    await f.fs.setDoc(vRef, info, { merge: true });
+    const settings = vd.settings || null;
     let progress = await fbProgress(f);
     // reprise de la progression déjà jouée sur cet appareil (hors ligne / ancienne version) : on garde le meilleur
     const local = readLocal()[(mergeFrom || name).toLowerCase()];
@@ -78,17 +102,26 @@ const Storage = (() => {
       }
       if (changed) progress = await fbProgress(f);
     }
-    return { id: f.uid, name, progress, offline: false, cloud: true };
+    return { id: f.uid, name, avatar, settings, progress, offline: false, cloud: true };
   }
-  async function fbSave(level, score, won) {
+  async function fbSave(level, score, won, extra) {
     const f = await openFb();
-    await fbWrite(f, level, score, won, 1);
-    return { id: f.uid, name: player.name, progress: await fbProgress(f), offline: false, cloud: true };
+    await fbWrite(f, level, score, won, 1, extra);
+    return { ...player, progress: await fbProgress(f), offline: false, cloud: true };
+  }
+  // avatar (public) et réglages (privés) du joueur connecté
+  async function syncProfile(part) {
+    if (!player || !player.cloud) return;
+    try {
+      const f = await openFb(), { fs } = f;
+      if (Number.isInteger(part.avatar)) { player.avatar = part.avatar; await fs.updateDoc(fs.doc(f.db, 'players', f.uid), { avatar: part.avatar, updatedAt: fs.serverTimestamp() }); }
+      if (part.settings) { player.settings = part.settings; await fs.setDoc(fs.doc(f.db, 'players', f.uid, 'private', 'profile'), { settings: part.settings }, { merge: true }); }
+    } catch (e) { console.warn('Synchronisation du profil impossible', e); }
   }
   async function fbLeaderboard() {
     const f = await openFb(), { fs } = f;
     const snap = await fs.getDocs(fs.query(fs.collection(f.db, 'players'), fs.orderBy('totalScore', 'desc'), fs.limit(50)));
-    return snap.docs.map((d) => { const r = d.data(); return { name: r.name, total: r.totalScore || 0, levels: r.levelsDone || 0, me: d.id === f.uid }; }).filter((r) => r.total > 0);
+    return snap.docs.map((d) => { const r = d.data(); return { name: r.name, avatar: Number.isInteger(r.avatar) ? r.avatar : null, total: r.totalScore || 0, levels: r.levelsDone || 0, me: d.id === f.uid }; }).filter((r) => r.total > 0);
   }
 
   // ---------- 1. SQLite natif (Tauri) ----------
@@ -179,11 +212,11 @@ const Storage = (() => {
     return player;
   }
 
-  async function saveResult(level, score, won) {
+  async function saveResult(level, score, won, extra) {
     if (!player) return;
     if (!player.offline) {
       try {
-        const p = player.cloud ? await fbSave(level, score, won) : tauri ? await sqlSave(level, score, won) : await api('/api/progress', { playerId: player.id, level, score, won });
+        const p = player.cloud ? await fbSave(level, score, won, extra) : tauri ? await sqlSave(level, score, won) : await api('/api/progress', { playerId: player.id, level, score, won });
         player = { ...p, offline: false };
         return player;
       } catch (e) { player.offline = true; }
@@ -211,7 +244,7 @@ const Storage = (() => {
   }
 
   return {
-    login, saveResult, leaderboard, cloudUser, googleSignIn, cloudSignOut,
+    login, saveResult, leaderboard, cloudUser, googleSignIn, cloudSignOut, syncProfile,
     get cloudEnabled() { return !!FB_CONFIG; },
     get player() { return player; },
     lastName() { try { return localStorage.getItem('pb_last_name') || ''; } catch (e) { return ''; } },

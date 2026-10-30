@@ -169,3 +169,12 @@ html, body { margin: 0; height: 100%; overscroll-behavior: none; position: fixed
 .prof-cloud p { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
 .prof-cloud .btn.google { margin: 0 auto; font-size: 19px; animation: none; }
 .prof-cloud .signin-msg { color: #b02a2a; text-shadow: none; }
+
+/* classement verrouillé jusqu'au niveau 10, message temporaire, avatars du classement */
+.side-btn.locked { filter: grayscale(.85) brightness(.85); }
+.side-btn.locked .ico::after { content: '🔒'; position: absolute; top: -8px; right: -8px; font-size: 22px; filter: none; }
+.toast { position: absolute; left: 50%; bottom: 150px; transform: translateX(-50%); z-index: 30; padding: 10px 20px; border-radius: 22px; background: rgba(28, 10, 66, .92); border: 3px solid var(--gold); color: #fff; font-weight: 800; font-size: 20px; text-align: center; max-width: 86%; pointer-events: none; animation: toast-in .25s ease-out; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 10px); } }
+#leaderboard-list li { display: flex; align-items: center; gap: 8px; }
+#leaderboard-list li span { margin-left: auto; float: none; }
+.lb-av { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; object-position: 50% 24%; border: 2px solid var(--gold); flex: none; }

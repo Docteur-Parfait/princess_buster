@@ -17,6 +17,7 @@
   const levelScore = (ballsLeft) => POINTS_PER_WIN + Math.max(0, ballsLeft | 0);
   const blockSize = () => (meta && meta.blockSize) || 5;      // une nouvelle techno est débloquée tous les 5 niveaux
   const techCube = (t) => { const col = Game.techColors(t.key); return `<span class="tcube" style="--c1:${col.c1};--c2:${col.c2}"><img src="${Game.whiteURL(t.key)}" alt="${t.name}"></span>`; };
+  const LEADERBOARD_LEVEL = 10;                                // le classement se débloque en atteignant ce niveau
   const POWER_UNLOCK = { triple: 3, super: 10 };               // niveau d'apparition des bonus
   const store = {
     get(k, d = '') { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } },
@@ -126,8 +127,24 @@
   const avatarOf = () => parseInt(store.get('pb_avatar_' + (Storage.player ? Storage.player.name.toLowerCase() : ''), '0'), 10) || 0;
   const nextLevelToPlay = () => { for (let n = 1; n <= TOTAL_LEVELS; n++) { const p = Storage.progressOf(n); if (!(p && p.completed)) return n; } return TOTAL_LEVELS; };
 
+  // profil enregistré dans le cloud (avatar, réglages) : appliqué une fois à la connexion
+  let cloudApplied = null;
+  function applyCloudProfile() {
+    const p = Storage.player;
+    if (!p || !p.cloud || cloudApplied === p.id) return;
+    cloudApplied = p.id;
+    if (Number.isInteger(p.avatar)) store.set('pb_avatar_' + p.name.toLowerCase(), p.avatar);
+    else Storage.syncProfile({ avatar: avatarOf() });                       // première connexion : on envoie l'avatar choisi sur l'appareil
+    if (p.settings) {
+      if (typeof p.settings.sfx === 'boolean') Audio.setSfx(p.settings.sfx);
+      if (typeof p.settings.music === 'boolean') Audio.setMusic(p.settings.music);
+      if (typeof p.settings.vibration === 'boolean') store.set('pb_vibe', p.settings.vibration ? '1' : '0');
+    } else syncSettings();
+  }
+
   async function openHome() {
     Game.stop();
+    applyCloudProfile(); refreshLeaderboardLock();
     const p = Storage.player, next = nextLevelToPlay();
     applyAvatar($('home-avatar'), avatarOf());
     $('home-name').textContent = p.name;
@@ -208,11 +225,18 @@
   }
 
   // ============================== classement ==============================
+  const leaderboardOpen = () => Storage.isUnlocked(LEADERBOARD_LEVEL);
+  function refreshLeaderboardLock() { $('btn-leaderboard').classList.toggle('locked', !leaderboardOpen()); }
+  function toast(text) {
+    const el = document.createElement('div'); el.className = 'toast'; el.textContent = text; stage.appendChild(el);
+    setTimeout(() => el.remove(), 2600);
+  }
   $('btn-leaderboard').onclick = async () => {
     Audio.play('click');
+    if (!leaderboardOpen()) { toast(`🔒 Le classement se débloque au niveau ${LEADERBOARD_LEVEL}`); return; }
     const list = await Storage.leaderboard();
     $('leaderboard-list').innerHTML = list.length
-      ? list.map((r) => `<li${r.me ? ' class="me"' : ''}>${escapeHtml(r.name)}<span>${r.total} pts · ${r.levels} niv.</span></li>`).join('')
+      ? list.map((r) => `<li${r.me ? ' class="me"' : ''}>${r.avatar != null ? `<img class="lb-av" src="${avatarSrc(r.avatar)}" alt="">` : ''}${escapeHtml(r.name)}<span>${r.total} pts · ${r.levels} niv.</span></li>`).join('')
       : '<li>Pas encore de scores</li>';
     openModal('leaderboard');
   };
@@ -224,9 +248,10 @@
     $('tg-music').classList.toggle('off', !Audio.music);
     $('tg-vibe').classList.toggle('off', store.get('pb_vibe', '1') !== '1');
   }
-  $('tg-sfx').onclick = () => { Audio.setSfx(!Audio.sfx); refreshToggles(); Audio.play('click'); };
-  $('tg-music').onclick = () => { Audio.init(); Audio.setMusic(!Audio.music); refreshToggles(); };
-  $('tg-vibe').onclick = () => { store.set('pb_vibe', store.get('pb_vibe', '1') === '1' ? '0' : '1'); refreshToggles(); if (navigator.vibrate) navigator.vibrate(30); };
+  const syncSettings = () => Storage.syncProfile({ settings: { music: !!Audio.music, sfx: !!Audio.sfx, vibration: store.get('pb_vibe', '1') === '1' } });
+  $('tg-sfx').onclick = () => { Audio.setSfx(!Audio.sfx); refreshToggles(); Audio.play('click'); syncSettings(); };
+  $('tg-music').onclick = () => { Audio.init(); Audio.setMusic(!Audio.music); refreshToggles(); syncSettings(); };
+  $('tg-vibe').onclick = () => { store.set('pb_vibe', store.get('pb_vibe', '1') === '1' ? '0' : '1'); refreshToggles(); if (navigator.vibrate) navigator.vibrate(30); syncSettings(); };
   $('tg-full').onclick = toggleFullscreen;
   $('btn-full-menu').onclick = toggleFullscreen;
   const openSettings = (inGame) => { settingsInGame = inGame; $('btn-signout').classList.toggle('hidden', !(Storage.player && Storage.player.cloud)); $('in-game-actions').classList.toggle('hidden', !inGame); refreshToggles(); openModal('modal-settings'); };
@@ -263,7 +288,7 @@
   $('btn-avatar').onclick = () => { Audio.play('click'); openProfile(); };
   $('avatars').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
-    Audio.play('click'); store.set('pb_avatar_' + Storage.player.name.toLowerCase(), b.dataset.a);
+    Audio.play('click'); store.set('pb_avatar_' + Storage.player.name.toLowerCase(), b.dataset.a); Storage.syncProfile({ avatar: +b.dataset.a });
     applyAvatar($('home-avatar'), +b.dataset.a); applyAvatar($('prof-avatar'), +b.dataset.a);
     $('avatars').querySelectorAll('button').forEach((x) => x.classList.toggle('sel', x === b));
   });
@@ -335,11 +360,12 @@
 
   // ============================== résultat ==============================
   async function onEnd({ won, ballsLeft }) {
+    let stars = 0;
     endTuto();
     $('result').classList.remove('hidden');
     if (won) {
       const B = blockSize(), done = ((currentLevel - 1) % B) + 1;
-      const ratio = ballsLeft / levelData.balls, stars = ratio >= 0.5 ? 3 : ratio >= 0.25 ? 2 : 1;
+      const ratio = ballsLeft / levelData.balls; stars = ratio >= 0.5 ? 3 : ratio >= 0.25 ? 2 : 1;
       const pts = levelScore(ballsLeft);
       const reward = levelData.reward && techByKey(levelData.reward);          // techno débloquée à la fin du palier
       const unlockedNow = done === B && reward;
@@ -362,7 +388,8 @@
       $('lose-ribbon').textContent = `NIVEAU ${currentLevel}`;
       $('panel-lose').classList.remove('hidden');
     }
-    await Storage.saveResult(currentLevel, won ? levelScore(ballsLeft) : 0, won);
+    await Storage.saveResult(currentLevel, won ? levelScore(ballsLeft) : 0, won, { stars, ballsLeft });
+    refreshLeaderboardLock();
   }
   const goNext = () => { Audio.play('click'); if (currentLevel >= TOTAL_LEVELS) openHome(); else openLevelModalAndStart(currentLevel + 1); };
   async function openLevelModalAndStart(n) { $('result').classList.add('hidden'); startLevel(n); }

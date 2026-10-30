@@ -23,18 +23,22 @@ const Game = (() => {
   const SLIDE_FRICTION = 0.94;
 
   const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
+  let ctx = canvas.getContext('2d');
+  const mainCtx = ctx;
   let DPR = 2;
   let levelRows = 5, levelId = 1, lite = false;
   let powers = { triple: 1, super: 1 }, armed = null;   // bonus : 1 utilisation par niveau
 
   // Plein écran : la scène logique (>= 540 x 700) épouse exactement la fenêtre, en portrait comme en paysage.
   // Retourne le facteur d'échelle CSS à appliquer à la scène.
+  // La résolution du canvas est plafonnée (nombre de pixels) puis réduite automatiquement si l'appareil rame (voir loop).
+  let pxBudget = 1.6e6, lastFit = null, slowFrames = 0, frameEma = 16.7;
   function fit(vw, vh) {
+    lastFit = [vw, vh];
     const scale = Math.min(vw / 540, vh / 700);
     const oldCx = W / 2, oldPy = PLATFORM_Y;
     W = vw / scale; H = vh / scale;
-    DPR = Math.min(3, scale * (window.devicePixelRatio || 1));
+    DPR = Math.min(2, scale * (window.devicePixelRatio || 1), Math.sqrt(pxBudget / (W * H)));
     canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
     canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     layout();
@@ -137,7 +141,7 @@ const Game = (() => {
     themeName = THEMES[lvl.theme] ? lvl.theme : 'night'; theme = THEMES[themeName];
     const minC = Math.min(...pieces.map((p) => p.col)), maxC = Math.max(...pieces.map((p) => p.col + p.w)), span = maxC - minC;   // emprise réelle de la pile
     CUBE = Math.max(30, Math.min(72, Math.floor((PLATFORM_Y - 112) / rows), Math.floor((W - 64) / span)));   // les grandes piles rapetissent pour rester à l'écran
-    lite = pieces.length > 55;                                              // beaucoup de pièces : on allège les halos
+    lite = pieces.length > 40 || (window.matchMedia && matchMedia('(pointer: coarse)').matches);                                              // beaucoup de pièces : on allège les halos
     platformW = span * CUBE + 20;                                           // table à peine plus large que la pile
     platform = Bodies.rectangle(W / 2, PLATFORM_Y + PLATFORM_H / 2, platformW, PLATFORM_H, { isStatic: true, friction: 1, restitution: 0, collisionFilter: { category: 0x0002, mask: 0x001C } });
     Composite.add(engine.world, platform);
@@ -300,7 +304,10 @@ const Game = (() => {
 
   // --- boucle ---
   function loop(now) {
-    acc += Math.min(50, now - prev); prev = now;
+    const dt = now - prev;
+    frameEma = frameEma * 0.92 + Math.min(100, dt) * 0.08;
+    if (frameEma > 26 && time > 2500) { if (++slowFrames > 60 && pxBudget > 0.55e6 && lastFit) { pxBudget *= 0.75; slowFrames = 0; frameEma = 16.7; fit(lastFit[0], lastFit[1]); } } else slowFrames = Math.max(0, slowFrames - 2);
+    acc += Math.min(50, dt); prev = now;
     while (acc >= 1000 / 60) { step(1000 / 60); acc -= 1000 / 60; }
     render();
   }
@@ -550,7 +557,22 @@ const Game = (() => {
     }
   }
 
-  function drawBackground() {
+  // Le décor fixe (ciel, soleil, collines, sol) est dessiné une seule fois dans deux calques hors écran ;
+  // seuls les éléments qui bougent (étoiles, nuages, particules, vagues) sont redessinés à chaque image.
+  let bgSky = null, bgGround = null, bgKey = '';
+  function ensureBgCache() {
+    const key = [themeName, Math.round(W), Math.round(H), DPR.toFixed(2), Math.round(PLATFORM_Y), levelId % 2].join('|');
+    if (key === bgKey && bgSky) return;
+    bgKey = key;
+    const mk = () => { const c = document.createElement('canvas'); c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); return c; };
+    bgSky = mk(); bgGround = mk();
+    try {
+      ctx = bgSky.getContext('2d'); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); drawSkyLayer();
+      ctx = bgGround.getContext('2d'); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); drawGroundLayer();
+    } finally { ctx = mainCtx; }
+  }
+
+  function drawSkyLayer() {
     const GROUND = PLATFORM_Y + 96, th = theme, flip = (levelId % 2) === 0;
     const sky = ctx.createLinearGradient(0, 0, 0, GROUND);
     sky.addColorStop(0, th.sky[0]); sky.addColorStop(.55, th.sky[1]); sky.addColorStop(1, th.sky[2]);
@@ -559,6 +581,18 @@ const Game = (() => {
     const halo = ctx.createRadialGradient(hx, hy, 20, hx, hy, 340);
     halo.addColorStop(0, th.halo); halo.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = halo; ctx.fillRect(0, 0, W, GROUND);
+    if (th.sun) {
+      const sx = (flip ? 1 - th.sun.fx : th.sun.fx) * W;
+      ctx.save(); ctx.fillStyle = th.sun.c; ctx.shadowColor = th.sun.glow; ctx.shadowBlur = 30;
+      ctx.beginPath(); ctx.arc(sx, GROUND - th.sun.dy, th.sun.r, 0, 7); ctx.fill(); ctx.restore();
+    }
+  }
+
+  function drawBackground() {
+    ensureBgCache();
+    const GROUND = PLATFORM_Y + 96, th = theme, flip = (levelId % 2) === 0;
+    const hy = PLATFORM_Y - 140;
+    ctx.drawImage(bgSky, 0, 0, W, H);
     if (th.rays) {
       ctx.save(); ctx.translate(W / 2, hy); ctx.rotate(time * 0.00006); ctx.fillStyle = 'rgba(255,255,255,.045)';
       for (let i = 0; i < 10; i++) { ctx.rotate(Math.PI / 5); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-60, -700); ctx.lineTo(60, -700); ctx.fill(); }
@@ -570,11 +604,6 @@ const Game = (() => {
       if (s.r > 2) { drawStar(sx, s.y, s.r * 2.6, 0); ctx.fill(); } else { ctx.beginPath(); ctx.arc(sx, s.y, s.r, 0, 7); ctx.fill(); }
     });
     ctx.globalAlpha = 1;
-    if (th.sun) {
-      const sx = (flip ? 1 - th.sun.fx : th.sun.fx) * W;
-      ctx.save(); ctx.fillStyle = th.sun.c; ctx.shadowColor = th.sun.glow; ctx.shadowBlur = 30;
-      ctx.beginPath(); ctx.arc(sx, GROUND - th.sun.dy, th.sun.r, 0, 7); ctx.fill(); ctx.restore();
-    }
     if (th.clouds) {
       ctx.fillStyle = th.cloudC || 'rgba(255,255,255,.92)';
       for (let i = 0; i < 4; i++) {
@@ -582,6 +611,17 @@ const Game = (() => {
         ctx.beginPath(); ctx.arc(x, y, 26 * s, 0, 7); ctx.arc(x + 30 * s, y - 12 * s, 32 * s, 0, 7); ctx.arc(x + 64 * s, y, 26 * s, 0, 7); ctx.rect(x, y, 64 * s, 26 * s); ctx.fill();
       }
     }
+    ctx.drawImage(bgGround, 0, 0, W, H);
+    if (themeName === 'ocean') {
+      ctx.save(); ctx.translate(0, GROUND - 10); ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 3;
+      for (let i = 0; i < 12; i++) { const x = ((i * 97 + time * 0.03) % (W + 80)) - 40, y = 30 + (i % 4) * 34; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 14, y - 8, x + 28, y); ctx.quadraticCurveTo(x + 42, y + 8, x + 56, y); ctx.stroke(); }
+      ctx.restore();
+    }
+    drawFx(th.fx);
+  }
+
+  function drawGroundLayer() {
+    const GROUND = PLATFORM_Y + 96, th = theme, flip = (levelId % 2) === 0;
     ctx.save(); ctx.translate(0, GROUND - 10);       // tout ce qui est « à l'horizon » est calé sur y = 0
     if (th.deco) drawDeco(th.deco, th.decoC, flip);
     ctx.fillStyle = th.hills[0]; ctx.beginPath(); ctx.ellipse(flip ? W - 110 : 110, 10, 330, 110, 0, Math.PI, 0); ctx.fill();
@@ -591,9 +631,7 @@ const Game = (() => {
     ctx.fillStyle = ground; ctx.fillRect(-20, 0, W + 40, H + 600);
     ctx.fillStyle = th.line; ctx.fillRect(-20, -2, W + 40, 5);
     ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(-20, 3, W + 40, 3);
-    if (themeName === 'ocean') { ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 3; for (let i = 0; i < 12; i++) { const x = ((i * 97 + time * 0.03) % (W + 80)) - 40, y = 30 + (i % 4) * 34; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 14, y - 8, x + 28, y); ctx.quadraticCurveTo(x + 42, y + 8, x + 56, y); ctx.stroke(); } }
     ctx.restore();
-    drawFx(th.fx);
   }
 
   // particules d'ambiance : neige, lucioles, braises, feuilles
